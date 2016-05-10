@@ -10,6 +10,12 @@ using System.Windows.Media;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
+using System.Linq;
+using Microsoft.CodeAnalysis.CSharp;
+using System.Threading.Tasks;
 
 namespace ForceFeedback.Rules
 {
@@ -26,7 +32,7 @@ namespace ForceFeedback.Rules
         /// <summary>
         /// Text view where the adornment is created.
         /// </summary>
-        private readonly IWpfTextView view;
+        private readonly IWpfTextView _view;
 
         /// <summary>
         /// Adornment brush.
@@ -49,19 +55,19 @@ namespace ForceFeedback.Rules
                 throw new ArgumentNullException("view");
             }
 
-            this.layer = view.GetAdornmentLayer("MethodTooLongTextAdornment");
+            layer = view.GetAdornmentLayer("MethodTooLongTextAdornment");
 
-            this.view = view;
-            this.view.LayoutChanged += this.OnLayoutChanged;
+            _view = view;
+            _view.LayoutChanged += OnLayoutChanged;
 
             // Create the pen and brush to color the box behind the a's
-            this.brush = new SolidColorBrush(Color.FromArgb(0x20, 0x00, 0x00, 0xff));
-            this.brush.Freeze();
+            brush = new SolidColorBrush(Color.FromArgb(0x20, 0x00, 0x00, 0xff));
+            brush.Freeze();
 
             var penBrush = new SolidColorBrush(Colors.Red);
             penBrush.Freeze();
-            this.pen = new Pen(penBrush, 0.5);
-            this.pen.Freeze();
+            pen = new Pen(penBrush, 0.5);
+            pen.Freeze();
         }
 
         /// <summary>
@@ -73,12 +79,26 @@ namespace ForceFeedback.Rules
         /// </remarks>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        internal void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
+        internal async void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
         {
-            foreach (ITextViewLine line in e.NewOrReformattedLines)
-            {
-                this.CreateVisuals(line);
-            }
+            var tooLongMethodSyntaxNodes = await CollectTooLongMethodSyntaxNodes(e.NewSnapshot);
+
+            
+
+        }
+
+        private async Task<IEnumerable<MethodDeclarationSyntax>> CollectTooLongMethodSyntaxNodes(ITextSnapshot newSnapshot)
+        {
+            var currentDocument = newSnapshot.GetOpenDocumentInCurrentContextWithChanges();
+
+            var syntaxRoot = await currentDocument.GetSyntaxRootAsync();
+
+            var tooLongMethodDeclarations = syntaxRoot
+                .DescendantNodes(node => true, false)
+                .Where(node => node.Kind() == SyntaxKind.MethodDeclaration && node.GetText().Lines.Count > 10)
+                .Select(node => node as MethodDeclarationSyntax);
+
+            return tooLongMethodDeclarations;
         }
 
         /// <summary>
@@ -87,18 +107,18 @@ namespace ForceFeedback.Rules
         /// <param name="line">Line to add the adornments</param>
         private void CreateVisuals(ITextViewLine line)
         {
-            IWpfTextViewLineCollection textViewLines = this.view.TextViewLines;
+            IWpfTextViewLineCollection textViewLines = _view.TextViewLines;
 
             // Loop through each character, and place a box around any 'a'
             for (int charIndex = line.Start; charIndex < line.End; charIndex++)
             {
-                if (this.view.TextSnapshot[charIndex] == 'a')
+                if (_view.TextSnapshot[charIndex] == 'a')
                 {
-                    SnapshotSpan span = new SnapshotSpan(this.view.TextSnapshot, Span.FromBounds(charIndex, charIndex + 1));
+                    SnapshotSpan span = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(charIndex, charIndex + 1));
                     Geometry geometry = textViewLines.GetMarkerGeometry(span);
                     if (geometry != null)
                     {
-                        var drawing = new GeometryDrawing(this.brush, this.pen, geometry);
+                        var drawing = new GeometryDrawing(brush, pen, geometry);
                         drawing.Freeze();
 
                         var drawingImage = new DrawingImage(drawing);
@@ -113,7 +133,7 @@ namespace ForceFeedback.Rules
                         Canvas.SetLeft(image, geometry.Bounds.Left);
                         Canvas.SetTop(image, geometry.Bounds.Top);
 
-                        this.layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, span, null, image, null);
+                        layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, span, null, image, null);
                     }
                 }
             }
