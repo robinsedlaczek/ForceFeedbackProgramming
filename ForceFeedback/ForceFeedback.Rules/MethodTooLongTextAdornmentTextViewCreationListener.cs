@@ -7,6 +7,8 @@
 using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
+using Microsoft.VisualStudio.Text.Operations;
+using Microsoft.VisualStudio.Editor;
 
 namespace ForceFeedback.Rules
 {
@@ -35,6 +37,11 @@ namespace ForceFeedback.Rules
 
         #region IWpfTextViewCreationListener
 
+
+        [Import]
+        internal IVsEditorAdaptersFactoryService AdapterService = null;
+
+
         /// <summary>
         /// Called when a text view having matching roles is created over a text data model having a matching content type.
         /// Instantiates a MethodTooLongTextAdornment manager when the textView is created.
@@ -43,7 +50,7 @@ namespace ForceFeedback.Rules
         public void TextViewCreated(IWpfTextView textView)
         {
             // The adornment will listen to any event that changes the layout (text changes, scrolling, etc)
-            new MethodTooLongTextAdornment(textView);
+            new MethodTooLongTextAdornment(textView, AdapterService);
         }
 
         #endregion
