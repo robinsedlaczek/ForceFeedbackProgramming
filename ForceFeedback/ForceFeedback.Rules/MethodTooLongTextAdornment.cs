@@ -32,9 +32,6 @@ namespace ForceFeedback.Rules
 
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
-        private readonly Pen _longMethodBorderPen;
-        private readonly Brush _blueBrush;
-        private readonly Brush _longMethodBackgroundBrush;
         private readonly IVsEditorAdaptersFactoryService _adapterService;
 
         #endregion
@@ -58,15 +55,6 @@ namespace ForceFeedback.Rules
             _view = view;
             _view.LayoutChanged += OnLayoutChanged;
             _adapterService = adapterService;
-
-            _longMethodBackgroundBrush = new SolidColorBrush(Color.FromArgb(0x20, 0x96, 0x96, 0x96));
-            _longMethodBackgroundBrush.Freeze();
-
-            var penBrush = new SolidColorBrush(Colors.Red);
-            penBrush.Freeze();
-
-            _longMethodBorderPen = new Pen(penBrush, 0.5);
-            _longMethodBorderPen.Freeze();
         }
 
         #endregion
@@ -117,7 +105,7 @@ namespace ForceFeedback.Rules
 
             var tooLongMethodDeclarations = syntaxRoot
                 .DescendantNodes(node => true, false)
-                .Where(node => node.Kind() == SyntaxKind.MethodDeclaration && node.GetText().Lines.Count > 10)
+                .Where(node => node.Kind() == SyntaxKind.MethodDeclaration && (node as MethodDeclarationSyntax).Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count > Config.LongMethodLineCountThreshold)
                 .Select(methodNode => (methodNode as MethodDeclarationSyntax).Body);
 
             return tooLongMethodDeclarations;
@@ -155,7 +143,7 @@ namespace ForceFeedback.Rules
 
             var backgroundGeometry = new RectangleGeometry(adornmentBounds);
 
-            var drawing = new GeometryDrawing(_longMethodBackgroundBrush, _longMethodBorderPen, backgroundGeometry);
+            var drawing = new GeometryDrawing(Config.LongMethodBackgroundBrush, Config.LongMethodBorderPen, backgroundGeometry);
             drawing.Freeze();
 
             var drawingImage = new DrawingImage(drawing);
