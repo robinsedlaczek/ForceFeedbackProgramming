@@ -19,6 +19,7 @@ using Microsoft.CodeAnalysis;
 using System.Windows;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio;
 
 namespace ForceFeedback.Rules
 {
@@ -31,9 +32,9 @@ namespace ForceFeedback.Rules
 
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
-        private readonly Pen _redPen;
+        private readonly Pen _longMethodBorderPen;
         private readonly Brush _blueBrush;
-        private readonly Brush _lightGrayBrush;
+        private readonly Brush _longMethodBackgroundBrush;
         private readonly IVsEditorAdaptersFactoryService _adapterService;
 
         #endregion
@@ -56,20 +57,16 @@ namespace ForceFeedback.Rules
 
             _view = view;
             _view.LayoutChanged += OnLayoutChanged;
-
             _adapterService = adapterService;
 
-            _blueBrush = new SolidColorBrush(Color.FromArgb(0x20, 0x00, 0x00, 0xff));
-            _blueBrush.Freeze();
-
-            _lightGrayBrush = new SolidColorBrush(Color.FromArgb(0x20, 0x96, 0x96, 0x96));
-            _lightGrayBrush.Freeze();
+            _longMethodBackgroundBrush = new SolidColorBrush(Color.FromArgb(0x20, 0x96, 0x96, 0x96));
+            _longMethodBackgroundBrush.Freeze();
 
             var penBrush = new SolidColorBrush(Colors.Red);
             penBrush.Freeze();
 
-            _redPen = new Pen(penBrush, 0.5);
-            _redPen.Freeze();
+            _longMethodBorderPen = new Pen(penBrush, 0.5);
+            _longMethodBorderPen.Freeze();
         }
 
         #endregion
@@ -87,9 +84,17 @@ namespace ForceFeedback.Rules
         /// <param name="e">The event arguments.</param>
         internal async void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
         {
-            var methodBlockSyntaxNodes = await CollectMethodBlockSyntaxNodes(e.NewSnapshot);
+            try
+            {
+                var methodBlockSyntaxNodes = await CollectMethodBlockSyntaxNodes(e.NewSnapshot);
 
-            CreateVisualsForMethodsWithTooManyLines(methodBlockSyntaxNodes);
+                CreateVisualsForMethodsWithTooManyLines(methodBlockSyntaxNodes);
+            }
+            catch
+            {
+                // [RS] Maybe we should handle this exception a bit more faithfully. For now, we ignore the exceptions here 
+                //      and wait for the next LayoutChanged event
+            }
         }
 
         #endregion
@@ -103,6 +108,9 @@ namespace ForceFeedback.Rules
         /// <returns>Returns a list with the method body nodes.</returns>
         private async Task<IEnumerable<BlockSyntax>> CollectMethodBlockSyntaxNodes(ITextSnapshot newSnapshot)
         {
+            if (newSnapshot == null)
+                throw new ArgumentNullException(nameof(newSnapshot));
+
             var currentDocument = newSnapshot.GetOpenDocumentInCurrentContextWithChanges();
 
             var syntaxRoot = await currentDocument.GetSyntaxRootAsync();
@@ -121,39 +129,62 @@ namespace ForceFeedback.Rules
         /// <param name="methodBlockSyntaxNodes">A list of syntax nodes of method bodies that are too long.</param>
         private void CreateVisualsForMethodsWithTooManyLines(IEnumerable<BlockSyntax> methodBlockSyntaxNodes)
         {
+            if (methodBlockSyntaxNodes == null)
+                throw new ArgumentNullException(nameof(methodBlockSyntaxNodes));
+
             foreach (var methodBlockNode in methodBlockSyntaxNodes)
             {
                 var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(methodBlockNode.Span.Start, methodBlockNode.Span.Start + methodBlockNode.Span.Length));
                 var adornmentBounds = CalculateBounds(methodBlockNode, snapshotSpan);
-
-                // Create geometry and visuals...
-                var backgroundGeometry = new RectangleGeometry(adornmentBounds);
-
-                var drawing = new GeometryDrawing(_lightGrayBrush, _redPen, backgroundGeometry);
-                drawing.Freeze();
-
-                var drawingImage = new DrawingImage(drawing);
-                drawingImage.Freeze();
-
-                var image = new Image
-                {
-                    Source = drawingImage
-                };
-
-                Canvas.SetLeft(image, adornmentBounds.Left);
-                Canvas.SetTop(image, adornmentBounds.Top);
+                var image = CreateAndPositionMethodBackgroundVisual(adornmentBounds);
 
                 _layer.RemoveMatchingAdornments(adornment => adornment.VisualSpan?.Span == snapshotSpan);
-                //_layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, null, image, null);
-                _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, null, null, image, null);
+                _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, null, image, null);
             }
         }
 
+        /// <summary>
+        /// This method creates the visual for a method background and moves it to the correct position.
+        /// </summary>
+        /// <param name="adornmentBounds">The bounds of the rectangular adornment.</param>
+        /// <returns>Returns the image that is the visual adornment (method background).</returns>
+        private Image CreateAndPositionMethodBackgroundVisual(Rect adornmentBounds)
+        {
+            if (adornmentBounds == null)
+                throw new ArgumentNullException(nameof(adornmentBounds));
+
+            var backgroundGeometry = new RectangleGeometry(adornmentBounds);
+
+            var drawing = new GeometryDrawing(_longMethodBackgroundBrush, _longMethodBorderPen, backgroundGeometry);
+            drawing.Freeze();
+
+            var drawingImage = new DrawingImage(drawing);
+            drawingImage.Freeze();
+
+            var image = new Image
+            {
+                Source = drawingImage
+            };
+
+            Canvas.SetLeft(image, adornmentBounds.Left);
+            Canvas.SetTop(image, adornmentBounds.Top);
+
+            return image;
+        }
+
+        /// <summary>
+        /// This method calculates the bounds of the method background adornment.
+        /// </summary>
+        /// <param name="methodBlockNode">The syntax node that represents the block of a method that has too many lines of code.</param>
+        /// <param name="snapshotSpan">The span of text that is associated with the background adornment.</param>
+        /// <returns>Returns the calculated bounds of the method adornment.</returns>
         private Rect CalculateBounds(BlockSyntax methodBlockNode, SnapshotSpan snapshotSpan)
         {
-            var line = 0;
-            var column = 0;
-            var point = new POINT[1];
+            if (methodBlockNode == null)
+                throw new ArgumentNullException(nameof(methodBlockNode));
+
+            if (snapshotSpan == null)
+                throw new ArgumentNullException(nameof(snapshotSpan));
 
             var nodes = new List<SyntaxNode>(methodBlockNode.ChildNodes());
             nodes.Add(methodBlockNode);
@@ -163,20 +194,11 @@ namespace ForceFeedback.Rules
 
             foreach (var position in nodesFirstCharacterPositions)
             {
-                var textView = _adapterService.GetViewAdapter(_view as ITextView);
-                var result = textView.GetLineAndColumn(position, out line, out column);
-
-                try
-                {
-                    result = textView.GetPointOfLineColumn(line, column, point);
-                    coordinatesOfCharacterPositions.Add(point[0].x);
-                }
-                catch
-                {
-                    // Do nothing for now.
-                }
+                var point = CalculateScreenCoordinatesForCharacterPosition(position);
+                coordinatesOfCharacterPositions.Add(point.x);
             }
 
+            // [RS] In the case we cannot find the screen coordinates for a character position, we simply skip and return empty bounds.
             if (coordinatesOfCharacterPositions == null || coordinatesOfCharacterPositions.Count == 0)
                 return Rect.Empty;
 
@@ -194,6 +216,38 @@ namespace ForceFeedback.Rules
             var height = geometry.Bounds.Bottom - geometry.Bounds.Top;
 
             return new Rect(left, top, width, height);
+        }
+
+        /// <summary>
+        /// This method tries to calculate the screen coordinates of a specific character position in the stream.
+        /// </summary>
+        /// <param name="position">The position of the character in the stream.</param>
+        /// <returns>Returns a point representing the coordinates.</returns>
+        private POINT CalculateScreenCoordinatesForCharacterPosition(int position)
+        {
+            try
+            {
+                var line = 0;
+                var column = 0;
+                var point = new POINT[1];
+                var textView = _adapterService.GetViewAdapter(_view as ITextView);
+                var result = textView.GetLineAndColumn(position, out line, out column);
+
+                // [RS] If the line and column of a text position from the stream cannot be calculated, we simply return a zero-point.
+                //      Maybe we should handle the error case slightly more professional by write some log entries or so.
+                if (result != VSConstants.S_OK)
+                    return new POINT() { x = 0, y = 0 };
+
+                result = textView.GetPointOfLineColumn(line, column, point);
+
+                return point[0];
+            }
+            catch
+            {
+                // [RS] In any case of error we simply return a zero-point.
+                //      Maybe we should handle this exception slightly more professional by write some log entries or so.
+                return new POINT() { x = 0, y = 0 };
+            }
         }
 
         #endregion
