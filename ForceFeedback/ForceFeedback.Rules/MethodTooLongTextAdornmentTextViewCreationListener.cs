@@ -37,10 +37,8 @@ namespace ForceFeedback.Rules
 
         #region IWpfTextViewCreationListener
 
-
         [Import]
         internal IVsEditorAdaptersFactoryService AdapterService = null;
-
 
         /// <summary>
         /// Called when a text view having matching roles is created over a text data model having a matching content type.

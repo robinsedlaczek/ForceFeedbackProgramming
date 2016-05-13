@@ -190,19 +190,21 @@ namespace ForceFeedback.Rules
             if (coordinatesOfCharacterPositions == null || coordinatesOfCharacterPositions.Count == 0)
                 return Rect.Empty;
 
+            var viewOffset = VisualTreeHelper.GetOffset(_view.VisualElement);
+
             var left = coordinatesOfCharacterPositions
                 .Select(coordinate => coordinate)
-                .Min() - _view.ViewportLeft;
-
+                .Min() - viewOffset.X;
+            
             var geometry = _view.TextViewLines.GetMarkerGeometry(snapshotSpan, true, new Thickness(0));
-
+            
             if (geometry == null)
                 return Rect.Empty;
 
             var top = geometry.Bounds.Top;
-            var width = geometry.Bounds.Right - geometry.Bounds.Left;
+            var width = geometry.Bounds.Right - geometry.Bounds.Left; // - viewOffset.X;
             var height = geometry.Bounds.Bottom - geometry.Bounds.Top;
-
+            
             return new Rect(left, top, width, height);
         }
 
@@ -220,7 +222,7 @@ namespace ForceFeedback.Rules
                 var point = new POINT[1];
                 var textView = _adapterService.GetViewAdapter(_view as ITextView);
                 var result = textView.GetLineAndColumn(position, out line, out column);
-
+                
                 // [RS] If the line and column of a text position from the stream cannot be calculated, we simply return a zero-point.
                 //      Maybe we should handle the error case slightly more professional by write some log entries or so.
                 if (result != VSConstants.S_OK)
