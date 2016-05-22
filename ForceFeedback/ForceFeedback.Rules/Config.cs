@@ -1,4 +1,8 @@
-﻿using System.Windows.Media;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Windows.Media;
 
 namespace ForceFeedback.Rules
 {
@@ -7,8 +11,6 @@ namespace ForceFeedback.Rules
     /// </summary>
     internal class Config
     {
-        internal static readonly int LongMethodLineCountThreshold = 10;
-
         internal static readonly Color LongMethodBorderColor;
         internal static readonly Color LongMethodBackgroundColor;
 
@@ -17,10 +19,12 @@ namespace ForceFeedback.Rules
 
         static Config()
         {
+            LoadConfiguration();
+
             // Light Gray
             LongMethodBackgroundColor = Color.FromArgb(0x20, 0x96, 0x96, 0x96);
-            //LongMethodBorderColor = Colors.Red;
-            LongMethodBorderColor = LongMethodBackgroundColor;
+            LongMethodBorderColor = Colors.Red;
+            //LongMethodBorderColor = LongMethodBackgroundColor;
 
             var penBrush = new SolidColorBrush(LongMethodBorderColor);
             penBrush.Freeze();
@@ -31,5 +35,18 @@ namespace ForceFeedback.Rules
             LongMethodBackgroundBrush = new SolidColorBrush(LongMethodBackgroundColor);
             LongMethodBackgroundBrush.Freeze();
         }
+
+        internal static readonly IList<MethodTooLongLimit> MethodsTooLongLimits = new List<MethodTooLongLimit>();
+
+        private static void LoadConfiguration()
+        {
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming\Config.json");
+
+            MethodsTooLongLimits.Add(new MethodTooLongLimit(10, null));
+            MethodsTooLongLimits.Add(new MethodTooLongLimit(15, Color.FromArgb(150, 150, 150, 150)));
+            MethodsTooLongLimits.Add(new MethodTooLongLimit(20, Color.FromArgb(150, 200, 150, 150)));
+            MethodsTooLongLimits.Add(new MethodTooLongLimit(25, Color.FromArgb(150, 250, 150, 150)));
+        }
+
     }
 }

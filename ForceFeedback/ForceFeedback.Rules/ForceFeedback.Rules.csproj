@@ -171,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="MethodTooLongLimit.cs" />
     <Compile Include="MethodTooLongTextAdornment.cs" />
     <Compile Include="MethodTooLongTextAdornmentTextViewCreationListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

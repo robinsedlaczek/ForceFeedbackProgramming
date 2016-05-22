@@ -105,7 +105,8 @@ namespace ForceFeedback.Rules
 
             var tooLongMethodDeclarations = syntaxRoot
                 .DescendantNodes(node => true, false)
-                .Where(node => node.Kind() == SyntaxKind.MethodDeclaration && (node as MethodDeclarationSyntax).Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count > Config.LongMethodLineCountThreshold)
+                //.Where(node => node.Kind() == SyntaxKind.MethodDeclaration && (node as MethodDeclarationSyntax).Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count > Config.MethodsTooLongLimits.First().MaxLines)
+                .Where(node => node.Kind() == SyntaxKind.MethodDeclaration)
                 .Select(methodNode => (methodNode as MethodDeclarationSyntax).Body);
 
             return tooLongMethodDeclarations;
@@ -124,7 +125,10 @@ namespace ForceFeedback.Rules
             {
                 var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(methodBlockNode.Span.Start, methodBlockNode.Span.Start + methodBlockNode.Span.Length));
                 var adornmentBounds = CalculateBounds(methodBlockNode, snapshotSpan);
-                var image = CreateAndPositionMethodBackgroundVisual(adornmentBounds);
+                var image = CreateAndPositionMethodBackgroundVisual(adornmentBounds, methodBlockNode.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count);
+
+                if (image == null)
+                    continue;
 
                 _layer.RemoveMatchingAdornments(adornment => adornment.VisualSpan?.Span == snapshotSpan);
                 _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, null, image, null);
@@ -136,14 +140,30 @@ namespace ForceFeedback.Rules
         /// </summary>
         /// <param name="adornmentBounds">The bounds of the rectangular adornment.</param>
         /// <returns>Returns the image that is the visual adornment (method background).</returns>
-        private Image CreateAndPositionMethodBackgroundVisual(Rect adornmentBounds)
+        private Image CreateAndPositionMethodBackgroundVisual(Rect adornmentBounds, int linesOfCode)
         {
             if (adornmentBounds == null)
                 throw new ArgumentNullException(nameof(adornmentBounds));
 
             var backgroundGeometry = new RectangleGeometry(adornmentBounds);
 
-            var drawing = new GeometryDrawing(Config.LongMethodBackgroundBrush, Config.LongMethodBorderPen, backgroundGeometry);
+            Color? color = null;
+            foreach (var limit in Config.MethodsTooLongLimits)
+            {
+                if (linesOfCode < limit.MaxLines)
+                {
+                    color = limit.Color;
+                    break;
+                }
+            }
+
+            if (color == null)
+                return null;
+
+            var backgroundBrush = new SolidColorBrush(color.Value);
+            backgroundBrush.Freeze();
+
+            var drawing = new GeometryDrawing(backgroundBrush, Config.LongMethodBorderPen, backgroundGeometry);
             drawing.Freeze();
 
             var drawingImage = new DrawingImage(drawing);

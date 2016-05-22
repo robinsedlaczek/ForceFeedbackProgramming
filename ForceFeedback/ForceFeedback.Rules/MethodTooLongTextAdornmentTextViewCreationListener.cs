@@ -9,6 +9,8 @@ using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Editor;
+using System.IO;
+using System;
 
 namespace ForceFeedback.Rules
 {
