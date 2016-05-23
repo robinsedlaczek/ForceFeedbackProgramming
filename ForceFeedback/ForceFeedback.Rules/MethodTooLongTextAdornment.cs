@@ -74,9 +74,9 @@ namespace ForceFeedback.Rules
         {
             try
             {
-                var methodBlockSyntaxNodes = await CollectMethodBlockSyntaxNodes(e.NewSnapshot);
+                var methodDeclarations = await CollectMethodDeclarationSyntaxNodes(e.NewSnapshot);
 
-                CreateVisualsForMethodsWithTooManyLines(methodBlockSyntaxNodes);
+                CreateVisualsForMethodsWithTooManyLines(methodDeclarations);
             }
             catch
             {
@@ -90,11 +90,11 @@ namespace ForceFeedback.Rules
         #region Private Methods
 
         /// <summary>
-        /// This method collects syntax nodes of method bodies that have too many lines of code.
+        /// This method collects syntax nodes of method declarations that have too many lines of code.
         /// </summary>
         /// <param name="newSnapshot">The text snapshot containing the code to analyze.</param>
-        /// <returns>Returns a list with the method body nodes.</returns>
-        private async Task<IEnumerable<BlockSyntax>> CollectMethodBlockSyntaxNodes(ITextSnapshot newSnapshot)
+        /// <returns>Returns a list with the method declaration nodes.</returns>
+        private async Task<IEnumerable<MethodDeclarationSyntax>> CollectMethodDeclarationSyntaxNodes(ITextSnapshot newSnapshot)
         {
             if (newSnapshot == null)
                 throw new ArgumentNullException(nameof(newSnapshot));
@@ -105,27 +105,26 @@ namespace ForceFeedback.Rules
 
             var tooLongMethodDeclarations = syntaxRoot
                 .DescendantNodes(node => true, false)
-                //.Where(node => node.Kind() == SyntaxKind.MethodDeclaration && (node as MethodDeclarationSyntax).Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count > Config.MethodsTooLongLimits.First().MaxLines)
                 .Where(node => node.Kind() == SyntaxKind.MethodDeclaration)
-                .Select(methodNode => (methodNode as MethodDeclarationSyntax).Body);
+                .Select(methodDeclaration => methodDeclaration as MethodDeclarationSyntax);
 
             return tooLongMethodDeclarations;
         }
 
         /// <summary>
-        /// Adds a background behind the method bodies that have too many lines.
+        /// Adds a background behind the methods that have too many lines.
         /// </summary>
-        /// <param name="methodBlockSyntaxNodes">A list of syntax nodes of method bodies that are too long.</param>
-        private void CreateVisualsForMethodsWithTooManyLines(IEnumerable<BlockSyntax> methodBlockSyntaxNodes)
+        /// <param name="methodDeclarationSyntaxNodes">A list of syntax nodes of method declarations that are too long.</param>
+        private void CreateVisualsForMethodsWithTooManyLines(IEnumerable<MethodDeclarationSyntax> methodDeclarationSyntaxNodes)
         {
-            if (methodBlockSyntaxNodes == null)
-                throw new ArgumentNullException(nameof(methodBlockSyntaxNodes));
+            if (methodDeclarationSyntaxNodes == null)
+                throw new ArgumentNullException(nameof(methodDeclarationSyntaxNodes));
 
-            foreach (var methodBlockNode in methodBlockSyntaxNodes)
+            foreach (var methodDeclaration in methodDeclarationSyntaxNodes)
             {
-                var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(methodBlockNode.Span.Start, methodBlockNode.Span.Start + methodBlockNode.Span.Length));
-                var adornmentBounds = CalculateBounds(methodBlockNode, snapshotSpan);
-                var image = CreateAndPositionMethodBackgroundVisual(adornmentBounds, methodBlockNode.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count);
+                var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(methodDeclaration.Span.Start, methodDeclaration.Span.Start + methodDeclaration.Span.Length));
+                var adornmentBounds = CalculateBounds(methodDeclaration, snapshotSpan);
+                var image = CreateAndPositionMethodBackgroundVisual(adornmentBounds, methodDeclaration.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count);
 
                 if (image == null)
                     continue;
@@ -183,19 +182,19 @@ namespace ForceFeedback.Rules
         /// <summary>
         /// This method calculates the bounds of the method background adornment.
         /// </summary>
-        /// <param name="methodBlockNode">The syntax node that represents the block of a method that has too many lines of code.</param>
+        /// <param name="methodDeclarationSyntaxNode">The syntax node that represents the method declaration that has too many lines of code.</param>
         /// <param name="snapshotSpan">The span of text that is associated with the background adornment.</param>
         /// <returns>Returns the calculated bounds of the method adornment.</returns>
-        private Rect CalculateBounds(BlockSyntax methodBlockNode, SnapshotSpan snapshotSpan)
+        private Rect CalculateBounds(MethodDeclarationSyntax methodDeclarationSyntaxNode, SnapshotSpan snapshotSpan)
         {
-            if (methodBlockNode == null)
-                throw new ArgumentNullException(nameof(methodBlockNode));
+            if (methodDeclarationSyntaxNode == null)
+                throw new ArgumentNullException(nameof(methodDeclarationSyntaxNode));
 
             if (snapshotSpan == null)
                 throw new ArgumentNullException(nameof(snapshotSpan));
 
-            var nodes = new List<SyntaxNode>(methodBlockNode.ChildNodes());
-            nodes.Add(methodBlockNode);
+            var nodes = new List<SyntaxNode>(methodDeclarationSyntaxNode.ChildNodes());
+            nodes.Add(methodDeclarationSyntaxNode);
 
             var nodesFirstCharacterPositions = nodes.Select(node => node.Span.Start);
             var coordinatesOfCharacterPositions = new List<double>();
