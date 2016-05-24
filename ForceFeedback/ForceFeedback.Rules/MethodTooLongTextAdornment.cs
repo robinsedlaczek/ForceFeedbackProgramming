@@ -20,6 +20,8 @@ using System.Windows;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell.Settings;
+using Microsoft.VisualStudio.Settings;
 
 namespace ForceFeedback.Rules
 {
@@ -33,6 +35,7 @@ namespace ForceFeedback.Rules
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
         private readonly IVsEditorAdaptersFactoryService _adapterService;
+        private readonly System.IServiceProvider _serviceProvider;
 
         #endregion
 
@@ -42,7 +45,10 @@ namespace ForceFeedback.Rules
         /// Initializes a new instance of the <see cref="MethodTooLongTextAdornment"/> class.
         /// </summary>
         /// <param name="view">Text view to create the adornment for</param>
-        public MethodTooLongTextAdornment(IWpfTextView view, IVsEditorAdaptersFactoryService adapterService)
+        /// 
+        /// !!! Missing parameter documentation !!!
+        ///
+        public MethodTooLongTextAdornment(IWpfTextView view, IVsEditorAdaptersFactoryService adapterService, System.IServiceProvider serviceProvider)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
@@ -147,13 +153,12 @@ namespace ForceFeedback.Rules
             var backgroundGeometry = new RectangleGeometry(adornmentBounds);
 
             Color? color = null;
-            foreach (var limit in Config.MethodsTooLongLimits)
+            foreach (var limit in Config.MethodsTooLongLimits.OrderBy(limit => limit.MaxLines))
             {
+                color = limit.Color;
+
                 if (linesOfCode < limit.MaxLines)
-                {
-                    color = limit.Color;
                     break;
-                }
             }
 
             if (color == null)
@@ -256,6 +261,25 @@ namespace ForceFeedback.Rules
                 // [RS] In any case of error we simply return a zero-point.
                 //      Maybe we should handle this exception slightly more professional by write some log entries or so.
                 return new POINT() { x = 0, y = 0 };
+            }
+        }
+
+        private void LoadConfiguration()
+        {
+            SettingsManager settingsManager = new ShellSettingsManager(_serviceProvider);
+            WritableSettingsStore userSettingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+
+            // Find out whether Notepad is already an External Tool.
+            int toolCount = userSettingsStore.GetInt32(("External Tools", "ToolNumKeys");
+            bool hasNotepad = false;
+            CompareInfo Compare = CultureInfo.InvariantCulture.CompareInfo;
+            for (int i = 0; i < toolCount; i++)
+            {
+                if (Compare.IndexOf(userSettingsStore.GetString("External Tools", "ToolCmd" + i), "Notepad", CompareOptions.IgnoreCase) >= 0)
+                {
+                    hasNotepad = true;
+                    break;
+                }
             }
         }
 

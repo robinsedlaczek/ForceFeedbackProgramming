@@ -7,10 +7,7 @@
 using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
-using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Editor;
-using System.IO;
-using System;
 
 namespace ForceFeedback.Rules
 {
@@ -33,7 +30,7 @@ namespace ForceFeedback.Rules
         [Export(typeof(AdornmentLayerDefinition))]
         [Name("MethodTooLongTextAdornment")]
         [Order(After = PredefinedAdornmentLayers.Selection, Before = PredefinedAdornmentLayers.Text)]
-        private AdornmentLayerDefinition editorAdornmentLayer;
+        private AdornmentLayerDefinition EditorAdornmentLayer;
 
 #pragma warning restore 649, 169
 
