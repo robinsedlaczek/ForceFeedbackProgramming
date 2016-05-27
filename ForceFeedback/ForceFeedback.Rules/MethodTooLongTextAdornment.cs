@@ -22,6 +22,7 @@ using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Settings;
 using Microsoft.VisualStudio.Settings;
+using ForceFeedback.Rules.Configuration;
 
 namespace ForceFeedback.Rules
 {
@@ -48,7 +49,7 @@ namespace ForceFeedback.Rules
         /// 
         /// !!! Missing parameter documentation !!!
         ///
-        public MethodTooLongTextAdornment(IWpfTextView view, IVsEditorAdaptersFactoryService adapterService, System.IServiceProvider serviceProvider)
+        public MethodTooLongTextAdornment(IWpfTextView view, IVsEditorAdaptersFactoryService adapterService)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
@@ -153,11 +154,11 @@ namespace ForceFeedback.Rules
             var backgroundGeometry = new RectangleGeometry(adornmentBounds);
 
             Color? color = null;
-            foreach (var limit in Config.MethodsTooLongLimits.OrderBy(limit => limit.MaxLines))
+            foreach (var limit in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
             {
                 color = limit.Color;
 
-                if (linesOfCode < limit.MaxLines)
+                if (linesOfCode < limit.Lines)
                     break;
             }
 
@@ -167,7 +168,7 @@ namespace ForceFeedback.Rules
             var backgroundBrush = new SolidColorBrush(color.Value);
             backgroundBrush.Freeze();
 
-            var drawing = new GeometryDrawing(backgroundBrush, Config.LongMethodBorderPen, backgroundGeometry);
+            var drawing = new GeometryDrawing(backgroundBrush, ConfigurationManager.LongMethodBorderPen, backgroundGeometry);
             drawing.Freeze();
 
             var drawingImage = new DrawingImage(drawing);
@@ -270,17 +271,17 @@ namespace ForceFeedback.Rules
             WritableSettingsStore userSettingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
 
             // Find out whether Notepad is already an External Tool.
-            int toolCount = userSettingsStore.GetInt32(("External Tools", "ToolNumKeys");
-            bool hasNotepad = false;
-            CompareInfo Compare = CultureInfo.InvariantCulture.CompareInfo;
-            for (int i = 0; i < toolCount; i++)
-            {
-                if (Compare.IndexOf(userSettingsStore.GetString("External Tools", "ToolCmd" + i), "Notepad", CompareOptions.IgnoreCase) >= 0)
-                {
-                    hasNotepad = true;
-                    break;
-                }
-            }
+            //int toolCount = userSettingsStore.GetInt32(("External Tools", "ToolNumKeys");
+            //bool hasNotepad = false;
+            //CompareInfo Compare = CultureInfo.InvariantCulture.CompareInfo;
+            //for (int i = 0; i < toolCount; i++)
+            //{
+            //    if (Compare.IndexOf(userSettingsStore.GetString("External Tools", "ToolCmd" + i), "Notepad", CompareOptions.IgnoreCase) >= 0)
+            //    {
+            //        hasNotepad = true;
+            //        break;
+            //    }
+            //}
         }
 
         #endregion

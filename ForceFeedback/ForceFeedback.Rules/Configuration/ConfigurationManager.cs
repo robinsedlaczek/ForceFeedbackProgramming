@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows.Media;
 
-namespace ForceFeedback.Rules
+namespace ForceFeedback.Rules.Configuration
 {
     /// <summary>
     /// This class provides some drawing resource like pens, brushes etc.
     /// </summary>
-    internal class Config
+    internal class ConfigurationManager
     {
         internal static readonly Color LongMethodBorderColor;
         internal static readonly Color LongMethodBackgroundColor;
@@ -16,7 +16,7 @@ namespace ForceFeedback.Rules
         internal static readonly Pen LongMethodBorderPen;
         internal static readonly Brush LongMethodBackgroundBrush;
 
-        static Config()
+        static ConfigurationManager()
         {
             LoadConfiguration();
 
@@ -35,16 +35,29 @@ namespace ForceFeedback.Rules
             LongMethodBackgroundBrush.Freeze();
         }
 
-        internal static readonly IList<MethodTooLongLimit> MethodsTooLongLimits = new List<MethodTooLongLimit>();
+        internal static readonly Configuration Configuration = LoadConfiguration();
 
-        private static void LoadConfiguration()
+        private static Configuration LoadConfiguration()
         {
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming\Config.json");
+            try
+            {
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming\Config.json");
 
-            MethodsTooLongLimits.Add(new MethodTooLongLimit(10, null));
-            MethodsTooLongLimits.Add(new MethodTooLongLimit(15, Color.FromArgb(150, 150, 150, 150)));
-            MethodsTooLongLimits.Add(new MethodTooLongLimit(20, Color.FromArgb(150, 200, 150, 150)));
-            MethodsTooLongLimits.Add(new MethodTooLongLimit(25, Color.FromArgb(150, 250, 150, 150)));
+                using (var reader = new StreamReader(path))
+                {
+                    var jsonReader = new Newtonsoft.Json.JsonTextReader(reader);
+                    var serializer = new Newtonsoft.Json.JsonSerializer();
+                    var result = serializer.Deserialize<Configuration>(jsonReader);
+
+                    return result;
+                }
+            }
+            catch (Newtonsoft.Json.JsonException exception)
+            {
+                // TODO: [RS] Handle exception!
+
+                throw;
+            }
         }
 
     }
