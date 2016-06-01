@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="ForceFeedback.Setup.Robin Sedlaczek.67c843fd-8152-4e6b-94aa-086dfb632a82" Version="0.1" Language="en-US" Publisher="Robin Sedlaczek" />
+    <Identity Id="ForceFeedback.Setup.Robin Sedlaczek.67c843fd-8152-4e6b-94aa-086dfb632a82" Version="0.2" Language="en-US" Publisher="Robin Sedlaczek" />
     <DisplayName>ForceFeedback</DisplayName>
     <Description xml:space="preserve">Make evolvability really tangible while coding: that's what Force Feedback Programming (FFP) is about.</Description>
     <MoreInfo>https://github.com/robinsedlaczek/ForceFeedbackProgramming</MoreInfo>

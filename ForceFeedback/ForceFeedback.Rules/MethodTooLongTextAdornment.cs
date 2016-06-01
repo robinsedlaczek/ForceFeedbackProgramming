@@ -167,10 +167,10 @@ namespace ForceFeedback.Rules
             Color? color = null;
             foreach (var limit in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
             {
-                color = limit.Color;
-
                 if (linesOfCode < limit.Lines)
                     break;
+
+                color = limit.Color;
             }
 
             if (color == null)
