@@ -61,6 +61,7 @@ namespace ForceFeedback.Rules
 
             _view = view;
             _view.LayoutChanged += OnLayoutChanged;
+
             _adapterService = adapterService;
         }
 
@@ -69,7 +70,7 @@ namespace ForceFeedback.Rules
         #region Event Handler
 
         /// <summary>
-        /// Handles whenever the text displayed in the view changes by adding the adornment to any reformatted lines
+        /// Handles whenever the text displayed in the view changes by adding the adornment to any reformatted lines.
         /// </summary>
         /// <remarks><para>This event is raised whenever the rendered text displayed in the <see cref="ITextView"/> changes.</para>
         /// <para>It is raised whenever the view does a layout (which happens when DisplayTextLineContainingBufferPosition is called or in response to text or classification changes).</para>
@@ -131,14 +132,24 @@ namespace ForceFeedback.Rules
             {
                 var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(methodDeclaration.Span.Start, methodDeclaration.Span.Start + methodDeclaration.Span.Length));
                 var adornmentBounds = CalculateBounds(methodDeclaration, snapshotSpan);
-                var image = CreateAndPositionMethodBackgroundVisual(adornmentBounds, methodDeclaration.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count);
+
+                if (adornmentBounds.IsEmpty)
+                    continue;
+
+                var image = CreateAndPositionMethodBackgroundVisual(adornmentBounds, methodDeclaration.Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count);
 
                 if (image == null)
                     continue;
 
-                _layer.RemoveMatchingAdornments(adornment => adornment.VisualSpan?.Span == snapshotSpan);
-                _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, null, image, null);
+                _layer.RemoveAdornmentsByVisualSpan(snapshotSpan);
+                _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, methodDeclaration, image, new AdornmentRemovedCallback(OnAdornmentRemoved));
             }
+        }
+
+        private void OnAdornmentRemoved(object tag, UIElement adornment)
+        {
+            var methodDeclaration = tag as MethodDeclarationSyntax;
+            var name = methodDeclaration.Identifier.ValueText;
         }
 
         /// <summary>
