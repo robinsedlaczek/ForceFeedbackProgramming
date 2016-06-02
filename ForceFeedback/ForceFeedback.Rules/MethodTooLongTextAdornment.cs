@@ -20,10 +20,7 @@ using System.Windows;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell.Settings;
-using Microsoft.VisualStudio.Settings;
 using ForceFeedback.Rules.Configuration;
-using System.IO;
 
 namespace ForceFeedback.Rules
 {
@@ -34,10 +31,10 @@ namespace ForceFeedback.Rules
     {
         #region Private Fields
 
+        private IEnumerable<LongMethodOccurrence> _longMethodOccurrences;
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
         private readonly IVsEditorAdaptersFactoryService _adapterService;
-        private readonly System.IServiceProvider _serviceProvider;
 
         #endregion
 
@@ -69,7 +66,9 @@ namespace ForceFeedback.Rules
 
         private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
         {
-            var changes = e.Changes;
+            // [RS] We do nothing here if the change was caused by ourselves. 
+            if (e.EditTag != null && e.EditTag.ToString() == "ForceFeedback")
+                return;
 
             var allowedCharacters = new[]
             {
@@ -78,11 +77,31 @@ namespace ForceFeedback.Rules
                 "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
             };
 
-            if (changes.Count > 0 && allowedCharacters.Contains(changes[0].NewText))
-            {
-                //changes[0].NewPosition
+            var interestingChangeOccurred = e.Changes.Count > 0 && allowedCharacters.Contains(e.Changes[0].NewText);
 
-            }
+            if (!interestingChangeOccurred)
+                return;
+
+            var change = e.Changes[0];
+
+            var longMethodOccurence = _longMethodOccurrences
+                .Where(occurence => occurence.MethodDeclaration.FullSpan.IntersectsWith(change.NewSpan.Start))
+                .Select(occurence => occurence)
+                .FirstOrDefault();
+
+            if (longMethodOccurence == null)
+                return;
+
+            if (!_view.TextBuffer.CheckEditAccess())
+                throw new Exception("Cannot edit text buffer.");
+
+            var edit = _view.TextBuffer.CreateEdit(EditOptions.None,null,"ForceFeedback");
+            var inserted = edit.Insert(change.NewPosition, change.NewText);
+
+            if (!inserted)
+                throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
+                
+            edit.Apply();
         }
 
         #endregion
@@ -103,9 +122,12 @@ namespace ForceFeedback.Rules
             try
             {
                 var methodDeclarations = await CollectMethodDeclarationSyntaxNodes(e.NewSnapshot);
-                var longMethodOccurrences = AnalyzeTooLongMethodOccurrences(methodDeclarations);
+                var longMethodOccurrences = AnalyzeLongMethodOccurrences(methodDeclarations);
 
                 CreateVisualsForLongMethods(longMethodOccurrences);
+
+                // [RS] Cache the occurrences for later use.
+                _longMethodOccurrences = longMethodOccurrences;
             }
             catch
             {
@@ -118,7 +140,13 @@ namespace ForceFeedback.Rules
 
         #region Private Methods
 
-        private IEnumerable<LongMethodOccurrence> AnalyzeTooLongMethodOccurrences(IEnumerable<MethodDeclarationSyntax> methodDeclarations)
+        /// <summary>
+        /// This method checks the given method declarations are too long based on the configured limites. If so, the method 
+        /// declaration and the corresponding limit configuration is put together in an instance of  <see cref="LongMethodOccurrence">LongMethodOccurrence</see>.
+        /// </summary>
+        /// <param name="methodDeclarations">The list of method declarations that will be analyzed.</param>
+        /// <returns>Returns a list of occurrences and their limit configuration.</returns>
+        private IEnumerable<LongMethodOccurrence> AnalyzeLongMethodOccurrences(IEnumerable<MethodDeclarationSyntax> methodDeclarations)
         {
             if (methodDeclarations == null)
                 throw new ArgumentNullException(nameof(methodDeclarations));
@@ -314,8 +342,8 @@ namespace ForceFeedback.Rules
 
         private void LoadConfiguration()
         {
-            SettingsManager settingsManager = new ShellSettingsManager(_serviceProvider);
-            WritableSettingsStore userSettingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+            //SettingsManager settingsManager = new ShellSettingsManager(_serviceProvider);
+            //WritableSettingsStore userSettingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
 
             // Find out whether Notepad is already an External Tool.
             //int toolCount = userSettingsStore.GetInt32(("External Tools", "ToolNumKeys");
