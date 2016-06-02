@@ -1,0 +1,22 @@
+{
+  "methodTooLongLimits": [
+    {
+      "lines": 5,
+      "color": "#888888",
+      "transparency": 0.25,
+      "noiseDistance": 5
+    },
+    {
+      "lines": 10,
+      "color": "#BB8888",
+      "transparency": 0.25,
+      "noiseDistance": 3
+    },
+    {
+      "lines": 15,
+      "color": "#FF8888",
+      "transparency": 0.25,
+      "noiseDistance": 1
+    }
+  ]
+}

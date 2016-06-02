@@ -65,6 +65,10 @@ namespace ForceFeedback.Rules
             _adapterService = adapterService;
         }
 
+        #endregion
+
+        #region Event Handler
+
         private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
         {
             // [RS] We do nothing here if the change was caused by ourselves. 
@@ -106,18 +110,14 @@ namespace ForceFeedback.Rules
                 textToInsert.Append(replacePattern.ReplacementCharacters[randomNumber]);
             }
 
-            var edit = _view.TextBuffer.CreateEdit(EditOptions.None,null,"ForceFeedback");
+            var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
             var inserted = edit.Insert(change.NewPosition + 1, textToInsert.ToString());
 
             if (!inserted)
                 throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
-                
+
             edit.Apply();
         }
-
-        #endregion
-
-        #region Event Handler
 
         /// <summary>
         /// Handles whenever the text displayed in the view changes by adding the adornment to any reformatted lines.
@@ -174,7 +174,7 @@ namespace ForceFeedback.Rules
                 {
                     if (linesOfCode < limitConfiguration.Lines)
                         break;
-
+                    
                     correspondingLimitConfiguration = limitConfiguration;
                 }
 

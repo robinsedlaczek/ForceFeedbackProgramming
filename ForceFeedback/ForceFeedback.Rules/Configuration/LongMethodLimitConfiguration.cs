@@ -5,11 +5,11 @@ namespace ForceFeedback.Rules.Configuration
 {
     internal class LongMethodLimitConfiguration
     {
-        public LongMethodLimitConfiguration(int lines, Color color, double transparency, ReplacePattern replacePattern)
+        public LongMethodLimitConfiguration(int lines, Color color, double transparency, int noiseDistance)
         {
             Lines = lines;
             Transparency = transparency;
-            ReplacePattern = replacePattern;
+            NoiseDistance = noiseDistance;
 
             var colorValue = color;
             colorValue.A = (byte)(255d * transparency);
@@ -32,7 +32,7 @@ namespace ForceFeedback.Rules.Configuration
             get;
         }
 
-        public ReplacePattern ReplacePattern
+        public int NoiseDistance
         {
             get;
         }

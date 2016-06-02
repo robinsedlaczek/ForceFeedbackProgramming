@@ -177,7 +177,6 @@
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\LongMethodLimitConfiguration.cs" />
-    <Compile Include="Configuration\ReplacePattern.cs" />
     <Compile Include="MethodTooLongTextAdornment.cs" />
     <Compile Include="MethodTooLongTextAdornmentTextViewCreationListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -185,6 +184,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resources\Config.json" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
