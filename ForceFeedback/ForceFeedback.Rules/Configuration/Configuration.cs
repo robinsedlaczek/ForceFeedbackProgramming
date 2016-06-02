@@ -8,6 +8,6 @@ namespace ForceFeedback.Rules.Configuration
 {
     internal class Configuration
     {
-        public List<MethodTooLongLimit> MethodTooLongLimits { get; set; }
+        public List<LongMethodLimitConfiguration> MethodTooLongLimits { get; set; }
     }
 }

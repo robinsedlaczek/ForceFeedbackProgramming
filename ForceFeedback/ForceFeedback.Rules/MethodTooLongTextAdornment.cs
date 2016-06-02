@@ -23,6 +23,7 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Settings;
 using Microsoft.VisualStudio.Settings;
 using ForceFeedback.Rules.Configuration;
+using System.IO;
 
 namespace ForceFeedback.Rules
 {
@@ -61,8 +62,27 @@ namespace ForceFeedback.Rules
 
             _view = view;
             _view.LayoutChanged += OnLayoutChanged;
+            _view.TextBuffer.Changed += OnTextBufferChanged;
 
             _adapterService = adapterService;
+        }
+
+        private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
+        {
+            var changes = e.Changes;
+
+            var allowedCharacters = new[]
+            {
+                "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+                "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+                "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+            };
+
+            if (changes.Count > 0 && allowedCharacters.Contains(changes[0].NewText))
+            {
+                //changes[0].NewPosition
+
+            }
         }
 
         #endregion
@@ -83,8 +103,9 @@ namespace ForceFeedback.Rules
             try
             {
                 var methodDeclarations = await CollectMethodDeclarationSyntaxNodes(e.NewSnapshot);
+                var longMethodOccurrences = AnalyzeTooLongMethodOccurrences(methodDeclarations);
 
-                CreateVisualsForMethodsWithTooManyLines(methodDeclarations);
+                CreateVisualsForLongMethods(longMethodOccurrences);
             }
             catch
             {
@@ -96,6 +117,34 @@ namespace ForceFeedback.Rules
         #endregion
 
         #region Private Methods
+
+        private IEnumerable<LongMethodOccurrence> AnalyzeTooLongMethodOccurrences(IEnumerable<MethodDeclarationSyntax> methodDeclarations)
+        {
+            if (methodDeclarations == null)
+                throw new ArgumentNullException(nameof(methodDeclarations));
+
+            var result = new List<LongMethodOccurrence>();
+
+            foreach (var methodDeclaration in methodDeclarations)
+            {
+                var linesOfCode = methodDeclaration.Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
+
+                LongMethodLimitConfiguration correspondingLimitConfiguration = null;
+
+                foreach (var limitConfiguration in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
+                {
+                    if (linesOfCode < limitConfiguration.Lines)
+                        break;
+
+                    correspondingLimitConfiguration = limitConfiguration;
+                }
+
+                if (correspondingLimitConfiguration != null)
+                    result.Add(new LongMethodOccurrence(methodDeclaration, correspondingLimitConfiguration));
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// This method collects syntax nodes of method declarations that have too many lines of code.
@@ -122,61 +171,48 @@ namespace ForceFeedback.Rules
         /// <summary>
         /// Adds a background behind the methods that have too many lines.
         /// </summary>
-        /// <param name="methodDeclarationSyntaxNodes">A list of syntax nodes of method declarations that are too long.</param>
-        private void CreateVisualsForMethodsWithTooManyLines(IEnumerable<MethodDeclarationSyntax> methodDeclarationSyntaxNodes)
+        /// <param name="occurrences">A list of long method occurences for which the visuals will be created.</param>
+        private void CreateVisualsForLongMethods(IEnumerable<LongMethodOccurrence> occurrences)
         {
-            if (methodDeclarationSyntaxNodes == null)
-                throw new ArgumentNullException(nameof(methodDeclarationSyntaxNodes));
+            if (occurrences == null)
+                throw new ArgumentNullException(nameof(occurrences));
 
-            foreach (var methodDeclaration in methodDeclarationSyntaxNodes)
+            foreach (var occurrence in occurrences)
             {
+                var methodDeclaration = occurrence.MethodDeclaration;
                 var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(methodDeclaration.Span.Start, methodDeclaration.Span.Start + methodDeclaration.Span.Length));
                 var adornmentBounds = CalculateBounds(methodDeclaration, snapshotSpan);
 
                 if (adornmentBounds.IsEmpty)
                     continue;
 
-                var image = CreateAndPositionMethodBackgroundVisual(adornmentBounds, methodDeclaration.Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count);
+                var image = CreateAndPositionMethodBackgroundVisual(adornmentBounds, occurrence);
 
                 if (image == null)
                     continue;
 
                 _layer.RemoveAdornmentsByVisualSpan(snapshotSpan);
-                _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, methodDeclaration, image, new AdornmentRemovedCallback(OnAdornmentRemoved));
+                _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, methodDeclaration, image, null);
             }
-        }
-
-        private void OnAdornmentRemoved(object tag, UIElement adornment)
-        {
-            var methodDeclaration = tag as MethodDeclarationSyntax;
-            var name = methodDeclaration.Identifier.ValueText;
         }
 
         /// <summary>
         /// This method creates the visual for a method background and moves it to the correct position.
         /// </summary>
         /// <param name="adornmentBounds">The bounds of the rectangular adornment.</param>
+        /// <param name="longMethodOccurence">The occurence of the method declaration for which the visual will be created.</param>
         /// <returns>Returns the image that is the visual adornment (method background).</returns>
-        private Image CreateAndPositionMethodBackgroundVisual(Rect adornmentBounds, int linesOfCode)
+        private Image CreateAndPositionMethodBackgroundVisual(Rect adornmentBounds, LongMethodOccurrence longMethodOccurence)
         {
             if (adornmentBounds == null)
                 throw new ArgumentNullException(nameof(adornmentBounds));
 
+            if (longMethodOccurence == null)
+                throw new ArgumentNullException(nameof(longMethodOccurence));
+
             var backgroundGeometry = new RectangleGeometry(adornmentBounds);
 
-            Color? color = null;
-            foreach (var limit in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
-            {
-                if (linesOfCode < limit.Lines)
-                    break;
-
-                color = limit.Color;
-            }
-
-            if (color == null)
-                return null;
-
-            var backgroundBrush = new SolidColorBrush(color.Value);
+            var backgroundBrush = new SolidColorBrush(longMethodOccurence.LimitConfiguration.Color);
             backgroundBrush.Freeze();
 
             var drawing = new GeometryDrawing(backgroundBrush, ConfigurationManager.LongMethodBorderPen, backgroundGeometry);
