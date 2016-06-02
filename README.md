@@ -6,7 +6,7 @@ There are tools which might be able to tell you during CI if you wrote clean cod
 
 That hopefully changes with FFP! Because FFP will tell you right away _while you're typing_ how you're doing on the evolvability front.
 
-And not only will FFP tell you how clean your code is, it will actively hinder you to pollute it. _FFP gives you visual feedback plus tacktile._ You'll experience a real force right at your fingertips! Writing less clean code will tangibly harder.
+And not only will FFP tell you how clean your code is, it will actively hinder you to pollute it. _FFP gives you visual feedback plus tacktile._ You'll experience a real force right at your fingertips! Writing less clean code will become tangibly harder.
 
 And all this is made possible through a simple Visual Studio extension.
 
