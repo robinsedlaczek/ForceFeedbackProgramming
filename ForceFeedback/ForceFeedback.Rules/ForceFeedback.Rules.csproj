@@ -177,6 +177,7 @@
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\LongMethodLimitConfiguration.cs" />
+    <Compile Include="Configuration\ReplacePattern.cs" />
     <Compile Include="MethodTooLongTextAdornment.cs" />
     <Compile Include="MethodTooLongTextAdornmentTextViewCreationListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

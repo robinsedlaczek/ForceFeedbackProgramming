@@ -21,6 +21,7 @@ using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio;
 using ForceFeedback.Rules.Configuration;
+using System.Text;
 
 namespace ForceFeedback.Rules
 {
@@ -95,8 +96,18 @@ namespace ForceFeedback.Rules
             if (!_view.TextBuffer.CheckEditAccess())
                 throw new Exception("Cannot edit text buffer.");
 
+            var replacePattern = longMethodOccurence.LimitConfiguration.ReplacePattern;
+            var textToInsert = new StringBuilder(replacePattern.NumberOfReplacementsAtKeystroke);
+            var random = new Random();
+
+            for (int index = 1; index <= replacePattern.NumberOfReplacementsAtKeystroke; index++)
+            {
+                var randomNumber = random.Next(0, replacePattern.ReplacementCharacters.Count());
+                textToInsert.Append(replacePattern.ReplacementCharacters[randomNumber]);
+            }
+
             var edit = _view.TextBuffer.CreateEdit(EditOptions.None,null,"ForceFeedback");
-            var inserted = edit.Insert(change.NewPosition, change.NewText);
+            var inserted = edit.Insert(change.NewPosition + 1, textToInsert.ToString());
 
             if (!inserted)
                 throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
