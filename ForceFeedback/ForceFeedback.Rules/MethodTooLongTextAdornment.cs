@@ -32,10 +32,12 @@ namespace ForceFeedback.Rules
     {
         #region Private Fields
 
-        private IEnumerable<LongMethodOccurrence> _longMethodOccurrences;
+        private IList<LongMethodOccurrence> _longMethodOccurrences;
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
         private readonly IVsEditorAdaptersFactoryService _adapterService;
+        private int _lastCaretBufferPosition;
+        private int _numberOfKeystrokes;
 
         #endregion
 
@@ -55,6 +57,10 @@ namespace ForceFeedback.Rules
 
             if (adapterService == null)
                 throw new ArgumentNullException(nameof(adapterService));
+
+            _lastCaretBufferPosition = 0;
+            _numberOfKeystrokes = 0;
+            _longMethodOccurrences = new List<LongMethodOccurrence>();
 
             _layer = view.GetAdornmentLayer("MethodTooLongTextAdornment");
 
@@ -77,17 +83,27 @@ namespace ForceFeedback.Rules
 
             var allowedCharacters = new[]
             {
+                "\r", "\n", "\r\n",
                 "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
                 "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
                 "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
             };
 
-            var interestingChangeOccurred = e.Changes.Count > 0 && allowedCharacters.Contains(e.Changes[0].NewText);
+            var change = e.Changes[0];
+            // [RS] We trim the new entered text because ...
+            var interestingChangeOccurred = e.Changes.Count > 0 && allowedCharacters.Contains(change.NewText.Trim(' '));
 
             if (!interestingChangeOccurred)
                 return;
 
-            var change = e.Changes[0];
+            var caretPosition = _view.Caret.Position.BufferPosition.Position;
+
+            if (change.NewText == "\r\n" || change.NewText == "\r" || change.NewText == "\n")
+            {
+                _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
+                _numberOfKeystrokes = 0;
+                return;
+            }
 
             var longMethodOccurence = _longMethodOccurrences
                 .Where(occurence => occurence.MethodDeclaration.FullSpan.IntersectsWith(change.NewSpan.Start))
@@ -97,26 +113,28 @@ namespace ForceFeedback.Rules
             if (longMethodOccurence == null)
                 return;
 
-            if (!_view.TextBuffer.CheckEditAccess())
-                throw new Exception("Cannot edit text buffer.");
+            if (caretPosition == _lastCaretBufferPosition + 1)
+                _numberOfKeystrokes++;
+            else
+                _numberOfKeystrokes = 1;
 
-            var replacePattern = longMethodOccurence.LimitConfiguration.ReplacePattern;
-            var textToInsert = new StringBuilder(replacePattern.NumberOfReplacementsAtKeystroke);
-            var random = new Random();
+            _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
 
-            for (int index = 1; index <= replacePattern.NumberOfReplacementsAtKeystroke; index++)
+            if (_numberOfKeystrokes >= longMethodOccurence.LimitConfiguration.NoiseDistance)
             {
-                var randomNumber = random.Next(0, replacePattern.ReplacementCharacters.Count());
-                textToInsert.Append(replacePattern.ReplacementCharacters[randomNumber]);
+                if (!_view.TextBuffer.CheckEditAccess())
+                    throw new Exception("Cannot edit text buffer.");
+
+                var textToInsert = "⌫";
+
+                var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
+                var inserted = edit.Insert(change.NewPosition + 1, textToInsert.ToString());
+
+                if (!inserted)
+                    throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
+
+                edit.Apply();
             }
-
-            var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
-            var inserted = edit.Insert(change.NewPosition + 1, textToInsert.ToString());
-
-            if (!inserted)
-                throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
-
-            edit.Apply();
         }
 
         /// <summary>
@@ -133,12 +151,9 @@ namespace ForceFeedback.Rules
             try
             {
                 var methodDeclarations = await CollectMethodDeclarationSyntaxNodes(e.NewSnapshot);
-                var longMethodOccurrences = AnalyzeLongMethodOccurrences(methodDeclarations);
 
-                CreateVisualsForLongMethods(longMethodOccurrences);
-
-                // [RS] Cache the occurrences for later use.
-                _longMethodOccurrences = longMethodOccurrences;
+                AnalyzeAndCacheLongMethodOccurrences(methodDeclarations);
+                CreateVisualsForLongMethods();
             }
             catch
             {
@@ -152,23 +167,21 @@ namespace ForceFeedback.Rules
         #region Private Methods
 
         /// <summary>
-        /// This method checks the given method declarations are too long based on the configured limites. If so, the method 
+        /// This method checks the given method declarations are too long based on the configured limits. If so, the method 
         /// declaration and the corresponding limit configuration is put together in an instance of  <see cref="LongMethodOccurrence">LongMethodOccurrence</see>.
         /// </summary>
         /// <param name="methodDeclarations">The list of method declarations that will be analyzed.</param>
-        /// <returns>Returns a list of occurrences and their limit configuration.</returns>
-        private IEnumerable<LongMethodOccurrence> AnalyzeLongMethodOccurrences(IEnumerable<MethodDeclarationSyntax> methodDeclarations)
+        private void AnalyzeAndCacheLongMethodOccurrences(IEnumerable<MethodDeclarationSyntax> methodDeclarations)
         {
             if (methodDeclarations == null)
                 throw new ArgumentNullException(nameof(methodDeclarations));
 
-            var result = new List<LongMethodOccurrence>();
+            _longMethodOccurrences.Clear();
 
             foreach (var methodDeclaration in methodDeclarations)
             {
                 var linesOfCode = methodDeclaration.Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
-
-                LongMethodLimitConfiguration correspondingLimitConfiguration = null;
+                var correspondingLimitConfiguration = null as LongMethodLimitConfiguration;
 
                 foreach (var limitConfiguration in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
                 {
@@ -179,10 +192,11 @@ namespace ForceFeedback.Rules
                 }
 
                 if (correspondingLimitConfiguration != null)
-                    result.Add(new LongMethodOccurrence(methodDeclaration, correspondingLimitConfiguration));
+                {
+                    var occurence = new LongMethodOccurrence(methodDeclaration, correspondingLimitConfiguration);
+                    _longMethodOccurrences.Add(occurence);
+                }
             }
-
-            return result;
         }
 
         /// <summary>
@@ -210,13 +224,12 @@ namespace ForceFeedback.Rules
         /// <summary>
         /// Adds a background behind the methods that have too many lines.
         /// </summary>
-        /// <param name="occurrences">A list of long method occurences for which the visuals will be created.</param>
-        private void CreateVisualsForLongMethods(IEnumerable<LongMethodOccurrence> occurrences)
+        private void CreateVisualsForLongMethods()
         {
-            if (occurrences == null)
-                throw new ArgumentNullException(nameof(occurrences));
+            if (_longMethodOccurrences == null)
+                return;
 
-            foreach (var occurrence in occurrences)
+            foreach (var occurrence in _longMethodOccurrences)
             {
                 var methodDeclaration = occurrence.MethodDeclaration;
                 var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(methodDeclaration.Span.Start, methodDeclaration.Span.Start + methodDeclaration.Span.Length));

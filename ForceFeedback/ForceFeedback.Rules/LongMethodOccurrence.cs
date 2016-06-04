@@ -11,8 +11,8 @@ namespace ForceFeedback.Rules
             LimitConfiguration = limitConfiguration;
         }
 
-        public MethodDeclarationSyntax MethodDeclaration { get; }
+        public MethodDeclarationSyntax MethodDeclaration { get; set; }
 
-        public LongMethodLimitConfiguration LimitConfiguration { get; }
+        public LongMethodLimitConfiguration LimitConfiguration { get; set; }
     }
 }
