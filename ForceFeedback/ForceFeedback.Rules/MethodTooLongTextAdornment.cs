@@ -110,7 +110,7 @@ namespace ForceFeedback.Rules
                 .Select(occurence => occurence)
                 .FirstOrDefault();
 
-            if (longMethodOccurence == null)
+            if (longMethodOccurence == null || longMethodOccurence.LimitConfiguration.NoiseDistance <= 0)
                 return;
 
             if (caretPosition == _lastCaretBufferPosition + 1)

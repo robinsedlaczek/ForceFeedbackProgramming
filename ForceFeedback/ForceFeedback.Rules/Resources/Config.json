@@ -16,7 +16,7 @@
       "lines": 15,
       "color": "#FF8888",
       "transparency": 0.25,
-      "noiseDistance": 1
+      "noiseDistance": 0
     }
   ]
 }
