@@ -18,4 +18,4 @@ Enjoy!
 
 Current version: 0.5
 
-You can download the precompiled Visual Studio installer package [here](https://github.com/robinsedlaczek/ForceFeedbackProgramming/blob/master/ForceFeedback/Precompiled/ForceFeedback.Setup.vsix "Visual Studio Installer Package").
+You can download the precompiled Visual Studio installer package [here](ForceFeedbackProgramming/ForceFeedback/Precompiled/ForceFeedback.Setup.vsix "Visual Studio Installer Package").
