@@ -134,6 +134,8 @@ namespace ForceFeedback.Rules
                     throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
 
                 edit.Apply();
+
+                _numberOfKeystrokes = 0;
             }
         }
 
