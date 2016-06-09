@@ -14,6 +14,10 @@ And all this is made possible through a simple Visual Studio extension.
 
 Enjoy!
 
+## Health (master - Release|x86)
+
+[![Build status](https://ci.appveyor.com/api/projects/status/mrnvhtnf9k2xrs4g/branch/master?svg=true)](https://ci.appveyor.com/project/robinsedlaczek/forcefeedbackprogramming/branch/master)
+
 ## Binaries
 
 Current version: 0.5
