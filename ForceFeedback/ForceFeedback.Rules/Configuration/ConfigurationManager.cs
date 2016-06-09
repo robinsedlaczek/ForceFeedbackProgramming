@@ -12,9 +12,11 @@ namespace ForceFeedback.Rules.Configuration
     {
         internal static readonly Color LongMethodBorderColor;
         internal static readonly Color LongMethodBackgroundColor;
-
         internal static readonly Pen LongMethodBorderPen;
         internal static readonly Brush LongMethodBackgroundBrush;
+
+        internal static readonly FileSystemWatcher ConfigurationFileWatcher = InitConfigurationFileWatcher();
+        internal static Configuration Configuration = LoadConfiguration();
 
         static ConfigurationManager()
         {
@@ -35,7 +37,29 @@ namespace ForceFeedback.Rules.Configuration
             LongMethodBackgroundBrush.Freeze();
         }
 
-        internal static readonly Configuration Configuration = LoadConfiguration();
+        private static FileSystemWatcher InitConfigurationFileWatcher()
+        {
+            var configFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "ForceFeedbackProgramming\\");
+            var watcher = new FileSystemWatcher()
+            {
+                Path = configFolderPath,
+                NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
+                Filter = "*.json"
+            };
+
+            watcher.Changed += OnFileChanged;
+            watcher.EnableRaisingEvents = true;
+
+            return watcher;
+        }
+
+        private static void OnFileChanged(object sender, FileSystemEventArgs e)
+        {
+            var configFileChanged = e.ChangeType == WatcherChangeTypes.Changed && e.Name.CompareTo("Config.json") == 0;
+
+            if (configFileChanged)
+                Configuration = LoadConfiguration();
+        }
 
         private static Configuration LoadConfiguration()
         {
