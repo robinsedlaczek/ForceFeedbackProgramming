@@ -84,15 +84,19 @@ namespace ForceFeedback.Rules
             var allowedCharacters = new[]
             {
                 "\r", "\n", "\r\n",
-                " ", "(", ")", "{", "}", "[", "]", "&", "|", "\\", "%", "+", "-", "*", "/", ";", ":", "_", "?",
+                " ", "\"", "'", ".", ",", "@", "$", "(", ")", "{", "}", "[", "]", "&", "|", "\\", "%", "+", "-", "*", "/", ";", ":", "_", "?", "!",
                 "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
                 "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
                 "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
             };
 
             var change = e.Changes[0];
-            // [RS] We trim the new entered text because ...
-            var interestingChangeOccurred = e.Changes.Count > 0 && allowedCharacters.Contains(change.NewText.Trim(' '));
+            // [RS] We trim the new text when checking for allowed characters, if the text has more than one character. This is, e.g. 
+            //      if the user inserted a linefeed and the IDE created whitespaces automatically for indention of the next line.
+            //      In this case, we want to ignore the generated leading whitespaces. 
+            //      In the case the user entered a whitespace directly, we do not want to trim it away. So we check the new text length. 
+            var interestingChangeOccurred = 
+                e.Changes.Count > 0 && allowedCharacters.Contains(change.NewText.Length == 1 ? change.NewText : change.NewText.Trim(' '));
 
             if (!interestingChangeOccurred)
                 return;
@@ -129,7 +133,7 @@ namespace ForceFeedback.Rules
                 var textToInsert = "⌫";
 
                 var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
-                var inserted = edit.Insert(change.NewPosition + 1, textToInsert.ToString());
+                var inserted = edit.Insert(change.NewPosition + change.NewLength, textToInsert.ToString());
 
                 if (!inserted)
                     throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
