@@ -1,4 +1,4 @@
-# Confiuring the VS Extension
+# Configuring the VS Extension
 
 The Visual Studio extension for Force Feedback Programming provides visual plus tactile feedback on the evolvability of your code while typing.
 
