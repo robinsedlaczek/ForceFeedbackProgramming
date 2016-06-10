@@ -1,5 +1,7 @@
 # Force Feedback Programming
 
+[![Join the chat at https://gitter.im/robinsedlaczek/ForceFeedbackProgramming](https://badges.gitter.im/robinsedlaczek/ForceFeedbackProgramming.svg)](https://gitter.im/robinsedlaczek/ForceFeedbackProgramming?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Health of master (Release|x86): 
 
 [![Build status](https://ci.appveyor.com/api/projects/status/mrnvhtnf9k2xrs4g/branch/master?svg=true)](https://ci.appveyor.com/project/robinsedlaczek/forcefeedbackprogramming/branch/master)
