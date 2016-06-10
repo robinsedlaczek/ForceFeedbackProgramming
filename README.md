@@ -1,9 +1,5 @@
 # Force Feedback Programming
 
-## Health of master (Release|x86): 
-
-[![Build status](https://ci.appveyor.com/api/projects/status/mrnvhtnf9k2xrs4g/branch/master?svg=true)](https://ci.appveyor.com/project/robinsedlaczek/forcefeedbackprogramming/branch/master)
-
 ## Overview
 
 Make evolvability really tangible while coding: that's what Force Feedback Programming (FFP) is about.
@@ -21,3 +17,11 @@ Enjoy!
 ## Binaries
 
 You can download the precompiled Visual Studio installer package from the [releases page](https://github.com/robinsedlaczek/ForceFeedbackProgramming/releases/ "Visual Studio Installer Package releases").
+
+## Health of master (Release|x86): 
+
+[![Build status](https://ci.appveyor.com/api/projects/status/mrnvhtnf9k2xrs4g/branch/master?svg=true)](https://ci.appveyor.com/project/robinsedlaczek/forcefeedbackprogramming/branch/master)
+
+## Wanna chat with us?
+
+You can meet us here: [![Gitter](https://badges.gitter.im/robinsedlaczek/ForceFeedbackProgramming.svg)](https://gitter.im/robinsedlaczek/ForceFeedbackProgramming?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
