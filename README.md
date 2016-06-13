@@ -10,7 +10,7 @@ That hopefully changes with FFP! Because FFP will tell you right away _while you
 
 And not only will FFP tell you how clean your code is, it will actively hinder you to pollute it. _FFP gives you visual feedback plus tacktile._ You'll experience a real force right at your fingertips! Writing less clean code will become tangibly harder.
 
-And all this is made possible through a simple Visual Studio extension you can even [adapt to your coding style](CONFIG.MD) and level of brownfield.
+And all this is made possible through a simple Visual Studio extension you can even [adapt to your coding style](CONFIG.md) and level of brownfield.
 
 Enjoy!
 
