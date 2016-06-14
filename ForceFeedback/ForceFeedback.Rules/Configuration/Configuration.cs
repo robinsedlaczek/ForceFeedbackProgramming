@@ -16,8 +16,8 @@ namespace ForceFeedback.Rules.Configuration
             {
                 return new Configuration()
                 {
-                    MethodTooLongLimits = new List<LongMethodLimitConfiguration>();
-                }
+                    MethodTooLongLimits = new List<LongMethodLimitConfiguration>()
+                };
             }
         }
     }
