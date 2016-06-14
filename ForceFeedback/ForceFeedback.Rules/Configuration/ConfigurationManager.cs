@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using System.Resources;
 using System.Security.Permissions;
 using System.Windows.Media;
 
@@ -41,6 +43,9 @@ namespace ForceFeedback.Rules.Configuration
         {
             var configFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "ForceFeedbackProgramming");
 
+            if (!Directory.Exists(configFolderPath))
+                Directory.CreateDirectory(configFolderPath);
+
             var watcher = new FileSystemWatcher()
             {
                 Path = configFolderPath,
@@ -69,6 +74,9 @@ namespace ForceFeedback.Rules.Configuration
             try
             {
                 var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming\Config.json");
+
+                CreateDefaultConfigurationIfNotExists(path);
+
                 tempPath = Path.GetTempFileName();
 
                 File.Delete(tempPath);
@@ -103,5 +111,29 @@ namespace ForceFeedback.Rules.Configuration
             }
         }
 
+        private static void CreateDefaultConfigurationIfNotExists(string path)
+        {
+            if (File.Exists(path))
+                return;
+
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var resourceName = "ForceFeedback.Rules.Resources.Config.json";
+
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                {
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        var defaultConfig = reader.ReadToEnd();
+                        File.WriteAllText(path, defaultConfig);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // TODO: [RS] Handle exception!
+            }
+        }
     }
 }
