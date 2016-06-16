@@ -49,21 +49,26 @@ namespace ForceFeedback.Rules.Configuration
             var watcher = new FileSystemWatcher()
             {
                 Path = configFolderPath,
-                NotifyFilter = NotifyFilters.LastWrite,
-                Filter = "Config.json"
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName
             };
 
             watcher.Changed += OnFileChanged;
+            watcher.Renamed += OnFileRenamed;
+
             watcher.EnableRaisingEvents = true;
 
             return watcher;
         }
 
+        private static void OnFileRenamed(object sender, RenamedEventArgs e)
+        {
+            if (e.Name.ToLower() == "config.json")
+                Configuration = LoadConfiguration();
+        }
+
         private static void OnFileChanged(object sender, FileSystemEventArgs e)
         {
-            var configFileChanged = e.ChangeType == WatcherChangeTypes.Changed;
-
-            if (configFileChanged)
+            if (e.Name.ToLower() == "config.json")
                 Configuration = LoadConfiguration();
         }
 
