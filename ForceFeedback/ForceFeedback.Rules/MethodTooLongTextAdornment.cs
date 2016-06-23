@@ -189,6 +189,10 @@ namespace ForceFeedback.Rules
 
             foreach (var methodDeclaration in methodDeclarations)
             {
+                // [RS] Do nothing if there is no method body (e.g. if the method declaration is an expression-bodied member).
+                if (methodDeclaration.Body == null)
+                    continue;
+
                 var linesOfCode = methodDeclaration.Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
                 var correspondingLimitConfiguration = null as LongMethodLimitConfiguration;
 
