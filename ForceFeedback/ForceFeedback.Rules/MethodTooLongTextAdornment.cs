@@ -77,8 +77,10 @@ namespace ForceFeedback.Rules
 
         private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
         {
-            // [RS] We do nothing here if the change was caused by ourselves. 
-            if (e.EditTag != null && e.EditTag.ToString() == "ForceFeedback")
+            // [RS] We do nothing here if the change was caused by ourselves or if there is no change at all. 
+            var changeCausedByForceFeedback = e.EditTag != null && e.EditTag.ToString() == "ForceFeedback";
+
+            if (changeCausedByForceFeedback || e.Changes.Count == 0)
                 return;
 
             var allowedCharacters = new[]
@@ -178,7 +180,7 @@ namespace ForceFeedback.Rules
         /// declaration and the corresponding limit configuration is put together in an instance of  <see cref="LongMethodOccurrence">LongMethodOccurrence</see>.
         /// </summary>
         /// <param name="methodDeclarations">The list of method declarations that will be analyzed.</param>
-        private void AnalyzeAndCacheLongMethodOccurrences(IEnumerable<MethodDeclarationSyntax> methodDeclarations)
+        private void AnalyzeAndCacheLongMethodOccurrences(IEnumerable<BaseMethodDeclarationSyntax> methodDeclarations)
         {
             if (methodDeclarations == null)
                 throw new ArgumentNullException(nameof(methodDeclarations));
@@ -187,6 +189,10 @@ namespace ForceFeedback.Rules
 
             foreach (var methodDeclaration in methodDeclarations)
             {
+                // [RS] Do nothing if there is no method body (e.g. if the method declaration is an expression-bodied member).
+                if (methodDeclaration.Body == null)
+                    continue;
+
                 var linesOfCode = methodDeclaration.Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
                 var correspondingLimitConfiguration = null as LongMethodLimitConfiguration;
 
@@ -211,7 +217,7 @@ namespace ForceFeedback.Rules
         /// </summary>
         /// <param name="newSnapshot">The text snapshot containing the code to analyze.</param>
         /// <returns>Returns a list with the method declaration nodes.</returns>
-        private async Task<IEnumerable<MethodDeclarationSyntax>> CollectMethodDeclarationSyntaxNodes(ITextSnapshot newSnapshot)
+        private async Task<IEnumerable<BaseMethodDeclarationSyntax>> CollectMethodDeclarationSyntaxNodes(ITextSnapshot newSnapshot)
         {
             if (newSnapshot == null)
                 throw new ArgumentNullException(nameof(newSnapshot));
@@ -222,8 +228,8 @@ namespace ForceFeedback.Rules
 
             var tooLongMethodDeclarations = syntaxRoot
                 .DescendantNodes(node => true, false)
-                .Where(node => node.Kind() == SyntaxKind.MethodDeclaration)
-                .Select(methodDeclaration => methodDeclaration as MethodDeclarationSyntax);
+                .Where(node => node.Kind() == SyntaxKind.MethodDeclaration || node.Kind()== SyntaxKind.ConstructorDeclaration)
+                .Select(methodDeclaration => methodDeclaration as BaseMethodDeclarationSyntax);
 
             return tooLongMethodDeclarations;
         }
@@ -297,7 +303,7 @@ namespace ForceFeedback.Rules
         /// <param name="methodDeclarationSyntaxNode">The syntax node that represents the method declaration that has too many lines of code.</param>
         /// <param name="snapshotSpan">The span of text that is associated with the background adornment.</param>
         /// <returns>Returns the calculated bounds of the method adornment.</returns>
-        private Rect CalculateBounds(MethodDeclarationSyntax methodDeclarationSyntaxNode, SnapshotSpan snapshotSpan)
+        private Rect CalculateBounds(BaseMethodDeclarationSyntax methodDeclarationSyntaxNode, SnapshotSpan snapshotSpan)
         {
             if (methodDeclarationSyntaxNode == null)
                 throw new ArgumentNullException(nameof(methodDeclarationSyntaxNode));
