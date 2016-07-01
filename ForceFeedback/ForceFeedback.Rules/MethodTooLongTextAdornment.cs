@@ -311,35 +311,18 @@ namespace ForceFeedback.Rules
             if (snapshotSpan == null)
                 throw new ArgumentNullException(nameof(snapshotSpan));
 
-            var nodes = new List<SyntaxNode>(methodDeclarationSyntaxNode.ChildNodes());
-            nodes.Add(methodDeclarationSyntaxNode);
-
-            var nodesFirstCharacterPositions = nodes.Select(node => node.Span.Start);
-            var coordinatesOfCharacterPositions = new List<double>();
-
-            foreach (var position in nodesFirstCharacterPositions)
-            {
-                var point = CalculateScreenCoordinatesForCharacterPosition(position);
-                coordinatesOfCharacterPositions.Add(point.x);
-            }
-
-            // [RS] In the case we cannot find the screen coordinates for a character position, we simply skip and return empty bounds.
-            if (coordinatesOfCharacterPositions == null || coordinatesOfCharacterPositions.Count == 0)
-                return Rect.Empty;
-
-            var viewOffset = VisualTreeHelper.GetOffset(_view.VisualElement);
-
-            var left = coordinatesOfCharacterPositions
-                .Select(coordinate => coordinate)
-                .Min();// - viewOffset.X;
-
+            var left = 0d;
 
             var firstCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.Start, 1);
             var firstCharacterSnapshotSpanGeometry = _view.TextViewLines.GetMarkerGeometry(firstCharacterSnapshotSpan, false, new Thickness(0));
 
-            if (firstCharacterSnapshotSpanGeometry == null)
+            if (firstCharacterSnapshotSpanGeometry != null)
             {
-                var lastCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.End, 1);
+                left = firstCharacterSnapshotSpanGeometry.Bounds.Left;
+            }
+            else
+            {
+                var lastCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.Start + snapshotSpan.Length - 1, 1);
                 var lastCharacterSnapshotSpanGeometry = _view.TextViewLines.GetMarkerGeometry(lastCharacterSnapshotSpan, false, new Thickness(0));
 
                 if (lastCharacterSnapshotSpanGeometry == null)
@@ -358,58 +341,6 @@ namespace ForceFeedback.Rules
             var height = geometry.Bounds.Bottom - geometry.Bounds.Top;
             
             return new Rect(left, top, width, height);
-        }
-
-        /// <summary>
-        /// This method tries to calculate the screen coordinates of a specific character position in the stream.
-        /// </summary>
-        /// <param name="position">The position of the character in the stream.</param>
-        /// <returns>Returns a point representing the coordinates.</returns>
-        private POINT CalculateScreenCoordinatesForCharacterPosition(int position)
-        {
-            try
-            {
-                var line = 0;
-                var column = 0;
-                var point = new POINT[1];
-                var textView = _adapterService.GetViewAdapter(_view as ITextView);
-                var result = textView.GetLineAndColumn(position, out line, out column);
-                
-                // [RS] If the line and column of a text position from the stream cannot be calculated, we simply return a zero-point.
-                //      Maybe we should handle the error case slightly more professional by write some log entries or so.
-                if (result != VSConstants.S_OK)
-                    return new POINT() { x = 0, y = 0 };
-
-                result = textView.GetPointOfLineColumn(line, column, point);
-                point[0].x = (int)_view.Caret.Left;
-
-                return point[0];
-            }
-            catch
-            {
-                // [RS] In any case of error we simply return a zero-point.
-                //      Maybe we should handle this exception slightly more professional by write some log entries or so.
-                return new POINT() { x = 0, y = 0 };
-            }
-        }
-
-        private void LoadConfiguration()
-        {
-            //SettingsManager settingsManager = new ShellSettingsManager(_serviceProvider);
-            //WritableSettingsStore userSettingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
-
-            // Find out whether Notepad is already an External Tool.
-            //int toolCount = userSettingsStore.GetInt32(("External Tools", "ToolNumKeys");
-            //bool hasNotepad = false;
-            //CompareInfo Compare = CultureInfo.InvariantCulture.CompareInfo;
-            //for (int i = 0; i < toolCount; i++)
-            //{
-            //    if (Compare.IndexOf(userSettingsStore.GetString("External Tools", "ToolCmd" + i), "Notepad", CompareOptions.IgnoreCase) >= 0)
-            //    {
-            //        hasNotepad = true;
-            //        break;
-            //    }
-            //}
         }
 
         #endregion
