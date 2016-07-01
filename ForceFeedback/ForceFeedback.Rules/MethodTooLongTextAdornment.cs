@@ -331,8 +331,23 @@ namespace ForceFeedback.Rules
 
             var left = coordinatesOfCharacterPositions
                 .Select(coordinate => coordinate)
-                .Min() - viewOffset.X;
-            
+                .Min();// - viewOffset.X;
+
+
+            var firstCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.Start, 1);
+            var firstCharacterSnapshotSpanGeometry = _view.TextViewLines.GetMarkerGeometry(firstCharacterSnapshotSpan, false, new Thickness(0));
+
+            if (firstCharacterSnapshotSpanGeometry == null)
+            {
+                var lastCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.End, 1);
+                var lastCharacterSnapshotSpanGeometry = _view.TextViewLines.GetMarkerGeometry(lastCharacterSnapshotSpan, false, new Thickness(0));
+
+                if (lastCharacterSnapshotSpanGeometry == null)
+                    return Rect.Empty;
+
+                left = lastCharacterSnapshotSpanGeometry.Bounds.Left;
+            }
+
             var geometry = _view.TextViewLines.GetMarkerGeometry(snapshotSpan, true, new Thickness(0));
             
             if (geometry == null)
@@ -366,6 +381,7 @@ namespace ForceFeedback.Rules
                     return new POINT() { x = 0, y = 0 };
 
                 result = textView.GetPointOfLineColumn(line, column, point);
+                point[0].x = (int)_view.Caret.Left;
 
                 return point[0];
             }
