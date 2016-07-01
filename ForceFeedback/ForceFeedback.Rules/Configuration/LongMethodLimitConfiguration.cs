@@ -1,5 +1,4 @@
-﻿using System.Data.SqlTypes;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 
 namespace ForceFeedback.Rules.Configuration
 {
