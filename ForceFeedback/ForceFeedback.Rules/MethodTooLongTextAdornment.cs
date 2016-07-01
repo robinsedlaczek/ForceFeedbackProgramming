@@ -18,10 +18,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using System.Windows;
 using Microsoft.VisualStudio.Editor;
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio;
 using ForceFeedback.Rules.Configuration;
-using System.Text;
 
 namespace ForceFeedback.Rules
 {
@@ -311,8 +308,36 @@ namespace ForceFeedback.Rules
             if (snapshotSpan == null)
                 throw new ArgumentNullException(nameof(snapshotSpan));
 
-            var left = 0d;
+            var left = CalculateLeftPosition(ref snapshotSpan);
 
+            if (left < 0)
+                return Rect.Empty;
+
+            var geometry = _view.TextViewLines.GetMarkerGeometry(snapshotSpan, true, new Thickness(0));
+
+            if (geometry == null)
+                return Rect.Empty;
+
+            var top = geometry.Bounds.Top;
+            var width = 800; // geometry.Bounds.Right - geometry.Bounds.Left;
+            var height = geometry.Bounds.Bottom - geometry.Bounds.Top;
+
+            return new Rect(left, top, width, height);
+        }
+
+        /// <summary>
+        /// This method calculates the left-most position for the method background colorization. 
+        /// </summary>
+        /// <param name="snapshotSpan">The snapshot span of the method for which the position is calculated.</param>
+        /// <returns>Returns the left-coordinate of the method.</returns>
+        private double CalculateLeftPosition(ref SnapshotSpan snapshotSpan)
+        {
+            // [RS] We try to take the first character of the method to get the left-most position. If this does not work (e.g. if the character
+            //      is out of view after scrolling), we take the last character of the method and try to calculate the left-most position for it.
+            //      So we have always the left-most position, wheter the top or the bottom of the method is out of vie or not. If both are out of
+            //      view, we won't colorize anything.
+
+            var left = -1d;
             var firstCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.Start, 1);
             var firstCharacterSnapshotSpanGeometry = _view.TextViewLines.GetMarkerGeometry(firstCharacterSnapshotSpan, false, new Thickness(0));
 
@@ -326,21 +351,12 @@ namespace ForceFeedback.Rules
                 var lastCharacterSnapshotSpanGeometry = _view.TextViewLines.GetMarkerGeometry(lastCharacterSnapshotSpan, false, new Thickness(0));
 
                 if (lastCharacterSnapshotSpanGeometry == null)
-                    return Rect.Empty;
+                    return -1;
 
                 left = lastCharacterSnapshotSpanGeometry.Bounds.Left;
             }
 
-            var geometry = _view.TextViewLines.GetMarkerGeometry(snapshotSpan, true, new Thickness(0));
-            
-            if (geometry == null)
-                return Rect.Empty;
-
-            var top = geometry.Bounds.Top;
-            var width = 800; // geometry.Bounds.Right - geometry.Bounds.Left;
-            var height = geometry.Bounds.Bottom - geometry.Bounds.Top;
-            
-            return new Rect(left, top, width, height);
+            return left;
         }
 
         #endregion
