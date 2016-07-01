@@ -18,10 +18,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using System.Windows;
 using Microsoft.VisualStudio.Editor;
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio;
 using ForceFeedback.Rules.Configuration;
-using System.Text;
 
 namespace ForceFeedback.Rules
 {
@@ -311,89 +308,55 @@ namespace ForceFeedback.Rules
             if (snapshotSpan == null)
                 throw new ArgumentNullException(nameof(snapshotSpan));
 
-            var nodes = new List<SyntaxNode>(methodDeclarationSyntaxNode.ChildNodes());
-            nodes.Add(methodDeclarationSyntaxNode);
+            var left = CalculateLeftPosition(ref snapshotSpan);
 
-            var nodesFirstCharacterPositions = nodes.Select(node => node.Span.Start);
-            var coordinatesOfCharacterPositions = new List<double>();
-
-            foreach (var position in nodesFirstCharacterPositions)
-            {
-                var point = CalculateScreenCoordinatesForCharacterPosition(position);
-                coordinatesOfCharacterPositions.Add(point.x);
-            }
-
-            // [RS] In the case we cannot find the screen coordinates for a character position, we simply skip and return empty bounds.
-            if (coordinatesOfCharacterPositions == null || coordinatesOfCharacterPositions.Count == 0)
+            if (left < 0)
                 return Rect.Empty;
 
-            var viewOffset = VisualTreeHelper.GetOffset(_view.VisualElement);
-
-            var left = coordinatesOfCharacterPositions
-                .Select(coordinate => coordinate)
-                .Min() - viewOffset.X;
-            
             var geometry = _view.TextViewLines.GetMarkerGeometry(snapshotSpan, true, new Thickness(0));
-            
+
             if (geometry == null)
                 return Rect.Empty;
 
             var top = geometry.Bounds.Top;
-            var width = geometry.Bounds.Right - geometry.Bounds.Left; // - viewOffset.X;
+            var width = 800; // geometry.Bounds.Right - geometry.Bounds.Left;
             var height = geometry.Bounds.Bottom - geometry.Bounds.Top;
-            
+
             return new Rect(left, top, width, height);
         }
 
         /// <summary>
-        /// This method tries to calculate the screen coordinates of a specific character position in the stream.
+        /// This method calculates the left-most position for the method background colorization. 
         /// </summary>
-        /// <param name="position">The position of the character in the stream.</param>
-        /// <returns>Returns a point representing the coordinates.</returns>
-        private POINT CalculateScreenCoordinatesForCharacterPosition(int position)
+        /// <param name="snapshotSpan">The snapshot span of the method for which the position is calculated.</param>
+        /// <returns>Returns the left-coordinate of the method.</returns>
+        private double CalculateLeftPosition(ref SnapshotSpan snapshotSpan)
         {
-            try
+            // [RS] We try to take the first character of the method to get the left-most position. If this does not work (e.g. if the character
+            //      is out of view after scrolling), we take the last character of the method and try to calculate the left-most position for it.
+            //      So we have always the left-most position, wheter the top or the bottom of the method is out of vie or not. If both are out of
+            //      view, we won't colorize anything.
+
+            var left = -1d;
+            var firstCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.Start, 1);
+            var firstCharacterSnapshotSpanGeometry = _view.TextViewLines.GetMarkerGeometry(firstCharacterSnapshotSpan, false, new Thickness(0));
+
+            if (firstCharacterSnapshotSpanGeometry != null)
             {
-                var line = 0;
-                var column = 0;
-                var point = new POINT[1];
-                var textView = _adapterService.GetViewAdapter(_view as ITextView);
-                var result = textView.GetLineAndColumn(position, out line, out column);
-                
-                // [RS] If the line and column of a text position from the stream cannot be calculated, we simply return a zero-point.
-                //      Maybe we should handle the error case slightly more professional by write some log entries or so.
-                if (result != VSConstants.S_OK)
-                    return new POINT() { x = 0, y = 0 };
-
-                result = textView.GetPointOfLineColumn(line, column, point);
-
-                return point[0];
+                left = firstCharacterSnapshotSpanGeometry.Bounds.Left;
             }
-            catch
+            else
             {
-                // [RS] In any case of error we simply return a zero-point.
-                //      Maybe we should handle this exception slightly more professional by write some log entries or so.
-                return new POINT() { x = 0, y = 0 };
+                var lastCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.Start + snapshotSpan.Length - 1, 1);
+                var lastCharacterSnapshotSpanGeometry = _view.TextViewLines.GetMarkerGeometry(lastCharacterSnapshotSpan, false, new Thickness(0));
+
+                if (lastCharacterSnapshotSpanGeometry == null)
+                    return -1;
+
+                left = lastCharacterSnapshotSpanGeometry.Bounds.Left;
             }
-        }
 
-        private void LoadConfiguration()
-        {
-            //SettingsManager settingsManager = new ShellSettingsManager(_serviceProvider);
-            //WritableSettingsStore userSettingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
-
-            // Find out whether Notepad is already an External Tool.
-            //int toolCount = userSettingsStore.GetInt32(("External Tools", "ToolNumKeys");
-            //bool hasNotepad = false;
-            //CompareInfo Compare = CultureInfo.InvariantCulture.CompareInfo;
-            //for (int i = 0; i < toolCount; i++)
-            //{
-            //    if (Compare.IndexOf(userSettingsStore.GetString("External Tools", "ToolCmd" + i), "Notepad", CompareOptions.IgnoreCase) >= 0)
-            //    {
-            //        hasNotepad = true;
-            //        break;
-            //    }
-            //}
+            return left;
         }
 
         #endregion
