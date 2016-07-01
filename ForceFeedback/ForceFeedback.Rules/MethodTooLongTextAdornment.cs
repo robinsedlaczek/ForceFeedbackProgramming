@@ -337,7 +337,7 @@ namespace ForceFeedback.Rules
                 return Rect.Empty;
 
             var top = geometry.Bounds.Top;
-            var width = geometry.Bounds.Right - geometry.Bounds.Left; // - viewOffset.X;
+            var width = 800; // geometry.Bounds.Right - geometry.Bounds.Left;
             var height = geometry.Bounds.Bottom - geometry.Bounds.Top;
             
             return new Rect(left, top, width, height);
