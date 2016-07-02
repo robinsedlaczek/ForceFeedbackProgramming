@@ -32,7 +32,6 @@ namespace ForceFeedback.Rules
         private IList<LongMethodOccurrence> _longMethodOccurrences;
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
-        private readonly IVsEditorAdaptersFactoryService _adapterService;
         private int _lastCaretBufferPosition;
         private int _numberOfKeystrokes;
 
@@ -44,16 +43,10 @@ namespace ForceFeedback.Rules
         /// Initializes a new instance of the <see cref="MethodTooLongTextAdornment"/> class.
         /// </summary>
         /// <param name="view">Text view to create the adornment for</param>
-        /// 
-        /// !!! Missing parameter documentation !!!
-        ///
-        public MethodTooLongTextAdornment(IWpfTextView view, IVsEditorAdaptersFactoryService adapterService)
+        public MethodTooLongTextAdornment(IWpfTextView view)
         {
             if (view == null)
                 throw new ArgumentNullException(nameof(view));
-
-            if (adapterService == null)
-                throw new ArgumentNullException(nameof(adapterService));
 
             _lastCaretBufferPosition = 0;
             _numberOfKeystrokes = 0;
@@ -64,8 +57,6 @@ namespace ForceFeedback.Rules
             _view = view;
             _view.LayoutChanged += OnLayoutChanged;
             _view.TextBuffer.Changed += OnTextBufferChanged;
-
-            _adapterService = adapterService;
         }
 
         #endregion
