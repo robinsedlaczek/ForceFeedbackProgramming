@@ -12,7 +12,7 @@ namespace ForceFeedback.Rules.Configuration
     {
         internal static readonly Color LongMethodBorderColor;
         internal static readonly Color LongMethodBackgroundColor;
-        internal static readonly Pen LongMethodBorderPen;
+        internal static readonly Pen LongCodeBlockBorderPen;
         internal static readonly Brush LongMethodBackgroundBrush;
 
         internal static readonly FileSystemWatcher ConfigurationFileWatcher = InitConfigurationFileWatcher();
@@ -29,8 +29,8 @@ namespace ForceFeedback.Rules.Configuration
             var penBrush = new SolidColorBrush(LongMethodBorderColor);
             penBrush.Freeze();
 
-            LongMethodBorderPen = new Pen(penBrush, 0.5);
-            LongMethodBorderPen.Freeze();
+            LongCodeBlockBorderPen = new Pen(penBrush, 0.5);
+            LongCodeBlockBorderPen.Freeze();
 
             LongMethodBackgroundBrush = new SolidColorBrush(LongMethodBackgroundColor);
             LongMethodBackgroundBrush.Freeze();
