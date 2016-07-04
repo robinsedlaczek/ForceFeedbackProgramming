@@ -17,7 +17,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using System.Windows;
-using Microsoft.VisualStudio.Editor;
 using ForceFeedback.Rules.Configuration;
 
 namespace ForceFeedback.Rules
@@ -177,10 +176,6 @@ namespace ForceFeedback.Rules
 
             foreach (var codeBlock in codeBlocks)
             {
-                // [RS] Do nothing if there is no method body (e.g. if the method declaration is an expression-bodied member).
-                //if (methodDeclaration.Body == null)
-                //    continue;
-
                 var linesOfCode = codeBlock.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
                 var correspondingLimitConfiguration = null as LongMethodLimitConfiguration;
 
@@ -323,10 +318,10 @@ namespace ForceFeedback.Rules
         /// <returns>Returns the left-coordinate of the method.</returns>
         private double CalculateLeftPosition(ref SnapshotSpan snapshotSpan)
         {
-            // [RS] We try to take the first character of the method to get the left-most position. If this does not work (e.g. if the character
-            //      is out of view after scrolling), we take the last character of the method and try to calculate the left-most position for it.
-            //      So we have always the left-most position, wheter the top or the bottom of the method is out of vie or not. If both are out of
-            //      view, we won't colorize anything.
+            // [RS] We try to take the first character of the code block (without leading trivias) to get the left-most position. If this does not 
+            //      work (e.g. if the character is out of view after scrolling), we take the last character of the code block (without trailing trivias) 
+            //      and try to calculate the left-most position for it. So we have always the left-most position, wheter the top or the bottom of the 
+            //      code block is out of view or not. If both are out of view, we won't colorize anything.
 
             var left = -1d;
             var firstCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.Start, 1);
