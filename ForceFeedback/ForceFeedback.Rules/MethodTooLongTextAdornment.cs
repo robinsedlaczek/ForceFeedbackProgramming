@@ -150,7 +150,7 @@ namespace ForceFeedback.Rules
                 var methodDeclarations = await CollectMethodDeclarationSyntaxNodes(e.NewSnapshot);
 
                 AnalyzeAndCacheLongMethodOccurrences(methodDeclarations);
-                CreateVisualsForLongMethods();
+                CreateVisualsForLongCodeBlock();
             }
             catch
             {
@@ -168,7 +168,7 @@ namespace ForceFeedback.Rules
         /// declaration and the corresponding limit configuration is put together in an instance of  <see cref="LongMethodOccurrence">LongMethodOccurrence</see>.
         /// </summary>
         /// <param name="methodDeclarations">The list of method declarations that will be analyzed.</param>
-        private void AnalyzeAndCacheLongMethodOccurrences(IEnumerable<BaseMethodDeclarationSyntax> methodDeclarations)
+        private void AnalyzeAndCacheLongMethodOccurrences(IEnumerable<BlockSyntax> methodDeclarations)
         {
             if (methodDeclarations == null)
                 throw new ArgumentNullException(nameof(methodDeclarations));
@@ -178,10 +178,10 @@ namespace ForceFeedback.Rules
             foreach (var methodDeclaration in methodDeclarations)
             {
                 // [RS] Do nothing if there is no method body (e.g. if the method declaration is an expression-bodied member).
-                if (methodDeclaration.Body == null)
-                    continue;
+                //if (methodDeclaration.Body == null)
+                //    continue;
 
-                var linesOfCode = methodDeclaration.Body.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
+                var linesOfCode = methodDeclaration.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
                 var correspondingLimitConfiguration = null as LongMethodLimitConfiguration;
 
                 foreach (var limitConfiguration in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
@@ -205,7 +205,7 @@ namespace ForceFeedback.Rules
         /// </summary>
         /// <param name="newSnapshot">The text snapshot containing the code to analyze.</param>
         /// <returns>Returns a list with the method declaration nodes.</returns>
-        private async Task<IEnumerable<BaseMethodDeclarationSyntax>> CollectMethodDeclarationSyntaxNodes(ITextSnapshot newSnapshot)
+        private async Task<IEnumerable<BlockSyntax>> CollectMethodDeclarationSyntaxNodes(ITextSnapshot newSnapshot)
         {
             if (newSnapshot == null)
                 throw new ArgumentNullException(nameof(newSnapshot));
@@ -216,25 +216,25 @@ namespace ForceFeedback.Rules
 
             var tooLongMethodDeclarations = syntaxRoot
                 .DescendantNodes(node => true, false)
-                .Where(node => node.Kind() == SyntaxKind.MethodDeclaration || node.Kind()== SyntaxKind.ConstructorDeclaration)
-                .Select(methodDeclaration => methodDeclaration as BaseMethodDeclarationSyntax);
+                .Where(node => node.Kind() == SyntaxKind.Block && (node.Parent.Kind() == SyntaxKind.MethodDeclaration || node.Parent.Kind() == SyntaxKind.ConstructorDeclaration || node.Parent.Kind() == SyntaxKind.AddAccessorDeclaration || node.Parent.Kind() == SyntaxKind.GetAccessorDeclaration))
+                .Select(block => block as BlockSyntax);
 
             return tooLongMethodDeclarations;
         }
 
         /// <summary>
-        /// Adds a background behind the methods that have too many lines.
+        /// Adds a background behind the code block that have too many lines.
         /// </summary>
-        private void CreateVisualsForLongMethods()
+        private void CreateVisualsForLongCodeBlock()
         {
             if (_longMethodOccurrences == null)
                 return;
 
             foreach (var occurrence in _longMethodOccurrences)
             {
-                var methodDeclaration = occurrence.MethodDeclaration;
-                var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(methodDeclaration.Span.Start, methodDeclaration.Span.Start + methodDeclaration.Span.Length));
-                var adornmentBounds = CalculateBounds(methodDeclaration, snapshotSpan);
+                var blockParentSyntax = occurrence.MethodDeclaration.Parent;
+                var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(blockParentSyntax.Span.Start, blockParentSyntax.Span.Start + blockParentSyntax.Span.Length));
+                var adornmentBounds = CalculateBounds(blockParentSyntax, snapshotSpan);
 
                 if (adornmentBounds.IsEmpty)
                     continue;
@@ -245,7 +245,7 @@ namespace ForceFeedback.Rules
                     continue;
 
                 _layer.RemoveAdornmentsByVisualSpan(snapshotSpan);
-                _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, methodDeclaration, image, null);
+                _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, blockParentSyntax, image, null);
             }
         }
 
@@ -286,15 +286,15 @@ namespace ForceFeedback.Rules
         }
 
         /// <summary>
-        /// This method calculates the bounds of the method background adornment.
+        /// This method calculates the bounds of the syntax node background adornment.
         /// </summary>
-        /// <param name="methodDeclarationSyntaxNode">The syntax node that represents the method declaration that has too many lines of code.</param>
+        /// <param name="syntaxNode">The syntax node that represents the block that has too many lines of code.</param>
         /// <param name="snapshotSpan">The span of text that is associated with the background adornment.</param>
-        /// <returns>Returns the calculated bounds of the method adornment.</returns>
-        private Rect CalculateBounds(BaseMethodDeclarationSyntax methodDeclarationSyntaxNode, SnapshotSpan snapshotSpan)
+        /// <returns>Returns the calculated bounds of the syntax node adornment.</returns>
+        private Rect CalculateBounds(SyntaxNode syntaxNode, SnapshotSpan snapshotSpan)
         {
-            if (methodDeclarationSyntaxNode == null)
-                throw new ArgumentNullException(nameof(methodDeclarationSyntaxNode));
+            if (syntaxNode == null)
+                throw new ArgumentNullException(nameof(syntaxNode));
 
             if (snapshotSpan == null)
                 throw new ArgumentNullException(nameof(snapshotSpan));
@@ -351,5 +351,6 @@ namespace ForceFeedback.Rules
         }
 
         #endregion
+
     }
 }
