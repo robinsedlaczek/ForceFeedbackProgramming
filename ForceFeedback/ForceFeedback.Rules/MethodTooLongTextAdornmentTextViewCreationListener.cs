@@ -28,7 +28,7 @@ namespace ForceFeedback.Rules
         /// </summary>
         [Export(typeof(AdornmentLayerDefinition))]
         [Name("MethodTooLongTextAdornment")]
-        [Order(After = PredefinedAdornmentLayers.Selection, Before = PredefinedAdornmentLayers.Text)]
+        [Order(Before = PredefinedAdornmentLayers.Selection)]
         private AdornmentLayerDefinition EditorAdornmentLayer;
 
 #pragma warning restore 649, 169

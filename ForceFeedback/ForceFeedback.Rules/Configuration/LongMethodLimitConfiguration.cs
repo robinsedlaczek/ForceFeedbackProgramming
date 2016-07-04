@@ -11,7 +11,7 @@ namespace ForceFeedback.Rules.Configuration
             NoiseDistance = noiseDistance;
 
             var colorValue = color;
-            colorValue.A = (byte)(255d * transparency);
+            colorValue.A = (byte)(255d - transparency * 255d);
 
             Color = colorValue;
         }
