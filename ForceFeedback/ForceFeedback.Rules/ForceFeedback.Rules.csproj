@@ -259,7 +259,7 @@
     <Compile Include="MethodTooLongTextAdornment.cs" />
     <Compile Include="MethodTooLongTextAdornmentTextViewCreationListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="LongMethodOccurrence.cs" />
+    <Compile Include="LongCodeBlockOccurrence.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

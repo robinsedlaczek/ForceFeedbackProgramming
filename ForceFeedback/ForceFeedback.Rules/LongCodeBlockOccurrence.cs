@@ -3,15 +3,15 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ForceFeedback.Rules
 {
-    internal class LongMethodOccurrence
+    internal class LongCodeBlockOccurrence
     {
-        public LongMethodOccurrence(BlockSyntax methodDeclaration, LongMethodLimitConfiguration limitConfiguration)
+        public LongCodeBlockOccurrence(BlockSyntax block, LongMethodLimitConfiguration limitConfiguration)
         {
-            MethodDeclaration = methodDeclaration;
+            Block = block;
             LimitConfiguration = limitConfiguration;
         }
 
-        public BlockSyntax MethodDeclaration { get; set; }
+        public BlockSyntax Block { get; set; }
 
         public LongMethodLimitConfiguration LimitConfiguration { get; set; }
     }

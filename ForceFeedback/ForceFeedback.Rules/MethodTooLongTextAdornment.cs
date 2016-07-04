@@ -29,7 +29,7 @@ namespace ForceFeedback.Rules
     {
         #region Private Fields
 
-        private IList<LongMethodOccurrence> _longMethodOccurrences;
+        private IList<LongCodeBlockOccurrence> _longCodeBlockOccurrences;
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
         private int _lastCaretBufferPosition;
@@ -50,7 +50,7 @@ namespace ForceFeedback.Rules
 
             _lastCaretBufferPosition = 0;
             _numberOfKeystrokes = 0;
-            _longMethodOccurrences = new List<LongMethodOccurrence>();
+            _longCodeBlockOccurrences = new List<LongCodeBlockOccurrence>();
 
             _layer = view.GetAdornmentLayer("MethodTooLongTextAdornment");
 
@@ -100,8 +100,8 @@ namespace ForceFeedback.Rules
                 return;
             }
 
-            var longMethodOccurence = _longMethodOccurrences
-                .Where(occurence => occurence.MethodDeclaration.FullSpan.IntersectsWith(change.NewSpan.Start))
+            var longMethodOccurence = _longCodeBlockOccurrences
+                .Where(occurence => occurence.Block.FullSpan.IntersectsWith(change.NewSpan.Start))
                 .Select(occurence => occurence)
                 .FirstOrDefault();
 
@@ -147,9 +147,9 @@ namespace ForceFeedback.Rules
         {
             try
             {
-                var methodDeclarations = await CollectMethodDeclarationSyntaxNodes(e.NewSnapshot);
+                var codeBlocks = await CollectBlockSyntaxNodes(e.NewSnapshot);
 
-                AnalyzeAndCacheLongMethodOccurrences(methodDeclarations);
+                AnalyzeAndCacheLongCodeBlockOccurrences(codeBlocks);
                 CreateVisualsForLongCodeBlock();
             }
             catch
@@ -164,24 +164,24 @@ namespace ForceFeedback.Rules
         #region Private Methods
 
         /// <summary>
-        /// This method checks the given method declarations are too long based on the configured limits. If so, the method 
-        /// declaration and the corresponding limit configuration is put together in an instance of  <see cref="LongMethodOccurrence">LongMethodOccurrence</see>.
+        /// This method checks if the given block syntaxes are too long based on the configured limits. If so, the block syntax 
+        /// and the corresponding limit configuration is put together in an instance of  <see cref="LongCodeBlockOccurrence">LongCodeBlockOccurrence</see>.
         /// </summary>
-        /// <param name="methodDeclarations">The list of method declarations that will be analyzed.</param>
-        private void AnalyzeAndCacheLongMethodOccurrences(IEnumerable<BlockSyntax> methodDeclarations)
+        /// <param name="codeBlocks">The list of block syntaxes that will be analyzed.</param>
+        private void AnalyzeAndCacheLongCodeBlockOccurrences(IEnumerable<BlockSyntax> codeBlocks)
         {
-            if (methodDeclarations == null)
-                throw new ArgumentNullException(nameof(methodDeclarations));
+            if (codeBlocks == null)
+                throw new ArgumentNullException(nameof(codeBlocks));
 
-            _longMethodOccurrences.Clear();
+            _longCodeBlockOccurrences.Clear();
 
-            foreach (var methodDeclaration in methodDeclarations)
+            foreach (var codeBlock in codeBlocks)
             {
                 // [RS] Do nothing if there is no method body (e.g. if the method declaration is an expression-bodied member).
                 //if (methodDeclaration.Body == null)
                 //    continue;
 
-                var linesOfCode = methodDeclaration.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
+                var linesOfCode = codeBlock.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
                 var correspondingLimitConfiguration = null as LongMethodLimitConfiguration;
 
                 foreach (var limitConfiguration in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
@@ -194,18 +194,18 @@ namespace ForceFeedback.Rules
 
                 if (correspondingLimitConfiguration != null)
                 {
-                    var occurence = new LongMethodOccurrence(methodDeclaration, correspondingLimitConfiguration);
-                    _longMethodOccurrences.Add(occurence);
+                    var occurence = new LongCodeBlockOccurrence(codeBlock, correspondingLimitConfiguration);
+                    _longCodeBlockOccurrences.Add(occurence);
                 }
             }
         }
 
         /// <summary>
-        /// This method collects syntax nodes of method declarations that have too many lines of code.
+        /// This method collects syntax nodes of code blocks that have too many lines of code.
         /// </summary>
         /// <param name="newSnapshot">The text snapshot containing the code to analyze.</param>
-        /// <returns>Returns a list with the method declaration nodes.</returns>
-        private async Task<IEnumerable<BlockSyntax>> CollectMethodDeclarationSyntaxNodes(ITextSnapshot newSnapshot)
+        /// <returns>Returns a list with the code block syntax nodes.</returns>
+        private async Task<IEnumerable<BlockSyntax>> CollectBlockSyntaxNodes(ITextSnapshot newSnapshot)
         {
             if (newSnapshot == null)
                 throw new ArgumentNullException(nameof(newSnapshot));
@@ -214,12 +214,12 @@ namespace ForceFeedback.Rules
 
             var syntaxRoot = await currentDocument.GetSyntaxRootAsync();
 
-            var tooLongMethodDeclarations = syntaxRoot
+            var tooLongCodeBlocks = syntaxRoot
                 .DescendantNodes(node => true, false)
-                .Where(node => node.Kind() == SyntaxKind.Block && (node.Parent.Kind() == SyntaxKind.MethodDeclaration || node.Parent.Kind() == SyntaxKind.ConstructorDeclaration || node.Parent.Kind() == SyntaxKind.AddAccessorDeclaration || node.Parent.Kind() == SyntaxKind.GetAccessorDeclaration))
+                .Where(node => node.Kind() == SyntaxKind.Block && (node.Parent.Kind() == SyntaxKind.MethodDeclaration || node.Parent.Kind() == SyntaxKind.ConstructorDeclaration || node.Parent.Kind() == SyntaxKind.SetAccessorDeclaration || node.Parent.Kind() == SyntaxKind.GetAccessorDeclaration))
                 .Select(block => block as BlockSyntax);
 
-            return tooLongMethodDeclarations;
+            return tooLongCodeBlocks;
         }
 
         /// <summary>
@@ -227,48 +227,48 @@ namespace ForceFeedback.Rules
         /// </summary>
         private void CreateVisualsForLongCodeBlock()
         {
-            if (_longMethodOccurrences == null)
+            if (_longCodeBlockOccurrences == null)
                 return;
 
-            foreach (var occurrence in _longMethodOccurrences)
+            foreach (var occurrence in _longCodeBlockOccurrences)
             {
-                var blockParentSyntax = occurrence.MethodDeclaration.Parent;
-                var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(blockParentSyntax.Span.Start, blockParentSyntax.Span.Start + blockParentSyntax.Span.Length));
-                var adornmentBounds = CalculateBounds(blockParentSyntax, snapshotSpan);
+                var codeBlockParentSyntax = occurrence.Block.Parent;
+                var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(codeBlockParentSyntax.Span.Start, codeBlockParentSyntax.Span.Start + codeBlockParentSyntax.Span.Length));
+                var adornmentBounds = CalculateBounds(codeBlockParentSyntax, snapshotSpan);
 
                 if (adornmentBounds.IsEmpty)
                     continue;
 
-                var image = CreateAndPositionMethodBackgroundVisual(adornmentBounds, occurrence);
+                var image = CreateAndPositionCodeBlockBackgroundVisual(adornmentBounds, occurrence);
 
                 if (image == null)
                     continue;
 
                 _layer.RemoveAdornmentsByVisualSpan(snapshotSpan);
-                _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, blockParentSyntax, image, null);
+                _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, snapshotSpan, codeBlockParentSyntax, image, null);
             }
         }
 
         /// <summary>
-        /// This method creates the visual for a method background and moves it to the correct position.
+        /// This method creates the visual for a code block background and moves it to the correct position.
         /// </summary>
         /// <param name="adornmentBounds">The bounds of the rectangular adornment.</param>
-        /// <param name="longMethodOccurence">The occurence of the method declaration for which the visual will be created.</param>
-        /// <returns>Returns the image that is the visual adornment (method background).</returns>
-        private Image CreateAndPositionMethodBackgroundVisual(Rect adornmentBounds, LongMethodOccurrence longMethodOccurence)
+        /// <param name="longCodeBlockOccurence">The occurence of the code block for which the visual will be created.</param>
+        /// <returns>Returns the image that is the visual adornment (code block background).</returns>
+        private Image CreateAndPositionCodeBlockBackgroundVisual(Rect adornmentBounds, LongCodeBlockOccurrence longCodeBlockOccurence)
         {
             if (adornmentBounds == null)
                 throw new ArgumentNullException(nameof(adornmentBounds));
 
-            if (longMethodOccurence == null)
-                throw new ArgumentNullException(nameof(longMethodOccurence));
+            if (longCodeBlockOccurence == null)
+                throw new ArgumentNullException(nameof(longCodeBlockOccurence));
 
             var backgroundGeometry = new RectangleGeometry(adornmentBounds);
 
-            var backgroundBrush = new SolidColorBrush(longMethodOccurence.LimitConfiguration.Color);
+            var backgroundBrush = new SolidColorBrush(longCodeBlockOccurence.LimitConfiguration.Color);
             backgroundBrush.Freeze();
 
-            var drawing = new GeometryDrawing(backgroundBrush, ConfigurationManager.LongMethodBorderPen, backgroundGeometry);
+            var drawing = new GeometryDrawing(backgroundBrush, ConfigurationManager.LongCodeBlockBorderPen, backgroundGeometry);
             drawing.Freeze();
 
             var drawingImage = new DrawingImage(drawing);
