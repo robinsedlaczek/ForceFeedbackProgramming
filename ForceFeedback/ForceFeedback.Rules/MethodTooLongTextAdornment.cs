@@ -13,11 +13,11 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using System.Windows;
 using ForceFeedback.Rules.Configuration;
+using ForceFeedback.Rules.Extensions;
 
 namespace ForceFeedback.Rules
 {
@@ -73,16 +73,14 @@ namespace ForceFeedback.Rules
 
         private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
         {
-            Console.WriteLine(e.Changes[0].NewText);
-            if (WasChangeCausedByForceFeedback(e) || e.Changes.Count == 0)
-                return;
+            
             if (!InteresstingChangedOccured(e))
                 return;
 
             var change = e.Changes[0];
             var caretPosition = _view.Caret.Position.BufferPosition.Position;
 
-            if (change.NewText == "\r\n" || change.NewText == "\r" || change.NewText == "\n")
+            if (change.NewText.IsNewLineMarker())
             {
                 _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
                 _numberOfKeystrokes = 0;
@@ -104,27 +102,29 @@ namespace ForceFeedback.Rules
 
             _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
 
-            if (_numberOfKeystrokes >= longMethodOccurence.LimitConfiguration.NoiseDistance)
-            {
-                if (!_view.TextBuffer.CheckEditAccess())
-                    throw new Exception("Cannot edit text buffer.");
+            if (_numberOfKeystrokes < longMethodOccurence.LimitConfiguration.NoiseDistance) return;
 
-                var textToInsert = "⌫";
+            if (!_view.TextBuffer.CheckEditAccess())
+                throw new Exception("Cannot edit text buffer.");
 
-                var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
-                var inserted = edit.Insert(change.NewPosition + change.NewLength, textToInsert.ToString());
+            const string textToInsert = "⌫";
 
-                if (!inserted)
-                    throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
+            var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
+            var inserted = edit.Insert(change.NewPosition + change.NewLength, textToInsert);
 
-                edit.Apply();
+            if (!inserted)
+                throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
 
-                _numberOfKeystrokes = 0;
-            }
+            edit.Apply();
+
+            _numberOfKeystrokes = 0;
         }
 
         private bool InteresstingChangedOccured(TextContentChangedEventArgs e)
         {
+            if (WasChangeCausedByForceFeedback(e) || e.Changes.Count == 0)
+                return false;
+
             var change = e.Changes[0];
             // [RS] We trim the new text when checking for allowed characters, if the text has more than one character. This is, e.g. 
             //      if the user inserted a linefeed and the IDE created whitespaces automatically for indention of the next line.
@@ -182,7 +182,12 @@ namespace ForceFeedback.Rules
 
             foreach (var codeBlock in codeBlocks)
             {
-                var linesOfCode = codeBlock.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
+                var linesOfCode = codeBlock
+                    .WithoutLeadingTrivia()
+                    .WithoutTrailingTrivia()
+                    .GetText()
+                    .Lines
+                    .Count;
                 var correspondingLimitConfiguration = null as LongMethodLimitConfiguration;
 
                 foreach (var limitConfiguration in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
@@ -216,8 +221,12 @@ namespace ForceFeedback.Rules
             var syntaxRoot = await currentDocument.GetSyntaxRootAsync();
 
             var tooLongCodeBlocks = syntaxRoot
-                .DescendantNodes(node => true, false)
-                .Where(node => node.Kind() == SyntaxKind.Block && (node.Parent.Kind() == SyntaxKind.MethodDeclaration || node.Parent.Kind() == SyntaxKind.ConstructorDeclaration || node.Parent.Kind() == SyntaxKind.SetAccessorDeclaration || node.Parent.Kind() == SyntaxKind.GetAccessorDeclaration))
+                .DescendantNodes(node => true)
+                .Where(node => node.IsSyntaxBlock() 
+                    && (   node.Parent.IsMethod()
+                        || node.Parent.IsConstructor()
+                        || node.Parent.IsSetter()
+                        || node.Parent.IsGetter()))
                 .Select(block => block as BlockSyntax);
 
             return tooLongCodeBlocks;

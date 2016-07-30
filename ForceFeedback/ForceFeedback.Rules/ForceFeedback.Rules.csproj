@@ -257,6 +257,8 @@
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="Configuration\Configuration.cs" />
     <Compile Include="Configuration\LongMethodLimitConfiguration.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\SyntaxNodeExtension.cs" />
     <Compile Include="MethodTooLongTextAdornment.cs" />
     <Compile Include="MethodTooLongTextAdornmentTextViewCreationListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
