@@ -13,11 +13,11 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using System.Windows;
 using ForceFeedback.Rules.Configuration;
+using ForceFeedback.Rules.Extensions;
 
 namespace ForceFeedback.Rules
 {
@@ -33,6 +33,15 @@ namespace ForceFeedback.Rules
         private readonly IWpfTextView _view;
         private int _lastCaretBufferPosition;
         private int _numberOfKeystrokes;
+
+        private readonly string[] _allowedCharactersInChanges = new[]
+        {
+            "\r", "\n", "\r\n",
+            " ", "\"", "'", ".", ",", "@", "$", "(", ")", "{", "}", "[", "]", "&", "|", "\\", "%", "+", "-", "*", "/", ";", ":", "_", "?", "!",
+            "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+        };
 
         #endregion
 
@@ -64,35 +73,14 @@ namespace ForceFeedback.Rules
 
         private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
         {
-            // [RS] We do nothing here if the change was caused by ourselves or if there is no change at all. 
-            var changeCausedByForceFeedback = e.EditTag != null && e.EditTag.ToString() == "ForceFeedback";
-
-            if (changeCausedByForceFeedback || e.Changes.Count == 0)
+            
+            if (!InteresstingChangedOccured(e))
                 return;
-
-            var allowedCharacters = new[]
-            {
-                "\r", "\n", "\r\n",
-                " ", "\"", "'", ".", ",", "@", "$", "(", ")", "{", "}", "[", "]", "&", "|", "\\", "%", "+", "-", "*", "/", ";", ":", "_", "?", "!",
-                "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-                "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-                "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-            };
 
             var change = e.Changes[0];
-            // [RS] We trim the new text when checking for allowed characters, if the text has more than one character. This is, e.g. 
-            //      if the user inserted a linefeed and the IDE created whitespaces automatically for indention of the next line.
-            //      In this case, we want to ignore the generated leading whitespaces. 
-            //      In the case the user entered a whitespace directly, we do not want to trim it away. So we check the new text length. 
-            var interestingChangeOccurred = 
-                e.Changes.Count > 0 && allowedCharacters.Contains(change.NewText.Length == 1 ? change.NewText : change.NewText.Trim(' '));
-
-            if (!interestingChangeOccurred)
-                return;
-
             var caretPosition = _view.Caret.Position.BufferPosition.Position;
 
-            if (change.NewText == "\r\n" || change.NewText == "\r" || change.NewText == "\n")
+            if (change.NewText.IsNewLineMarker())
             {
                 _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
                 _numberOfKeystrokes = 0;
@@ -114,23 +102,41 @@ namespace ForceFeedback.Rules
 
             _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
 
-            if (_numberOfKeystrokes >= longMethodOccurence.LimitConfiguration.NoiseDistance)
-            {
-                if (!_view.TextBuffer.CheckEditAccess())
-                    throw new Exception("Cannot edit text buffer.");
+            if (_numberOfKeystrokes < longMethodOccurence.LimitConfiguration.NoiseDistance) return;
 
-                var textToInsert = "⌫";
+            if (!_view.TextBuffer.CheckEditAccess())
+                throw new Exception("Cannot edit text buffer.");
 
-                var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
-                var inserted = edit.Insert(change.NewPosition + change.NewLength, textToInsert.ToString());
+            const string textToInsert = "⌫";
 
-                if (!inserted)
-                    throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
+            var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
+            var inserted = edit.Insert(change.NewPosition + change.NewLength, textToInsert);
 
-                edit.Apply();
+            if (!inserted)
+                throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
 
-                _numberOfKeystrokes = 0;
-            }
+            edit.Apply();
+
+            _numberOfKeystrokes = 0;
+        }
+
+        private bool InteresstingChangedOccured(TextContentChangedEventArgs e)
+        {
+            if (WasChangeCausedByForceFeedback(e) || e.Changes.Count == 0)
+                return false;
+
+            var change = e.Changes[0];
+            // [RS] We trim the new text when checking for allowed characters, if the text has more than one character. This is, e.g. 
+            //      if the user inserted a linefeed and the IDE created whitespaces automatically for indention of the next line.
+            //      In this case, we want to ignore the generated leading whitespaces. 
+            //      In the case the user entered a whitespace directly, we do not want to trim it away. So we check the new text length. 
+            return e.Changes.Count > 0 &&
+                _allowedCharactersInChanges.Contains(change.NewText.Length == 1 ? change.NewText : change.NewText.Trim(' '));
+        }
+
+        private static bool WasChangeCausedByForceFeedback(TextContentChangedEventArgs e)
+        {
+            return e.EditTag != null && e.EditTag.ToString() == "ForceFeedback";
         }
 
         /// <summary>
@@ -176,7 +182,12 @@ namespace ForceFeedback.Rules
 
             foreach (var codeBlock in codeBlocks)
             {
-                var linesOfCode = codeBlock.WithoutLeadingTrivia().WithoutTrailingTrivia().GetText().Lines.Count;
+                var linesOfCode = codeBlock
+                    .WithoutLeadingTrivia()
+                    .WithoutTrailingTrivia()
+                    .GetText()
+                    .Lines
+                    .Count;
                 var correspondingLimitConfiguration = null as LongMethodLimitConfiguration;
 
                 foreach (var limitConfiguration in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
@@ -210,8 +221,12 @@ namespace ForceFeedback.Rules
             var syntaxRoot = await currentDocument.GetSyntaxRootAsync();
 
             var tooLongCodeBlocks = syntaxRoot
-                .DescendantNodes(node => true, false)
-                .Where(node => node.Kind() == SyntaxKind.Block && (node.Parent.Kind() == SyntaxKind.MethodDeclaration || node.Parent.Kind() == SyntaxKind.ConstructorDeclaration || node.Parent.Kind() == SyntaxKind.SetAccessorDeclaration || node.Parent.Kind() == SyntaxKind.GetAccessorDeclaration))
+                .DescendantNodes(node => true)
+                .Where(node => node.IsSyntaxBlock() 
+                    && (   node.Parent.IsMethod()
+                        || node.Parent.IsConstructor()
+                        || node.Parent.IsSetter()
+                        || node.Parent.IsGetter()))
                 .Select(block => block as BlockSyntax);
 
             return tooLongCodeBlocks;
@@ -294,57 +309,16 @@ namespace ForceFeedback.Rules
             if (snapshotSpan == null)
                 throw new ArgumentNullException(nameof(snapshotSpan));
 
-            var left = CalculateLeftPosition(ref snapshotSpan);
-
-            if (left < 0)
-                return Rect.Empty;
-
-            var geometry = _view.TextViewLines.GetMarkerGeometry(snapshotSpan, true, new Thickness(0));
+            var geometry = _view.TextViewLines.GetMarkerGeometry(snapshotSpan, false, new Thickness(0));
 
             if (geometry == null)
                 return Rect.Empty;
 
             var top = geometry.Bounds.Top;
-            var width = 800; // geometry.Bounds.Right - geometry.Bounds.Left;
             var height = geometry.Bounds.Bottom - geometry.Bounds.Top;
 
-            return new Rect(left, top, width, height);
+            return new Rect(_view.ViewportLeft, top, _view.ViewportWidth, height);
         }
-
-        /// <summary>
-        /// This method calculates the left-most position for the method background colorization. 
-        /// </summary>
-        /// <param name="snapshotSpan">The snapshot span of the method for which the position is calculated.</param>
-        /// <returns>Returns the left-coordinate of the method.</returns>
-        private double CalculateLeftPosition(ref SnapshotSpan snapshotSpan)
-        {
-            // [RS] We try to take the first character of the code block (without leading trivias) to get the left-most position. If this does not 
-            //      work (e.g. if the character is out of view after scrolling), we take the last character of the code block (without trailing trivias) 
-            //      and try to calculate the left-most position for it. So we have always the left-most position, wheter the top or the bottom of the 
-            //      code block is out of view or not. If both are out of view, we won't colorize anything.
-
-            var left = -1d;
-            var firstCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.Start, 1);
-            var firstCharacterSnapshotSpanGeometry = _view.TextViewLines.GetMarkerGeometry(firstCharacterSnapshotSpan, false, new Thickness(0));
-
-            if (firstCharacterSnapshotSpanGeometry != null)
-            {
-                left = firstCharacterSnapshotSpanGeometry.Bounds.Left;
-            }
-            else
-            {
-                var lastCharacterSnapshotSpan = new SnapshotSpan(snapshotSpan.Start + snapshotSpan.Length - 1, 1);
-                var lastCharacterSnapshotSpanGeometry = _view.TextViewLines.GetMarkerGeometry(lastCharacterSnapshotSpan, false, new Thickness(0));
-
-                if (lastCharacterSnapshotSpanGeometry == null)
-                    return -1;
-
-                left = lastCharacterSnapshotSpanGeometry.Bounds.Left;
-            }
-
-            return left;
-        }
-
         #endregion
 
     }
