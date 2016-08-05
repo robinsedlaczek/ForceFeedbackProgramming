@@ -14,6 +14,8 @@ And all this is made possible through a simple Visual Studio extension you can e
 
 Enjoy!
 
+PS: If you like what you see and have time to spare, you can join us in moving the FFP extension forward. Please [check the wiki](https://github.com/robinsedlaczek/ForceFeedbackProgramming/wiki) for details.
+
 ## Binaries
 
 You can download the precompiled Visual Studio installer package from the [releases page](https://github.com/robinsedlaczek/ForceFeedbackProgramming/releases/ "Visual Studio Installer Package releases").
