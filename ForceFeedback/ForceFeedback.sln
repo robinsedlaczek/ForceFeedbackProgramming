@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForceFeedback.Setup", "ForceFeedback.Setup\ForceFeedback.Setup.csproj", "{58A53B3C-D2FA-4202-BADB-CBA52E9BA47B}"
 EndProject
@@ -34,5 +34,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {649367F2-2819-4BBB-A272-76C1F4E160F2}
 	EndGlobalSection
 EndGlobal
