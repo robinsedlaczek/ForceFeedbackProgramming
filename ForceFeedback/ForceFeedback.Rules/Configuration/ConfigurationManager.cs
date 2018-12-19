@@ -121,7 +121,7 @@ namespace ForceFeedback.Rules.Configuration
             try
             {
                 var assembly = Assembly.GetExecutingAssembly();
-                var resourceName = "ForceFeedback.Rules.Resources." + Global.CONFIG_FILE_NAME;
+                var resourceName = "ForceFeedback.Rules.Resources.Config.json";
 
                 using (Stream stream = assembly.GetManifestResourceStream(resourceName))
                 {
