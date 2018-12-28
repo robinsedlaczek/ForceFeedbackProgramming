@@ -54,6 +54,8 @@ namespace ForceFeedback.Rules.Configuration
 
             watcher.EnableRaisingEvents = true;
 
+			Global.ConfigFilePathChanged += () => { Configuration = LoadConfiguration(); };
+
             return watcher;
         }
 
@@ -75,7 +77,9 @@ namespace ForceFeedback.Rules.Configuration
 
             try
             {
-                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming" + @"\" + Global.CONFIG_FILE_NAME);
+				var path = Global.ConfigFilePath;
+				if (path == "")
+					return Configuration.Default;
 
                 CreateDefaultConfigurationIfNotExists(path);
 

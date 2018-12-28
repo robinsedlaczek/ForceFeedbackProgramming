@@ -18,6 +18,7 @@ using Microsoft.CodeAnalysis;
 using System.Windows;
 using ForceFeedback.Rules.Configuration;
 using ForceFeedback.Rules.Extensions;
+using System.IO;
 
 namespace ForceFeedback.Rules
 {
@@ -43,6 +44,8 @@ namespace ForceFeedback.Rules
             "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
         };
 
+		private readonly ITextDocumentFactoryService _textDocumentFactory;
+		private ITextDocument _textDocument;
         #endregion
 
         #region Construction
@@ -51,21 +54,50 @@ namespace ForceFeedback.Rules
         /// Initializes a new instance of the <see cref="MethodTooLongTextAdornment"/> class.
         /// </summary>
         /// <param name="view">Text view to create the adornment for</param>
-        public MethodTooLongTextAdornment(IWpfTextView view)
+		public MethodTooLongTextAdornment(IWpfTextView view, ITextDocumentFactoryService textDocumentFactory)
         {
-            if (view == null)
-                throw new ArgumentNullException(nameof(view));
+			_view = view ?? throw new ArgumentNullException(nameof(view));
+			_textDocumentFactory = textDocumentFactory ?? throw new ArgumentNullException(nameof(textDocumentFactory));
 
-            _lastCaretBufferPosition = 0;
+			// find proj file(*.csproj, *.vbproj etc) or sln file(*.sln) and update config file's path
+			var res = _textDocumentFactory.TryGetTextDocument(_view.TextBuffer, out _textDocument);
+			var filePath = _textDocument.FilePath;
+			var fileExtension = Path.GetExtension(filePath);
+			var projExtension = fileExtension == ".cs" ? "*.csproj" : fileExtension == ".vb" ? "*.vbproj" : "";
+			var directoryPath = Path.GetDirectoryName(filePath);
+			string projOrSlnPath = "";
+			do
+			{
+				string[] projFiles = projExtension != "" ? Directory.GetFiles(directoryPath, projExtension) : new string[] { };
+				string[] slnFiles = Directory.GetFiles(directoryPath, "*.sln");
+
+				if (projFiles.Length > 0 || slnFiles.Length > 0)
+				{
+					projOrSlnPath = directoryPath;
+					break;
+				}
+				if (directoryPath == Path.GetPathRoot(directoryPath))
+					break;
+
+				directoryPath = Directory.GetParent(directoryPath).FullName;
+			} while (true);
+			
+			if (projOrSlnPath != "")
+				Global.ConfigFilePath = Path.Combine(projOrSlnPath, Global.CONFIG_FILE_NAME);
+			else
+				Global.ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming" + @"\" + Global.CONFIG_FILE_NAME);
+
+			_lastCaretBufferPosition = 0;
             _numberOfKeystrokes = 0;
             _longCodeBlockOccurrences = new List<LongCodeBlockOccurrence>();
 
             _layer = view.GetAdornmentLayer("MethodTooLongTextAdornment");
-
-            _view = view;
+			
             _view.LayoutChanged += OnLayoutChanged;
             _view.TextBuffer.Changed += OnTextBufferChanged;
-        }
+
+			_textDocumentFactory = textDocumentFactory;
+		}
 
         #endregion
 

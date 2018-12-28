@@ -5,6 +5,7 @@
 //------------------------------------------------------------------------------
 
 using System.ComponentModel.Composition;
+using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 
@@ -31,6 +32,9 @@ namespace ForceFeedback.Rules
         [Order(Before = PredefinedAdornmentLayers.Selection)]
         private AdornmentLayerDefinition EditorAdornmentLayer;
 
+		[Import]
+		public ITextDocumentFactoryService textDocumentFactory { get; set; }
+
 #pragma warning restore 649, 169
 
         #region IWpfTextViewCreationListener
@@ -43,7 +47,7 @@ namespace ForceFeedback.Rules
         public void TextViewCreated(IWpfTextView textView)
         {
             // The adornment will listen to any event that changes the layout (text changes, scrolling, etc)
-            new MethodTooLongTextAdornment(textView);
+            new MethodTooLongTextAdornment(textView, textDocumentFactory);
         }
 
         #endregion
