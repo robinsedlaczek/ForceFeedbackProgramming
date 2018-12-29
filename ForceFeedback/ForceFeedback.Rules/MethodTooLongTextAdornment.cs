@@ -59,33 +59,9 @@ namespace ForceFeedback.Rules
 			_view = view ?? throw new ArgumentNullException(nameof(view));
 			_textDocumentFactory = textDocumentFactory ?? throw new ArgumentNullException(nameof(textDocumentFactory));
 
-			// find proj file(*.csproj, *.vbproj etc) or sln file(*.sln) and update config file's path
 			var res = _textDocumentFactory.TryGetTextDocument(_view.TextBuffer, out _textDocument);
-			var filePath = _textDocument.FilePath;
-			var fileExtension = Path.GetExtension(filePath);
-			var projExtension = fileExtension == ".cs" ? "*.csproj" : fileExtension == ".vb" ? "*.vbproj" : "";
-			var directoryPath = Path.GetDirectoryName(filePath);
-			string projOrSlnPath = "";
-			do
-			{
-				string[] projFiles = projExtension != "" ? Directory.GetFiles(directoryPath, projExtension) : new string[] { };
-				string[] slnFiles = Directory.GetFiles(directoryPath, "*.sln");
-
-				if (projFiles.Length > 0 || slnFiles.Length > 0)
-				{
-					projOrSlnPath = directoryPath;
-					break;
-				}
-				if (directoryPath == Path.GetPathRoot(directoryPath))
-					break;
-
-				directoryPath = Directory.GetParent(directoryPath).FullName;
-			} while (true);
-			
-			if (projOrSlnPath != "")
-				Global.ConfigFilePath = Path.Combine(projOrSlnPath, Global.CONFIG_FILE_NAME);
-			else
-				Global.ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming" + @"\" + Global.CONFIG_FILE_NAME);
+			// _textDocument.FilePath -> opened file path
+			UpdateConfigFilePath(_textDocument.FilePath);
 
 			_lastCaretBufferPosition = 0;
             _numberOfKeystrokes = 0;
@@ -98,12 +74,11 @@ namespace ForceFeedback.Rules
 
 			_textDocumentFactory = textDocumentFactory;
 		}
+		#endregion
 
-        #endregion
+		#region Event Handler
 
-        #region Event Handler
-
-        private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
+		private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
         {
             
             if (!InteresstingChangedOccured(e))
@@ -351,7 +326,20 @@ namespace ForceFeedback.Rules
 
             return new Rect(_view.ViewportLeft, top, _view.ViewportWidth, height);
         }
-        #endregion
 
-    }
+		/// <summary>
+		/// This method find proj file(*.csproj, *.vbproj etc) or sln file(*.sln) and update config file's path.
+		/// </summary>
+		/// <param name="filePath">The string that represents the path of file.</param>
+		private void UpdateConfigFilePath(string filePath)
+		{
+			var projOrSlnPath = Global.GetProjectOrSolutionPath(filePath);
+
+			if (projOrSlnPath != "")
+				Global.ConfigFilePath = Path.Combine(projOrSlnPath, Global.CONFIG_FILE_NAME);
+			else
+				Global.ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming" + @"\" + Global.CONFIG_FILE_NAME);
+		}
+		#endregion
+	}
 }

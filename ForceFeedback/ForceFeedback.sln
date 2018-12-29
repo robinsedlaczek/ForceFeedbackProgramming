@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForceFeedback.Setup", "Forc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForceFeedback.Rules", "ForceFeedback.Rules\ForceFeedback.Rules.csproj", "{682A063E-2DE4-44FF-8C89-99341C955949}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xUnitTest", "xUnitTest\xUnitTest.csproj", "{73751BD0-6F38-4C84-A3FB-0CC83B686B08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{682A063E-2DE4-44FF-8C89-99341C955949}.Release|Any CPU.Build.0 = Release|Any CPU
 		{682A063E-2DE4-44FF-8C89-99341C955949}.Release|x86.ActiveCfg = Release|x86
 		{682A063E-2DE4-44FF-8C89-99341C955949}.Release|x86.Build.0 = Release|x86
+		{73751BD0-6F38-4C84-A3FB-0CC83B686B08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73751BD0-6F38-4C84-A3FB-0CC83B686B08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73751BD0-6F38-4C84-A3FB-0CC83B686B08}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{73751BD0-6F38-4C84-A3FB-0CC83B686B08}.Debug|x86.Build.0 = Debug|Any CPU
+		{73751BD0-6F38-4C84-A3FB-0CC83B686B08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73751BD0-6F38-4C84-A3FB-0CC83B686B08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73751BD0-6F38-4C84-A3FB-0CC83B686B08}.Release|x86.ActiveCfg = Release|Any CPU
+		{73751BD0-6F38-4C84-A3FB-0CC83B686B08}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
