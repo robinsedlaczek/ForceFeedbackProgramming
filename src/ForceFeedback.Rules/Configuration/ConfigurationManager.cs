@@ -38,7 +38,7 @@ namespace ForceFeedback.Rules.Configuration
 
         private static FileSystemWatcher InitConfigurationFileWatcher()
         {
-            var configFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "ForceFeedbackProgramming");
+            var configFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
 
             if (!Directory.Exists(configFolderPath))
                 Directory.CreateDirectory(configFolderPath);
