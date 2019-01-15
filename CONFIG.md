@@ -8,17 +8,17 @@ As the metric to determine how clean/dirty your code is the extension (currently
 
 This method consists of 10 lines of code starting from the initial `{` and ending with `}`. A background color is chosen accordingly:
 
-![](images/config fig1.png)
+![](images/config_fig1.png)
 
 Adding a line (by breaking the last statement apart) pushes it into the next "brownfield category", though, and the background color changes:
 
-![](images/config fig2.png)
+![](images/config_fig2.png)
 
 ## config.json
 
 Currently the information about the "brownfield categories" is stored in a global config file _config.json_ located at `c:\ProgramData\ForceFeedbackProgramming`:
 
-![](images/config fig3.png)
+![](images/config_fig3.png)
 
 A [sample config file](config.json) is stored next to this documentation in the repo. It's structure is simple:
 
