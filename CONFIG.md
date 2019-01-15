@@ -16,11 +16,11 @@ Adding a line (by breaking the last statement apart) pushes it into the next "br
 
 ## config.json
 
-Currently the information about the "brownfield categories" is stored in a global config file _config.json_ located at `c:\ProgramData\ForceFeedbackProgramming`:
+Currently the information about the "brownfield categories" is stored in a global JSON config file _.forcefeedbackprogramming_ located at `c:\ProgramData`:
 
 ![](images/config_fig3.png)
 
-A [sample config file](config.json) is stored next to this documentation in the repo. It's structure is simple:
+A [sample config file](example/.forcefeedbackprogramming) is stored next to this documentation in the repo. It's structure is simple:
 
 ```
 {
