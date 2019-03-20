@@ -59,13 +59,13 @@ namespace ForceFeedback.Rules.Configuration
 
         private static void OnFileRenamed(object sender, RenamedEventArgs e)
         {
-            if (e.Name.ToLower() == "config.json")
+            if (e.Name.ToLower() == Global.CONFIG_FILE_NAME)
                 Configuration = LoadConfiguration();
         }
 
         private static void OnFileChanged(object sender, FileSystemEventArgs e)
         {
-            if (e.Name.ToLower() == "config.json")
+            if (e.Name.ToLower() == Global.CONFIG_FILE_NAME)
                 Configuration = LoadConfiguration();
         }
 
@@ -75,7 +75,7 @@ namespace ForceFeedback.Rules.Configuration
 
             try
             {
-                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming\Config.json");
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming" + @"\" + Global.CONFIG_FILE_NAME);
 
                 CreateDefaultConfigurationIfNotExists(path);
 

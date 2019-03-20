@@ -256,6 +256,7 @@
   <ItemGroup>
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\Global.cs" />
     <Compile Include="Configuration\LongMethodLimitConfiguration.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\SyntaxNodeExtension.cs" />
@@ -267,7 +268,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <EmbeddedResource Include="Resources\Config.json" />
+    <EmbeddedResource Include="Resources\.forcefeedbackprogramming" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
