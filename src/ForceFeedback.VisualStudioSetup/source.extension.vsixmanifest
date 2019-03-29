@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+    <Metadata>
+        <Identity Id="ForceFeedback.VisualStudioSetup.8274f733-0ca4-420e-aa40-c59de4095afb" Version="0.1.8" Language="en-US" Publisher="Robin Sedlaczek" />
+        <DisplayName>Force Feedback Programming</DisplayName>
+        <Description xml:space="preserve">Make evolvability really tangible while coding: that's what Force Feedback Programming (FFP) is about.</Description>
+        <MoreInfo>https://github.com/robinsedlaczek/ForceFeedbackProgramming</MoreInfo>
+        <Tags>Clean Code, Force Feedback, CI, FFP</Tags>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[16.0, 17.0)" />
+    </Installation>
+    <Dependencies>
+        <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.7.2,)" />
+    </Dependencies>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[16.0,17.0)" DisplayName="Visual Studio core editor" />
+        <Prerequisite Id="Microsoft.VisualStudio.ComponentGroup.VisualStudioExtension.Prerequisites" Version="[16.0.28528.71,17.0)" DisplayName="Visual Studio extension development prerequisites" />
+        <Prerequisite Id="Microsoft.VisualStudio.Component.Roslyn.Compiler" Version="[16.0.28528.71,17.0)" DisplayName="C# and Visual Basic Roslyn compilers" />
+    </Prerequisites>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+        <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="ForceFeedback.Rules" Path="|ForceFeedback.Rules|" />
+        <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="ForceFeedback.Adapters.VisualStudio" Path="|ForceFeedback.Adapters.VisualStudio|" AssemblyName="|ForceFeedback.Adapters.VisualStudio;AssemblyName|" />
+        <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="ForceFeedback.Core" Path="|ForceFeedback.Core|" AssemblyName="|ForceFeedback.Core;AssemblyName|" />
+    </Assets>
+</PackageManifest>
