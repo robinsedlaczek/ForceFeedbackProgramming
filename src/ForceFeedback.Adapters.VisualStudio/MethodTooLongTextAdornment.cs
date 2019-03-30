@@ -27,7 +27,7 @@ namespace ForceFeedback.Adapters.VisualStudio
     {
         #region Private Fields
 
-        private IList<LongCodeBlockOccurrence> _codeBlockOccurrences;
+        private IList<CodeBlockOccurrence> _codeBlockOccurrences;
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
         private int _lastCaretBufferPosition;
@@ -65,7 +65,7 @@ namespace ForceFeedback.Adapters.VisualStudio
 
 			_lastCaretBufferPosition = 0;
             _numberOfKeystrokes = 0;
-            _codeBlockOccurrences = new List<LongCodeBlockOccurrence>();
+            _codeBlockOccurrences = new List<CodeBlockOccurrence>();
 
             _layer = view.GetAdornmentLayer("MethodTooLongTextAdornment");
 			
@@ -74,7 +74,11 @@ namespace ForceFeedback.Adapters.VisualStudio
 
 			_textDocumentFactory = textDocumentFactory;
 
+            var project = _textDocument?.TextBuffer?.CurrentSnapshot?.GetOpenDocumentInCurrentContextWithChanges()?.Project;
+
             _forceFeedbackContext = new ForceFeedbackContext();
+            _forceFeedbackContext.Project = project?.Name;
+            _forceFeedbackContext.Assembly = project?.AssemblyName;
             _forceFeedbackContext.FilePath = _textDocument.FilePath;
 
             _feedbackMachine = new ForceFeedbackMachine(_forceFeedbackContext);
@@ -163,7 +167,7 @@ namespace ForceFeedback.Adapters.VisualStudio
         {
             try
             {
-                var codeBlocks = await CollectBlockSyntaxNodes(e.NewSnapshot);
+                var codeBlocks = await CollectBlockSyntaxNodesAsync(e.NewSnapshot);
 
                 AnalyzeCodeBlockOccurrences(codeBlocks);
                 CreateBackgroundVisualsForCodeBlocks();
@@ -181,7 +185,7 @@ namespace ForceFeedback.Adapters.VisualStudio
 
         /// <summary>
         /// This method checks if the given block syntaxes are too long based on the configured limits. If so, the block syntax 
-        /// and the corresponding limit configuration is put together in an instance of  <see cref="LongCodeBlockOccurrence">LongCodeBlockOccurrence</see>.
+        /// and the corresponding limit configuration is put together in an instance of  <see cref="CodeBlockOccurrence">LongCodeBlockOccurrence</see>.
         /// </summary>
         /// <param name="codeBlocks">The list of block syntaxes that will be analyzed.</param>
         private void AnalyzeCodeBlockOccurrences(IEnumerable<BlockSyntax> codeBlocks)
@@ -200,13 +204,14 @@ namespace ForceFeedback.Adapters.VisualStudio
                     .Lines
                     .Count;
 
-                var methodName = string.Empty;
+                var methodName = (codeBlock.Parent as MethodDeclarationSyntax)?.Identifier.ValueText;
+                var document = codeBlock.GetText()?.FindCorrespondingEditorTextSnapshot()?.GetOpenDocumentInCurrentContextWithChanges();
 
                 _forceFeedbackContext.MethodName = methodName;
                 _forceFeedbackContext.LineCount = linesOfCode;
 
                 var feedbacks = _feedbackMachine.MethodCodeBlockFound();
-                var occurence = new LongCodeBlockOccurrence(codeBlock, feedbacks);
+                var occurence = new CodeBlockOccurrence(codeBlock, feedbacks);
 
                 _codeBlockOccurrences.Add(occurence);
             }
@@ -217,7 +222,7 @@ namespace ForceFeedback.Adapters.VisualStudio
         /// </summary>
         /// <param name="newSnapshot">The text snapshot containing the code to analyze.</param>
         /// <returns>Returns a list with the code block syntax nodes.</returns>
-        private async Task<IEnumerable<BlockSyntax>> CollectBlockSyntaxNodes(ITextSnapshot newSnapshot)
+        private async Task<IEnumerable<BlockSyntax>> CollectBlockSyntaxNodesAsync(ITextSnapshot newSnapshot)
         {
             if (newSnapshot == null)
                 throw new ArgumentNullException(nameof(newSnapshot));
@@ -226,7 +231,7 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             var syntaxRoot = await currentDocument.GetSyntaxRootAsync();
 
-            var tooLongCodeBlocks = syntaxRoot
+            var codeBlocks = syntaxRoot
                 .DescendantNodes(node => true)
                 .Where(node => node.IsSyntaxBlock() 
                     && (   node.Parent.IsMethod()
@@ -235,7 +240,7 @@ namespace ForceFeedback.Adapters.VisualStudio
                         || node.Parent.IsGetter()))
                 .Select(block => block as BlockSyntax);
 
-            return tooLongCodeBlocks;
+            return codeBlocks;
         }
 
         /// <summary>
@@ -274,7 +279,7 @@ namespace ForceFeedback.Adapters.VisualStudio
         /// <param name="adornmentBounds">The bounds of the rectangular adornment.</param>
         /// <param name="codeBlockOccurence">The occurence of the code block for which the visual will be created.</param>
         /// <returns>Returns the image that is the visual adornment (code block background).</returns>
-        private Image CreateAndPositionCodeBlockBackgroundVisual(Rect adornmentBounds, LongCodeBlockOccurrence codeBlockOccurence)
+        private Image CreateAndPositionCodeBlockBackgroundVisual(Rect adornmentBounds, CodeBlockOccurrence codeBlockOccurence)
         {
             if (adornmentBounds == null)
                 throw new ArgumentNullException(nameof(adornmentBounds));

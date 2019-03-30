@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace ForceFeedback.Adapters.VisualStudio
 {
-    internal class LongCodeBlockOccurrence
+    internal class CodeBlockOccurrence
     {
-        public LongCodeBlockOccurrence(BlockSyntax block, List<IFeedback> feedbacks)
+        public CodeBlockOccurrence(BlockSyntax block, List<IFeedback> feedbacks)
         {
             Block = block;
             Feedbacks = feedbacks;
