@@ -18,6 +18,8 @@ using Microsoft.CodeAnalysis;
 using System.Windows;
 using System.IO;
 using ForceFeedback.Adapters.VisualStudio.Configuration;
+using ForceFeedback.Core;
+using System.Reflection;
 
 namespace ForceFeedback.Adapters.VisualStudio
 {
@@ -28,7 +30,7 @@ namespace ForceFeedback.Adapters.VisualStudio
     {
         #region Private Fields
 
-        private IList<LongCodeBlockOccurrence> _longCodeBlockOccurrences;
+        private IList<LongCodeBlockOccurrence> _codeBlockOccurrences;
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
         private int _lastCaretBufferPosition;
@@ -44,7 +46,10 @@ namespace ForceFeedback.Adapters.VisualStudio
         };
 
 		private readonly ITextDocumentFactoryService _textDocumentFactory;
-		private ITextDocument _textDocument;
+        private readonly ForceFeedbackContext _forceFeedbackContext;
+        private readonly ForceFeedbackMachine _feedbackMachine;
+        private ITextDocument _textDocument;
+
         #endregion
 
         #region Construction
@@ -64,7 +69,7 @@ namespace ForceFeedback.Adapters.VisualStudio
 
 			_lastCaretBufferPosition = 0;
             _numberOfKeystrokes = 0;
-            _longCodeBlockOccurrences = new List<LongCodeBlockOccurrence>();
+            _codeBlockOccurrences = new List<LongCodeBlockOccurrence>();
 
             _layer = view.GetAdornmentLayer("MethodTooLongTextAdornment");
 			
@@ -72,6 +77,11 @@ namespace ForceFeedback.Adapters.VisualStudio
             _view.TextBuffer.Changed += OnTextBufferChanged;
 
 			_textDocumentFactory = textDocumentFactory;
+
+            _forceFeedbackContext = new ForceFeedbackContext();
+            _forceFeedbackContext.FilePath = _textDocument.FilePath;
+
+            _feedbackMachine = new ForceFeedbackMachine(_forceFeedbackContext);
 		}
 		#endregion
 
@@ -79,51 +89,50 @@ namespace ForceFeedback.Adapters.VisualStudio
 
 		private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
         {
-            
-            if (!InteresstingChangedOccured(e))
-                return;
+            //if (!InteresstingChangedOccured(e))
+            //    return;
 
-            var change = e.Changes[0];
-            var caretPosition = _view.Caret.Position.BufferPosition.Position;
+            //var change = e.Changes[0];
+            //var caretPosition = _view.Caret.Position.BufferPosition.Position;
 
-            if (change.NewText.IsNewLineMarker())
-            {
-                _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
-                _numberOfKeystrokes = 0;
-                return;
-            }
+            //if (change.NewText.IsNewLineMarker())
+            //{
+            //    _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
+            //    _numberOfKeystrokes = 0;
+            //    return;
+            //}
 
-            var longMethodOccurence = _longCodeBlockOccurrences
-                .Where(occurence => occurence.Block.FullSpan.IntersectsWith(change.NewSpan.Start))
-                .Select(occurence => occurence)
-                .FirstOrDefault();
+            //var longMethodOccurence = _codeBlockOccurrences
+            //    .Where(occurence => occurence.Block.FullSpan.IntersectsWith(change.NewSpan.Start))
+            //    .Select(occurence => occurence)
+            //    .FirstOrDefault();
 
-            if (longMethodOccurence == null || longMethodOccurence.LimitConfiguration.NoiseDistance <= 0)
-                return;
+            //if (longMethodOccurence == null || longMethodOccurence.LimitConfiguration.NoiseDistance <= 0)
+            //    return;
 
-            if (caretPosition == _lastCaretBufferPosition + 1)
-                _numberOfKeystrokes++;
-            else
-                _numberOfKeystrokes = 1;
+            //if (caretPosition == _lastCaretBufferPosition + 1)
+            //    _numberOfKeystrokes++;
+            //else
+            //    _numberOfKeystrokes = 1;
 
-            _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
+            //_lastCaretBufferPosition = caretPosition + change.NewLength - 1;
 
-            if (_numberOfKeystrokes < longMethodOccurence.LimitConfiguration.NoiseDistance) return;
+            //if (_numberOfKeystrokes < longMethodOccurence.LimitConfiguration.NoiseDistance) return;
 
-            if (!_view.TextBuffer.CheckEditAccess())
-                throw new Exception("Cannot edit text buffer.");
+            //if (!_view.TextBuffer.CheckEditAccess())
+            //    throw new Exception("Cannot edit text buffer.");
 
-            const string textToInsert = "⌫";
+            //const string textToInsert = "⌫";
 
-            var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
-            var inserted = edit.Insert(change.NewPosition + change.NewLength, textToInsert);
+            //var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
+            //var inserted = edit.Insert(change.NewPosition + change.NewLength, textToInsert);
 
-            if (!inserted)
-                throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
+            //if (!inserted)
+            //    throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
 
-            edit.Apply();
+            //edit.Apply();
 
-            _numberOfKeystrokes = 0;
+            //_numberOfKeystrokes = 0;
         }
 
         private bool InteresstingChangedOccured(TextContentChangedEventArgs e)
@@ -160,8 +169,8 @@ namespace ForceFeedback.Adapters.VisualStudio
             {
                 var codeBlocks = await CollectBlockSyntaxNodes(e.NewSnapshot);
 
-                AnalyzeAndCacheLongCodeBlockOccurrences(codeBlocks);
-                CreateVisualsForLongCodeBlock();
+                AnalyzeCodeBlockOccurrences(codeBlocks);
+                CreateBackgroundVisualsForCodeBlocks();
             }
             catch
             {
@@ -179,12 +188,12 @@ namespace ForceFeedback.Adapters.VisualStudio
         /// and the corresponding limit configuration is put together in an instance of  <see cref="LongCodeBlockOccurrence">LongCodeBlockOccurrence</see>.
         /// </summary>
         /// <param name="codeBlocks">The list of block syntaxes that will be analyzed.</param>
-        private void AnalyzeAndCacheLongCodeBlockOccurrences(IEnumerable<BlockSyntax> codeBlocks)
+        private void AnalyzeCodeBlockOccurrences(IEnumerable<BlockSyntax> codeBlocks)
         {
             if (codeBlocks == null)
                 throw new ArgumentNullException(nameof(codeBlocks));
 
-            _longCodeBlockOccurrences.Clear();
+            _codeBlockOccurrences.Clear();
 
             foreach (var codeBlock in codeBlocks)
             {
@@ -194,21 +203,16 @@ namespace ForceFeedback.Adapters.VisualStudio
                     .GetText()
                     .Lines
                     .Count;
-                var correspondingLimitConfiguration = null as LongMethodLimitConfiguration;
 
-                foreach (var limitConfiguration in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
-                {
-                    if (linesOfCode < limitConfiguration.Lines)
-                        break;
-                    
-                    correspondingLimitConfiguration = limitConfiguration;
-                }
+                var methodName = string.Empty;
 
-                if (correspondingLimitConfiguration != null)
-                {
-                    var occurence = new LongCodeBlockOccurrence(codeBlock, correspondingLimitConfiguration);
-                    _longCodeBlockOccurrences.Add(occurence);
-                }
+                _forceFeedbackContext.MethodName = methodName;
+                _forceFeedbackContext.LineCount = linesOfCode;
+
+                var feedbacks = _feedbackMachine.MethodCodeBlockFound();
+                var occurence = new LongCodeBlockOccurrence(codeBlock, feedbacks);
+
+                _codeBlockOccurrences.Add(occurence);
             }
         }
 
@@ -241,13 +245,16 @@ namespace ForceFeedback.Adapters.VisualStudio
         /// <summary>
         /// Adds a background behind the code block that have too many lines.
         /// </summary>
-        private void CreateVisualsForLongCodeBlock()
+        private void CreateBackgroundVisualsForCodeBlocks()
         {
-            if (_longCodeBlockOccurrences == null)
+            if (_codeBlockOccurrences == null)
                 return;
 
-            foreach (var occurrence in _longCodeBlockOccurrences)
+            foreach (var occurrence in _codeBlockOccurrences)
             {
+                if (occurrence.Feedbacks == null || !occurrence.Feedbacks.Any(feedback => feedback is DrawColoredBackgroundFeedback))
+                    continue;
+
                 var codeBlockParentSyntax = occurrence.Block.Parent;
                 var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(codeBlockParentSyntax.Span.Start, codeBlockParentSyntax.Span.Start + codeBlockParentSyntax.Span.Length));
                 var adornmentBounds = CalculateBounds(codeBlockParentSyntax, snapshotSpan);
@@ -269,22 +276,32 @@ namespace ForceFeedback.Adapters.VisualStudio
         /// This method creates the visual for a code block background and moves it to the correct position.
         /// </summary>
         /// <param name="adornmentBounds">The bounds of the rectangular adornment.</param>
-        /// <param name="longCodeBlockOccurence">The occurence of the code block for which the visual will be created.</param>
+        /// <param name="codeBlockOccurence">The occurence of the code block for which the visual will be created.</param>
         /// <returns>Returns the image that is the visual adornment (code block background).</returns>
-        private Image CreateAndPositionCodeBlockBackgroundVisual(Rect adornmentBounds, LongCodeBlockOccurrence longCodeBlockOccurence)
+        private Image CreateAndPositionCodeBlockBackgroundVisual(Rect adornmentBounds, LongCodeBlockOccurrence codeBlockOccurence)
         {
             if (adornmentBounds == null)
                 throw new ArgumentNullException(nameof(adornmentBounds));
 
-            if (longCodeBlockOccurence == null)
-                throw new ArgumentNullException(nameof(longCodeBlockOccurence));
+            if (codeBlockOccurence == null)
+                throw new ArgumentNullException(nameof(codeBlockOccurence));
 
             var backgroundGeometry = new RectangleGeometry(adornmentBounds);
+            var feedback = codeBlockOccurence.Feedbacks.Where(f => f is DrawColoredBackgroundFeedback).FirstOrDefault() as DrawColoredBackgroundFeedback;
+            var backgroundColor = Color.FromArgb(feedback.BackgroundColor.A, feedback.BackgroundColor.R, feedback.BackgroundColor.G, feedback.BackgroundColor.B);
 
-            var backgroundBrush = new SolidColorBrush(longCodeBlockOccurence.LimitConfiguration.Color);
+            var backgroundBrush = new SolidColorBrush(backgroundColor);
             backgroundBrush.Freeze();
 
-            var drawing = new GeometryDrawing(backgroundBrush, ConfigurationManager.LongCodeBlockBorderPen, backgroundGeometry);
+            var outlineColor = Color.FromArgb(feedback.OutlineColor.A, feedback.OutlineColor.R, feedback.OutlineColor.G, feedback.OutlineColor.B);
+
+            var outlinePenBrush = new SolidColorBrush(outlineColor);
+            outlinePenBrush.Freeze();
+
+            var outlinePen = new Pen(outlinePenBrush, 0.5);
+            outlinePen.Freeze();
+
+            var drawing = new GeometryDrawing(backgroundBrush, outlinePen, backgroundGeometry);
             drawing.Freeze();
 
             var drawingImage = new DrawingImage(drawing);

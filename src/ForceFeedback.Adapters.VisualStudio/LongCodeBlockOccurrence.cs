@@ -1,18 +1,20 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ForceFeedback.Adapters.VisualStudio.Configuration;
+using ForceFeedback.Core;
+using System.Collections.Generic;
 
 namespace ForceFeedback.Adapters.VisualStudio
 {
     internal class LongCodeBlockOccurrence
     {
-        public LongCodeBlockOccurrence(BlockSyntax block, LongMethodLimitConfiguration limitConfiguration)
+        public LongCodeBlockOccurrence(BlockSyntax block, List<IFeedback> feedbacks)
         {
             Block = block;
-            LimitConfiguration = limitConfiguration;
+            Feedbacks = feedbacks;
         }
 
         public BlockSyntax Block { get; set; }
 
-        public LongMethodLimitConfiguration LimitConfiguration { get; set; }
+        public List<IFeedback> Feedbacks { get; set; }
     }
 }
