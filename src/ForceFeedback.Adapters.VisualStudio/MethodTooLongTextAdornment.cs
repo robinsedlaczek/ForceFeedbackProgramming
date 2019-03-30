@@ -16,10 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using System.Windows;
-using System.IO;
-using ForceFeedback.Adapters.VisualStudio.Configuration;
 using ForceFeedback.Core;
-using System.Reflection;
 
 namespace ForceFeedback.Adapters.VisualStudio
 {
@@ -65,7 +62,6 @@ namespace ForceFeedback.Adapters.VisualStudio
 
 			var res = _textDocumentFactory.TryGetTextDocument(_view.TextBuffer, out _textDocument);
 			// _textDocument.FilePath -> opened file path
-			UpdateConfigFilePath(_textDocument.FilePath);
 
 			_lastCaretBufferPosition = 0;
             _numberOfKeystrokes = 0;
@@ -343,19 +339,6 @@ namespace ForceFeedback.Adapters.VisualStudio
             return new Rect(_view.ViewportLeft, top, _view.ViewportWidth, height);
         }
 
-		/// <summary>
-		/// This method find proj file(*.csproj, *.vbproj etc) or sln file(*.sln) and update config file's path.
-		/// </summary>
-		/// <param name="filePath">The string that represents the path of file.</param>
-		private void UpdateConfigFilePath(string filePath)
-		{
-			var projOrSlnPath = Global.GetProjectOrSolutionPath(filePath);
-
-			if (projOrSlnPath != "")
-				Global.ConfigFilePath = Path.Combine(projOrSlnPath, Global.CONFIG_FILE_NAME);
-			else
-				Global.ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming" + @"\" + Global.CONFIG_FILE_NAME);
-		}
 		#endregion
 	}
 }

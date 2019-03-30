@@ -1,5 +1,4 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ForceFeedback.Adapters.VisualStudio.Configuration;
 using ForceFeedback.Core;
 using System.Collections.Generic;
 

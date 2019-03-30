@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ForceFeedback.Core
+﻿namespace ForceFeedback.Core
 {
     public class ForceFeedbackContext
     {
