@@ -99,6 +99,8 @@ namespace ForceFeedback.Adapters.VisualStudio
                     InsertText(feedback);
                 else if (feedback is DelayKeyboardInputsFeedback)
                     DelayKeyboardInput(feedback);
+                else if (feedback is PreventKeyboardInputsFeedback)
+                    e.Cancel();
             }
         }
 
@@ -165,10 +167,11 @@ namespace ForceFeedback.Adapters.VisualStudio
 
         private bool InteresstingChangeOccured(TextContentChangedEventArgs e)
         {
-            if (WasChangeCausedByForceFeedback(e) || e.Changes.Count == 0)
+            if (WasChangeCausedByForceFeedback(e.EditTag) || e.Changes.Count == 0)
                 return false;
 
             var change = e.Changes[0];
+
             // [RS] We trim the new text when checking for allowed characters, if the text has more than one character. This is, e.g. 
             //      if the user inserted a linefeed and the IDE created whitespaces automatically for indention of the next line.
             //      In this case, we want to ignore the generated leading whitespaces. 
@@ -176,9 +179,9 @@ namespace ForceFeedback.Adapters.VisualStudio
             return AllowedCharactersInChanges.Contains(change.NewText.Length == 1 ? change.NewText : change.NewText.Trim(' '));
         }
 
-        private static bool WasChangeCausedByForceFeedback(TextContentChangedEventArgs e)
+        private static bool WasChangeCausedByForceFeedback(object editTag)
         {
-            return e.EditTag != null && e.EditTag.ToString() == "ForceFeedback";
+            return editTag != null && editTag.ToString() == "ForceFeedback";
         }
 
         /// <summary>

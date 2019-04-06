@@ -51,9 +51,9 @@ namespace ForceFeedback.Core
             var index = random.Next(0, noiseCharacters.Length);
 
             result.Add(new InsertTextFeedback(_forceFeedbackContext.CaretPosition, $"{noiseCharacters[index]}"));
-            
-            //if (_forceFeedbackContext.LineCount > 20)
-            //    result.Add(new DelayKeyboardInputsFeedback(500));
+
+            if (_forceFeedbackContext.LineCount > 20)
+                result.Add(new DelayKeyboardInputsFeedback(100));
 
             return result;
         }
@@ -62,8 +62,8 @@ namespace ForceFeedback.Core
         {
             var result = new List<IFeedback>();
 
-            if (_forceFeedbackContext.LineCount > 20)
-                result.Add(new DelayKeyboardInputsFeedback(500));
+            if (_forceFeedbackContext.LineCount > 25)
+                result.Add(new PreventKeyboardInputsFeedback());
 
             return result;
         }
