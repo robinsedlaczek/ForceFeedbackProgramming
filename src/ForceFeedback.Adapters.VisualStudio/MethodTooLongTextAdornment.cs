@@ -18,6 +18,7 @@ using Microsoft.CodeAnalysis;
 using System.Windows;
 using ForceFeedback.Core;
 using System.Threading;
+using ForceFeedback.Core.Feedbacks;
 
 namespace ForceFeedback.Adapters.VisualStudio
 {

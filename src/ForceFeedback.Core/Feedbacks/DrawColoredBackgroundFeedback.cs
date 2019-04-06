@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace ForceFeedback.Core
+namespace ForceFeedback.Core.Feedbacks
 {
     public class DrawColoredBackgroundFeedback : IFeedback
     {
