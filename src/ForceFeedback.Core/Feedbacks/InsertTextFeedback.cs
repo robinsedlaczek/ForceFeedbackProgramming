@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace ForceFeedback.Core.Feedbacks
+﻿namespace ForceFeedback.Core.Feedbacks
 {
     public class InsertTextFeedback : IFeedback
     {
