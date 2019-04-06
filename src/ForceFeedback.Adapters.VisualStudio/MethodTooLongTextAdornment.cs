@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using System.Windows;
 using ForceFeedback.Core;
+using System.Threading;
 
 namespace ForceFeedback.Adapters.VisualStudio
 {
@@ -27,13 +28,15 @@ namespace ForceFeedback.Adapters.VisualStudio
     {
         #region Private Fields
 
-        private IList<CodeBlockOccurrence> _codeBlockOccurrences;
+        private readonly ITextDocumentFactoryService _textDocumentFactory;
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
-        private int _lastCaretBufferPosition;
-        private int _numberOfKeystrokes;
+        private ITextDocument _textDocument;
+        private IList<CodeBlockOccurrence> _codeBlockOccurrences;
+        private readonly ForceFeedbackContext _forceFeedbackContext;
+        private readonly ForceFeedbackMachine _feedbackMachine;
 
-        private readonly string[] _allowedCharactersInChanges = new[]
+        private readonly string[] AllowedCharactersInChanges = new[]
         {
             "\r", "\n", "\r\n",
             " ", "\"", "'", ".", ",", "@", "$", "(", ")", "{", "}", "[", "]", "&", "|", "\\", "%", "+", "-", "*", "/", ";", ":", "_", "?", "!",
@@ -41,11 +44,6 @@ namespace ForceFeedback.Adapters.VisualStudio
             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
             "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
         };
-
-		private readonly ITextDocumentFactoryService _textDocumentFactory;
-        private readonly ForceFeedbackContext _forceFeedbackContext;
-        private readonly ForceFeedbackMachine _feedbackMachine;
-        private ITextDocument _textDocument;
 
         #endregion
 
@@ -61,16 +59,14 @@ namespace ForceFeedback.Adapters.VisualStudio
 			_textDocumentFactory = textDocumentFactory ?? throw new ArgumentNullException(nameof(textDocumentFactory));
 
 			var res = _textDocumentFactory.TryGetTextDocument(_view.TextBuffer, out _textDocument);
-			// _textDocument.FilePath -> opened file path
 
-			_lastCaretBufferPosition = 0;
-            _numberOfKeystrokes = 0;
             _codeBlockOccurrences = new List<CodeBlockOccurrence>();
 
             _layer = view.GetAdornmentLayer("MethodTooLongTextAdornment");
 			
             _view.LayoutChanged += OnLayoutChanged;
             _view.TextBuffer.Changed += OnTextBufferChanged;
+            _view.TextBuffer.Changing += OnTextBufferChanging;
 
 			_textDocumentFactory = textDocumentFactory;
 
@@ -83,59 +79,91 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             _feedbackMachine = new ForceFeedbackMachine(_forceFeedbackContext);
 		}
-		#endregion
 
-		#region Event Handler
-
-		private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
+        private void OnTextBufferChanging(object sender, TextContentChangingEventArgs e)
         {
-            //if (!InteresstingChangedOccured(e))
-            //    return;
+            var longMethodOccurence = _codeBlockOccurrences
+                .Where(occurence => occurence.Block.FullSpan.IntersectsWith(_view.Caret.Position.BufferPosition.Position))
+                .Select(occurence => occurence)
+                .FirstOrDefault();
 
-            //var change = e.Changes[0];
-            //var caretPosition = _view.Caret.Position.BufferPosition.Position;
+            UpdateContextByCodeBlock(longMethodOccurence.Block);
 
-            //if (change.NewText.IsNewLineMarker())
-            //{
-            //    _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
-            //    _numberOfKeystrokes = 0;
-            //    return;
-            //}
+            _forceFeedbackContext.CaretPosition = _view.Caret.Position.BufferPosition.Position;
 
-            //var longMethodOccurence = _codeBlockOccurrences
-            //    .Where(occurence => occurence.Block.FullSpan.IntersectsWith(change.NewSpan.Start))
-            //    .Select(occurence => occurence)
-            //    .FirstOrDefault();
+            var feedbacks = _feedbackMachine.TextChanging();
 
-            //if (longMethodOccurence == null || longMethodOccurence.LimitConfiguration.NoiseDistance <= 0)
-            //    return;
-
-            //if (caretPosition == _lastCaretBufferPosition + 1)
-            //    _numberOfKeystrokes++;
-            //else
-            //    _numberOfKeystrokes = 1;
-
-            //_lastCaretBufferPosition = caretPosition + change.NewLength - 1;
-
-            //if (_numberOfKeystrokes < longMethodOccurence.LimitConfiguration.NoiseDistance) return;
-
-            //if (!_view.TextBuffer.CheckEditAccess())
-            //    throw new Exception("Cannot edit text buffer.");
-
-            //const string textToInsert = "⌫";
-
-            //var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
-            //var inserted = edit.Insert(change.NewPosition + change.NewLength, textToInsert);
-
-            //if (!inserted)
-            //    throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
-
-            //edit.Apply();
-
-            //_numberOfKeystrokes = 0;
+            foreach (var feedback in feedbacks)
+            {
+                if (feedback is InsertTextFeedback)
+                    InsertText(feedback);
+                else if (feedback is DelayKeyboardInputsFeedback)
+                    DelayKeyboardInput(feedback);
+            }
         }
 
-        private bool InteresstingChangedOccured(TextContentChangedEventArgs e)
+        #endregion
+
+        #region Event Handler
+
+        private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
+        {
+            if (!InteresstingChangeOccured(e))
+                return;
+
+            var change = e.Changes[0];
+
+            var longMethodOccurence = _codeBlockOccurrences
+                .Where(occurence => occurence.Block.FullSpan.IntersectsWith(change.NewSpan.Start))
+                .Select(occurence => occurence)
+                .FirstOrDefault();
+
+            UpdateContextByCodeBlock(longMethodOccurence.Block);
+            UpdateContextByTextChange(change);
+
+            var feedbacks = _feedbackMachine.TextChanged();
+
+            foreach (var feedback in feedbacks)
+            {
+                if (feedback is InsertTextFeedback)
+                    InsertText(feedback);
+                else if (feedback is DelayKeyboardInputsFeedback)
+                    DelayKeyboardInput(feedback);
+            }
+        }
+
+        private static void DelayKeyboardInput(IFeedback feedback)
+        {
+            var delayKeyboardInputsFeedback = feedback as DelayKeyboardInputsFeedback;
+
+            Thread.Sleep(delayKeyboardInputsFeedback.Milliseconds);
+        }
+
+        private void UpdateContextByTextChange(ITextChange change)
+        {
+            _forceFeedbackContext.InsertedText = change.NewText;
+            _forceFeedbackContext.InsertedAt = change.OldPosition;
+            _forceFeedbackContext.ReplacedText = change.OldText;
+            _forceFeedbackContext.CaretPosition = change.NewPosition;
+        }
+
+        private void InsertText(IFeedback feedback)
+        {
+            var insertTextFeedback = feedback as InsertTextFeedback;
+
+            if (!_view.TextBuffer.CheckEditAccess())
+                throw new Exception("Cannot edit text buffer.");
+
+            var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
+            var inserted = edit.Insert(insertTextFeedback.Position, insertTextFeedback.Text);
+
+            if (!inserted)
+                throw new Exception($"Cannot insert '{insertTextFeedback.Text}' at position {insertTextFeedback.Position} in text buffer.");
+
+            edit.Apply();
+        }
+
+        private bool InteresstingChangeOccured(TextContentChangedEventArgs e)
         {
             if (WasChangeCausedByForceFeedback(e) || e.Changes.Count == 0)
                 return false;
@@ -145,8 +173,7 @@ namespace ForceFeedback.Adapters.VisualStudio
             //      if the user inserted a linefeed and the IDE created whitespaces automatically for indention of the next line.
             //      In this case, we want to ignore the generated leading whitespaces. 
             //      In the case the user entered a whitespace directly, we do not want to trim it away. So we check the new text length. 
-            return e.Changes.Count > 0 &&
-                _allowedCharactersInChanges.Contains(change.NewText.Length == 1 ? change.NewText : change.NewText.Trim(' '));
+            return AllowedCharactersInChanges.Contains(change.NewText.Length == 1 ? change.NewText : change.NewText.Trim(' '));
         }
 
         private static bool WasChangeCausedByForceFeedback(TextContentChangedEventArgs e)
@@ -197,24 +224,28 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             foreach (var codeBlock in codeBlocks)
             {
-                var linesOfCode = codeBlock
-                    .WithoutLeadingTrivia()
-                    .WithoutTrailingTrivia()
-                    .GetText()
-                    .Lines
-                    .Count;
-
-                var methodName = (codeBlock.Parent as MethodDeclarationSyntax)?.Identifier.ValueText;
-                var document = codeBlock.GetText()?.FindCorrespondingEditorTextSnapshot()?.GetOpenDocumentInCurrentContextWithChanges();
-
-                _forceFeedbackContext.MethodName = methodName;
-                _forceFeedbackContext.LineCount = linesOfCode;
+                UpdateContextByCodeBlock(codeBlock);
 
                 var feedbacks = _feedbackMachine.MethodCodeBlockFound();
                 var occurence = new CodeBlockOccurrence(codeBlock, feedbacks);
 
                 _codeBlockOccurrences.Add(occurence);
             }
+        }
+
+        private void UpdateContextByCodeBlock(BlockSyntax codeBlock)
+        {
+            var linesOfCode = codeBlock
+                .WithoutLeadingTrivia()
+                .WithoutTrailingTrivia()
+                .GetText()
+                .Lines
+                .Count;
+
+            var methodName = (codeBlock.Parent as MethodDeclarationSyntax)?.Identifier.ValueText;
+
+            _forceFeedbackContext.MethodName = methodName;
+            _forceFeedbackContext.LineCount = linesOfCode;
         }
 
         /// <summary>

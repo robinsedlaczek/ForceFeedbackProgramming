@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace ForceFeedback.Core
@@ -36,6 +37,35 @@ namespace ForceFeedback.Core
             {
                 new DrawColoredBackgroundFeedback(backgroundColor, outlineColor)
             };
+        }
+
+        public List<IFeedback> TextChanged()
+        {
+            var result = new List<IFeedback>();
+
+            if (_forceFeedbackContext.LineCount < 15)
+                return result;
+
+            const string noiseCharacters = "⌫♥♠♦◘○☺☻♀►♂↨◄↕";
+            var random = new Random();
+            var index = random.Next(0, noiseCharacters.Length);
+
+            result.Add(new InsertTextFeedback(_forceFeedbackContext.CaretPosition, $"{noiseCharacters[index]}"));
+            
+            //if (_forceFeedbackContext.LineCount > 20)
+            //    result.Add(new DelayKeyboardInputsFeedback(500));
+
+            return result;
+        }
+
+        public List<IFeedback> TextChanging()
+        {
+            var result = new List<IFeedback>();
+
+            if (_forceFeedbackContext.LineCount > 20)
+                result.Add(new DelayKeyboardInputsFeedback(500));
+
+            return result;
         }
     }
 }
