@@ -53,8 +53,9 @@ namespace ForceFeedback.Core
 
             result.Add(new InsertTextFeedback(_forceFeedbackContext.CaretPosition, $"{noiseCharacters[index]}"));
 
+            // [RS] Add per line 100 ms delay. :)
             if (_forceFeedbackContext.LineCount > 20)
-                result.Add(new DelayKeyboardInputsFeedback(100));
+                result.Add(new DelayKeyboardInputsFeedback((_forceFeedbackContext.LineCount) - 20 * 100));
 
             return result;
         }
