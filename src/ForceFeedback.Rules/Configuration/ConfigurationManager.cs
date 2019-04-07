@@ -38,7 +38,7 @@ namespace ForceFeedback.Rules.Configuration
 
         private static FileSystemWatcher InitConfigurationFileWatcher()
         {
-            var configFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "ForceFeedbackProgramming");
+            var configFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
 
             if (!Directory.Exists(configFolderPath))
                 Directory.CreateDirectory(configFolderPath);
@@ -53,6 +53,8 @@ namespace ForceFeedback.Rules.Configuration
             watcher.Renamed += OnFileRenamed;
 
             watcher.EnableRaisingEvents = true;
+
+			Global.ConfigFilePathChanged += () => { Configuration = LoadConfiguration(); };
 
             return watcher;
         }
@@ -75,7 +77,9 @@ namespace ForceFeedback.Rules.Configuration
 
             try
             {
-                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming" + @"\" + Global.CONFIG_FILE_NAME);
+				var path = Global.ConfigFilePath;
+				if (path == "")
+					return Configuration.Default;
 
                 CreateDefaultConfigurationIfNotExists(path);
 
