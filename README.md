@@ -24,6 +24,6 @@ You can download the precompiled Visual Studio installer package from the [relea
 
 [![Build status](https://ci.appveyor.com/api/projects/status/mrnvhtnf9k2xrs4g/branch/master?svg=true)](https://ci.appveyor.com/project/robinsedlaczek/forcefeedbackprogramming/branch/master)
 
-## Wanna chat with us?
+## Wanna chat with us? 
 
 You can meet us here: [![Gitter](https://badges.gitter.im/robinsedlaczek/ForceFeedbackProgramming.svg)](https://gitter.im/robinsedlaczek/ForceFeedbackProgramming?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
