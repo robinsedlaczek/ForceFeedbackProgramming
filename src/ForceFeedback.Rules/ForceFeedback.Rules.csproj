@@ -268,7 +268,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <EmbeddedResource Include="Resources\.forcefeedbackprogramming" />
+    <EmbeddedResource Include="Resources\Config.json" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
