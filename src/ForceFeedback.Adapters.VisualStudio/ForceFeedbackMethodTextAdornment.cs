@@ -25,7 +25,7 @@ namespace ForceFeedback.Adapters.VisualStudio
     /// <summary>
     /// MethodTooLongTextAdornment places red boxes behind all the "a"s in the editor window
     /// </summary>
-    internal sealed class MethodTooLongTextAdornment
+    internal sealed class ForceFeedbackMethodTextAdornment
     {
         #region Private Fields
 
@@ -51,10 +51,10 @@ namespace ForceFeedback.Adapters.VisualStudio
         #region Construction
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MethodTooLongTextAdornment"/> class.
+        /// Initializes a new instance of the <see cref="ForceFeedbackMethodTextAdornment"/> class.
         /// </summary>
         /// <param name="view">Text view to create the adornment for</param>
-		public MethodTooLongTextAdornment(IWpfTextView view, ITextDocumentFactoryService textDocumentFactory)
+		public ForceFeedbackMethodTextAdornment(IWpfTextView view, ITextDocumentFactoryService textDocumentFactory)
         {
 			_view = view ?? throw new ArgumentNullException(nameof(view));
 			_textDocumentFactory = textDocumentFactory ?? throw new ArgumentNullException(nameof(textDocumentFactory));
