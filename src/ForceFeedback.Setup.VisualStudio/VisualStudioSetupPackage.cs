@@ -4,7 +4,7 @@ using System.Threading;
 using Microsoft.VisualStudio.Shell;
 using Task = System.Threading.Tasks.Task;
 
-namespace ForceFeedback.VisualStudioSetup
+namespace ForceFeedback.Setup.VisualStudio
 {
     /// <summary>
     /// This is the class that implements the package exposed by this assembly.

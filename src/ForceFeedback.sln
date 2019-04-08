@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28606.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForceFeedback.VisualStudioSetup", "ForceFeedback.VisualStudioSetup\ForceFeedback.VisualStudioSetup.csproj", "{5905243F-9579-4582-B21D-B6B56839F130}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForceFeedback.VisualStudioSetup", "ForceFeedback.Setup.VisualStudio\ForceFeedback.Setup.VisualStudio.csproj", "{5905243F-9579-4582-B21D-B6B56839F130}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ForceFeedback.Adapters.VisualStudio", "ForceFeedback.Adapters.VisualStudio\ForceFeedback.Adapters.VisualStudio.csproj", "{920B1495-770A-439D-B93B-40FC872C8C68}"
 EndProject

@@ -31,8 +31,8 @@
     <ProjectGuid>{5905243F-9579-4582-B21D-B6B56839F130}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ForceFeedback.VisualStudioSetup</RootNamespace>
-    <AssemblyName>ForceFeedback.VisualStudioSetup</AssemblyName>
+    <RootNamespace>ForceFeedback.Setup.VisualStudio</RootNamespace>
+    <AssemblyName>ForceFeedback.Setup.VisualStudio</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <UseCodebase>true</UseCodebase>

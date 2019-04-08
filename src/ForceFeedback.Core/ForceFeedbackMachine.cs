@@ -44,7 +44,7 @@ namespace ForceFeedback.Core
             };
         }
 
-        public List<IFeedback> RequestFeedbackAfterMethodCodeChange(string methodName, int methodLineCount, int caretPosition)
+        public List<IFeedback> RequestFeedbackAfterMethodCodeChange(string methodName, int methodLineCount)
         {
             var result = new List<IFeedback>();
 

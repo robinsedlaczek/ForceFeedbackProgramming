@@ -111,7 +111,7 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             var change = e.Changes[0];
 
-            var longMethodOccurence = _codeBlockOccurrences
+            var methodOccurence = _codeBlockOccurrences
                 .Where(occurence => occurence.Block.FullSpan.IntersectsWith(change.NewSpan.Start))
                 .Select(occurence => occurence)
                 .FirstOrDefault();
@@ -119,7 +119,7 @@ namespace ForceFeedback.Adapters.VisualStudio
             string methodName = string.Empty;
             int linesOfCode = 0;
 
-            GetMethodNameAndLineCount(codeBlock, out methodName, out linesOfCode);
+            GetMethodNameAndLineCount(methodOccurence.Block, out methodName, out linesOfCode);
 
             var feedbacks = _feedbackMachine.RequestFeedbackAfterMethodCodeChange(methodName, linesOfCode);
 
@@ -139,14 +139,6 @@ namespace ForceFeedback.Adapters.VisualStudio
             Thread.Sleep(delayKeyboardInputsFeedback.Milliseconds);
         }
 
-        private void UpdateContextByTextChange(ITextChange change)
-        {
-            _forceFeedbackContext.InsertedText = change.NewText;
-            _forceFeedbackContext.InsertedAt = change.OldPosition;
-            _forceFeedbackContext.ReplacedText = change.OldText;
-            _forceFeedbackContext.CaretPosition = change.NewPosition;
-        }
-
         private void InsertText(IFeedback feedback)
         {
             var insertTextFeedback = feedback as InsertTextFeedback;
@@ -155,10 +147,11 @@ namespace ForceFeedback.Adapters.VisualStudio
                 throw new Exception("Cannot edit text buffer.");
 
             var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
-            var inserted = edit.Insert(insertTextFeedback.Position, insertTextFeedback.Text);
+            var position = _view.Caret.Position.BufferPosition.Position;
+            var inserted = edit.Insert(position, insertTextFeedback.Text);
 
             if (!inserted)
-                throw new Exception($"Cannot insert '{insertTextFeedback.Text}' at position {insertTextFeedback.Position} in text buffer.");
+                throw new Exception($"Cannot insert '{insertTextFeedback.Text}' at position {position} in text buffer.");
 
             edit.Apply();
         }
