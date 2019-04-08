@@ -7,31 +7,35 @@ namespace ForceFeedback.Core
 {
     public class ForceFeedbackMachine
     {
-        private ForceFeedbackContext _forceFeedbackContext;
+        private string _solutionFilePath;
+        private string _projectFilePath;
+        private string _sourceFilePath;
 
-        public ForceFeedbackMachine(ForceFeedbackContext forceFeedbackContext)
+        public ForceFeedbackMachine(string solutionFilePath, string projectFilePath, string sourceFilePath)
         {
-            _forceFeedbackContext = forceFeedbackContext;
+            _solutionFilePath = solutionFilePath;
+            _projectFilePath = projectFilePath;
+            _sourceFilePath = sourceFilePath;
         }
 
-        public List<IFeedback> RequestFeedbackForMethodCodeBlock()
+        public List<IFeedback> RequestFeedbackForMethodCodeBlock(string methodName, int methodLineCount)
         {
-            if (_forceFeedbackContext.LineCount <= 3)
+            if (methodLineCount <= 3)
                 return new List<IFeedback>();
 
             var backgroundColor = Color.Blue;
             var outlineColor = Color.White;
 
-            if (_forceFeedbackContext.LineCount > 15)
+            if (methodLineCount > 15)
             {
                 backgroundColor = Color.FromArgb(200, 0, 0, 255);
                 outlineColor = Color.Red;
             }
-            else if (_forceFeedbackContext.LineCount > 10)
+            else if (methodLineCount > 10)
                 backgroundColor = Color.FromArgb(150, 0, 0, 255);
-            else if (_forceFeedbackContext.LineCount > 5)
+            else if (methodLineCount > 5)
                 backgroundColor = Color.FromArgb(100, 0, 0, 255);
-            else if (_forceFeedbackContext.LineCount > 3)
+            else if (methodLineCount > 3)
                 backgroundColor = Color.FromArgb(50, 0, 0, 255);
 
             return new List<IFeedback>
@@ -40,31 +44,31 @@ namespace ForceFeedback.Core
             };
         }
 
-        public List<IFeedback> RequestFeedbackAfterMethodCodeChange()
+        public List<IFeedback> RequestFeedbackAfterMethodCodeChange(string methodName, int methodLineCount, int caretPosition)
         {
             var result = new List<IFeedback>();
 
-            if (_forceFeedbackContext.LineCount < 15)
+            if (methodLineCount < 15)
                 return result;
 
             const string noiseCharacters = "⌫♥♠♦◘○☺☻♀►♂↨◄↕";
             var random = new Random();
             var index = random.Next(0, noiseCharacters.Length);
 
-            result.Add(new InsertTextFeedback(_forceFeedbackContext.CaretPosition, $"{noiseCharacters[index]}"));
+            result.Add(new InsertTextFeedback($"{noiseCharacters[index]}"));
 
             // [RS] Add per line 100 ms delay. :)
-            if (_forceFeedbackContext.LineCount > 20)
-                result.Add(new DelayKeyboardInputsFeedback((_forceFeedbackContext.LineCount) - 20 * 100));
+            if (methodLineCount > 20)
+                result.Add(new DelayKeyboardInputsFeedback((methodLineCount) - 20 * 100));
 
             return result;
         }
 
-        public List<IFeedback> RequestFeedbackBeforeMethodCodeChange()
+        public List<IFeedback> RequestFeedbackBeforeMethodCodeChange(string methodName, int methodLineCount)
         {
             var result = new List<IFeedback>();
 
-            if (_forceFeedbackContext.LineCount > 25)
+            if (methodLineCount > 25)
                 result.Add(new PreventKeyboardInputsFeedback());
 
             return result;

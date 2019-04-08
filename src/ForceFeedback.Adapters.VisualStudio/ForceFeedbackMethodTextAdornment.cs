@@ -34,7 +34,6 @@ namespace ForceFeedback.Adapters.VisualStudio
         private readonly IWpfTextView _view;
         private ITextDocument _textDocument;
         private IList<CodeBlockOccurrence> _codeBlockOccurrences;
-        private readonly ForceFeedbackContext _forceFeedbackContext;
         private readonly ForceFeedbackMachine _feedbackMachine;
 
         private readonly string[] AllowedCharactersInChanges = new[]
@@ -73,26 +72,22 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             var project = _textDocument?.TextBuffer?.CurrentSnapshot?.GetOpenDocumentInCurrentContextWithChanges()?.Project;
 
-            _forceFeedbackContext = new ForceFeedbackContext();
-            _forceFeedbackContext.Project = project?.Name;
-            _forceFeedbackContext.Assembly = project?.AssemblyName;
-            _forceFeedbackContext.FilePath = _textDocument.FilePath;
-
-            _feedbackMachine = new ForceFeedbackMachine(_forceFeedbackContext);
+            _feedbackMachine = new ForceFeedbackMachine(solutionFilePath: project?.Solution?.FilePath, projectFilePath: project?.FilePath, sourceFilePath: _textDocument.FilePath);
 		}
 
         private void OnTextBufferChanging(object sender, TextContentChangingEventArgs e)
         {
-            var longMethodOccurence = _codeBlockOccurrences
+            var methodOccurence = _codeBlockOccurrences
                 .Where(occurence => occurence.Block.FullSpan.IntersectsWith(_view.Caret.Position.BufferPosition.Position))
                 .Select(occurence => occurence)
                 .FirstOrDefault();
 
-            UpdateContextByCodeBlock(longMethodOccurence.Block);
+            string methodName = string.Empty;
+            int linesOfCode = 0;
 
-            _forceFeedbackContext.CaretPosition = _view.Caret.Position.BufferPosition.Position;
+            GetMethodNameAndLineCount(methodOccurence.Block, out methodName, out linesOfCode);
 
-            var feedbacks = _feedbackMachine.RequestFeedbackBeforeMethodCodeChange();
+            var feedbacks = _feedbackMachine.RequestFeedbackBeforeMethodCodeChange(methodName, linesOfCode);
 
             foreach (var feedback in feedbacks)
             {
@@ -121,10 +116,12 @@ namespace ForceFeedback.Adapters.VisualStudio
                 .Select(occurence => occurence)
                 .FirstOrDefault();
 
-            UpdateContextByCodeBlock(longMethodOccurence.Block);
-            UpdateContextByTextChange(change);
+            string methodName = string.Empty;
+            int linesOfCode = 0;
 
-            var feedbacks = _feedbackMachine.RequestFeedbackAfterMethodCodeChange();
+            GetMethodNameAndLineCount(codeBlock, out methodName, out linesOfCode);
+
+            var feedbacks = _feedbackMachine.RequestFeedbackAfterMethodCodeChange(methodName, linesOfCode);
 
             foreach (var feedback in feedbacks)
             {
@@ -228,28 +225,28 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             foreach (var codeBlock in codeBlocks)
             {
-                UpdateContextByCodeBlock(codeBlock);
+                string methodName = string.Empty;
+                int linesOfCode = 0;
 
-                var feedbacks = _feedbackMachine.RequestFeedbackForMethodCodeBlock();
+                GetMethodNameAndLineCount(codeBlock, out methodName, out linesOfCode);
+
+                var feedbacks = _feedbackMachine.RequestFeedbackForMethodCodeBlock(methodName, linesOfCode);
                 var occurence = new CodeBlockOccurrence(codeBlock, feedbacks);
 
                 _codeBlockOccurrences.Add(occurence);
             }
         }
 
-        private void UpdateContextByCodeBlock(BlockSyntax codeBlock)
+        private void GetMethodNameAndLineCount(BlockSyntax codeBlock, out string methodName, out int linesOfCode)
         {
-            var linesOfCode = codeBlock
+            linesOfCode = codeBlock
                 .WithoutLeadingTrivia()
                 .WithoutTrailingTrivia()
                 .GetText()
                 .Lines
                 .Count;
 
-            var methodName = (codeBlock.Parent as MethodDeclarationSyntax)?.Identifier.ValueText;
-
-            _forceFeedbackContext.MethodName = methodName;
-            _forceFeedbackContext.LineCount = linesOfCode;
+            methodName = (codeBlock.Parent as MethodDeclarationSyntax)?.Identifier.ValueText;
         }
 
         /// <summary>
