@@ -92,7 +92,7 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             _forceFeedbackContext.CaretPosition = _view.Caret.Position.BufferPosition.Position;
 
-            var feedbacks = _feedbackMachine.TextChanging();
+            var feedbacks = _feedbackMachine.RequestFeedbackBeforeMethodCodeChange();
 
             foreach (var feedback in feedbacks)
             {
@@ -124,7 +124,7 @@ namespace ForceFeedback.Adapters.VisualStudio
             UpdateContextByCodeBlock(longMethodOccurence.Block);
             UpdateContextByTextChange(change);
 
-            var feedbacks = _feedbackMachine.TextChanged();
+            var feedbacks = _feedbackMachine.RequestFeedbackAfterMethodCodeChange();
 
             foreach (var feedback in feedbacks)
             {
@@ -230,7 +230,7 @@ namespace ForceFeedback.Adapters.VisualStudio
             {
                 UpdateContextByCodeBlock(codeBlock);
 
-                var feedbacks = _feedbackMachine.MethodCodeBlockFound();
+                var feedbacks = _feedbackMachine.RequestFeedbackForMethodCodeBlock();
                 var occurence = new CodeBlockOccurrence(codeBlock, feedbacks);
 
                 _codeBlockOccurrences.Add(occurence);

@@ -14,7 +14,7 @@ namespace ForceFeedback.Core
             _forceFeedbackContext = forceFeedbackContext;
         }
 
-        public List<IFeedback> MethodCodeBlockFound()
+        public List<IFeedback> RequestFeedbackForMethodCodeBlock()
         {
             if (_forceFeedbackContext.LineCount <= 3)
                 return new List<IFeedback>();
@@ -40,7 +40,7 @@ namespace ForceFeedback.Core
             };
         }
 
-        public List<IFeedback> TextChanged()
+        public List<IFeedback> RequestFeedbackAfterMethodCodeChange()
         {
             var result = new List<IFeedback>();
 
@@ -60,7 +60,7 @@ namespace ForceFeedback.Core
             return result;
         }
 
-        public List<IFeedback> TextChanging()
+        public List<IFeedback> RequestFeedbackBeforeMethodCodeChange()
         {
             var result = new List<IFeedback>();
 
