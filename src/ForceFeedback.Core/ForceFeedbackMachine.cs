@@ -24,15 +24,15 @@ namespace ForceFeedback.Core
 
             if (_forceFeedbackContext.LineCount > 15)
             {
-                backgroundColor = Color.FromArgb(200, 0, 0, 255);
+                backgroundColor = Color.FromArgb(200, 0, 255, 0);
                 outlineColor = Color.Red;
             }
             else if (_forceFeedbackContext.LineCount > 10)
-                backgroundColor = Color.FromArgb(150, 0, 0, 255);
+                backgroundColor = Color.FromArgb(150, 0, 255, 0);
             else if (_forceFeedbackContext.LineCount > 5)
-                backgroundColor = Color.FromArgb(100, 0, 0, 255);
+                backgroundColor = Color.FromArgb(100, 0, 255, 0);
             else if (_forceFeedbackContext.LineCount > 3)
-                backgroundColor = Color.FromArgb(50, 0, 0, 255);
+                backgroundColor = Color.FromArgb(50, 0, 255, 0);
 
             return new List<IFeedback>
             {
