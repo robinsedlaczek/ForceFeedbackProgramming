@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 
-namespace ForceFeedback.Rules
+namespace ForceFeedback.Adapters.VisualStudio
 {
     /// <summary>
     /// Establishes an <see cref="IAdornmentLayer"/> to place the adornment on and exports the <see cref="IWpfTextViewCreationListener"/>
@@ -18,7 +18,7 @@ namespace ForceFeedback.Rules
     [Export(typeof(IWpfTextViewCreationListener))]
     [ContentType("text")]
     [TextViewRole(PredefinedTextViewRoles.Document)]
-    internal sealed class MethodTooLongTextAdornmentTextViewCreationListener : IWpfTextViewCreationListener
+    internal sealed class ForceFeedbackTextViewCreationListener : IWpfTextViewCreationListener
     {
         // Disable "Field is never assigned to..." and "Field is never used" compiler's warnings. Justification: the field is used by MEF.
 #pragma warning disable 649, 169
@@ -28,7 +28,7 @@ namespace ForceFeedback.Rules
         /// after the selection layer in the Z-order
         /// </summary>
         [Export(typeof(AdornmentLayerDefinition))]
-        [Name("MethodTooLongTextAdornment")]
+        [Name("ForceFeedbackMethodTextAdornment")]
         [Order(Before = PredefinedAdornmentLayers.Selection)]
         private AdornmentLayerDefinition EditorAdornmentLayer;
 
@@ -47,7 +47,7 @@ namespace ForceFeedback.Rules
         public void TextViewCreated(IWpfTextView textView)
         {
             // The adornment will listen to any event that changes the layout (text changes, scrolling, etc)
-            new MethodTooLongTextAdornment(textView, textDocumentFactory);
+            new ForceFeedbackMethodTextAdornment(textView, textDocumentFactory);
         }
 
         #endregion
