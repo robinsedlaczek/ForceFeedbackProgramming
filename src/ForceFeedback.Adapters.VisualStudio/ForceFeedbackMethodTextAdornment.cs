@@ -16,26 +16,27 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using System.Windows;
-using ForceFeedback.Rules.Configuration;
-using ForceFeedback.Rules.Extensions;
-using System.IO;
+using ForceFeedback.Core;
+using System.Threading;
+using ForceFeedback.Core.Feedbacks;
 
-namespace ForceFeedback.Rules
+namespace ForceFeedback.Adapters.VisualStudio
 {
     /// <summary>
     /// MethodTooLongTextAdornment places red boxes behind all the "a"s in the editor window
     /// </summary>
-    internal sealed class MethodTooLongTextAdornment
+    internal sealed class ForceFeedbackMethodTextAdornment
     {
         #region Private Fields
 
-        private IList<LongCodeBlockOccurrence> _longCodeBlockOccurrences;
+        private readonly ITextDocumentFactoryService _textDocumentFactory;
         private readonly IAdornmentLayer _layer;
         private readonly IWpfTextView _view;
-        private int _lastCaretBufferPosition;
-        private int _numberOfKeystrokes;
+        private ITextDocument _textDocument;
+        private IList<CodeBlockOccurrence> _codeBlockOccurrences;
+        private readonly ForceFeedbackMachine _feedbackMachine;
 
-        private readonly string[] _allowedCharactersInChanges = new[]
+        private readonly string[] AllowedCharactersInChanges = new[]
         {
             "\r", "\n", "\r\n",
             " ", "\"", "'", ".", ",", "@", "$", "(", ")", "{", "}", "[", "]", "&", "|", "\\", "%", "+", "-", "*", "/", ";", ":", "_", "?", "!",
@@ -44,106 +45,134 @@ namespace ForceFeedback.Rules
             "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
         };
 
-		private readonly ITextDocumentFactoryService _textDocumentFactory;
-		private ITextDocument _textDocument;
         #endregion
 
         #region Construction
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MethodTooLongTextAdornment"/> class.
+        /// Initializes a new instance of the <see cref="ForceFeedbackMethodTextAdornment"/> class.
         /// </summary>
         /// <param name="view">Text view to create the adornment for</param>
-		public MethodTooLongTextAdornment(IWpfTextView view, ITextDocumentFactoryService textDocumentFactory)
+		public ForceFeedbackMethodTextAdornment(IWpfTextView view, ITextDocumentFactoryService textDocumentFactory)
         {
 			_view = view ?? throw new ArgumentNullException(nameof(view));
 			_textDocumentFactory = textDocumentFactory ?? throw new ArgumentNullException(nameof(textDocumentFactory));
 
 			var res = _textDocumentFactory.TryGetTextDocument(_view.TextBuffer, out _textDocument);
-			// _textDocument.FilePath -> opened file path
-			UpdateConfigFilePath(_textDocument.FilePath);
 
-			_lastCaretBufferPosition = 0;
-            _numberOfKeystrokes = 0;
-            _longCodeBlockOccurrences = new List<LongCodeBlockOccurrence>();
+            _codeBlockOccurrences = new List<CodeBlockOccurrence>();
 
             _layer = view.GetAdornmentLayer("MethodTooLongTextAdornment");
 			
             _view.LayoutChanged += OnLayoutChanged;
             _view.TextBuffer.Changed += OnTextBufferChanged;
+            _view.TextBuffer.Changing += OnTextBufferChanging;
 
 			_textDocumentFactory = textDocumentFactory;
+
+            var project = _textDocument?.TextBuffer?.CurrentSnapshot?.GetOpenDocumentInCurrentContextWithChanges()?.Project;
+
+            _feedbackMachine = new ForceFeedbackMachine(solutionFilePath: project?.Solution?.FilePath, projectFilePath: project?.FilePath, sourceFilePath: _textDocument.FilePath);
 		}
-		#endregion
 
-		#region Event Handler
-
-		private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
+        private void OnTextBufferChanging(object sender, TextContentChangingEventArgs e)
         {
-            
-            if (!InteresstingChangedOccured(e))
+            var methodOccurence = _codeBlockOccurrences
+                .Where(occurence => occurence.Block.FullSpan.IntersectsWith(_view.Caret.Position.BufferPosition.Position))
+                .Select(occurence => occurence)
+                .FirstOrDefault();
+
+            string methodName = string.Empty;
+            int linesOfCode = 0;
+
+            GetMethodNameAndLineCount(methodOccurence.Block, out methodName, out linesOfCode);
+
+            var feedbacks = _feedbackMachine.RequestFeedbackBeforeMethodCodeChange(methodName, linesOfCode);
+
+            foreach (var feedback in feedbacks)
+            {
+                if (feedback is InsertTextFeedback)
+                    InsertText(feedback);
+                else if (feedback is DelayKeyboardInputsFeedback)
+                    DelayKeyboardInput(feedback);
+                else if (feedback is PreventKeyboardInputsFeedback)
+                    e.Cancel();
+            }
+        }
+
+        #endregion
+
+        #region Event Handler
+
+        private void OnTextBufferChanged(object sender, TextContentChangedEventArgs e)
+        {
+            if (!InteresstingChangeOccured(e))
                 return;
 
             var change = e.Changes[0];
-            var caretPosition = _view.Caret.Position.BufferPosition.Position;
 
-            if (change.NewText.IsNewLineMarker())
-            {
-                _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
-                _numberOfKeystrokes = 0;
-                return;
-            }
-
-            var longMethodOccurence = _longCodeBlockOccurrences
+            var methodOccurence = _codeBlockOccurrences
                 .Where(occurence => occurence.Block.FullSpan.IntersectsWith(change.NewSpan.Start))
                 .Select(occurence => occurence)
                 .FirstOrDefault();
 
-            if (longMethodOccurence == null || longMethodOccurence.LimitConfiguration.NoiseDistance <= 0)
-                return;
+            string methodName = string.Empty;
+            int linesOfCode = 0;
 
-            if (caretPosition == _lastCaretBufferPosition + 1)
-                _numberOfKeystrokes++;
-            else
-                _numberOfKeystrokes = 1;
+            GetMethodNameAndLineCount(methodOccurence.Block, out methodName, out linesOfCode);
 
-            _lastCaretBufferPosition = caretPosition + change.NewLength - 1;
+            var feedbacks = _feedbackMachine.RequestFeedbackAfterMethodCodeChange(methodName, linesOfCode);
 
-            if (_numberOfKeystrokes < longMethodOccurence.LimitConfiguration.NoiseDistance) return;
+            foreach (var feedback in feedbacks)
+            {
+                if (feedback is InsertTextFeedback)
+                    InsertText(feedback);
+                else if (feedback is DelayKeyboardInputsFeedback)
+                    DelayKeyboardInput(feedback);
+            }
+        }
+
+        private static void DelayKeyboardInput(IFeedback feedback)
+        {
+            var delayKeyboardInputsFeedback = feedback as DelayKeyboardInputsFeedback;
+
+            Thread.Sleep(delayKeyboardInputsFeedback.Milliseconds);
+        }
+
+        private void InsertText(IFeedback feedback)
+        {
+            var insertTextFeedback = feedback as InsertTextFeedback;
 
             if (!_view.TextBuffer.CheckEditAccess())
                 throw new Exception("Cannot edit text buffer.");
 
-            const string textToInsert = "⌫";
-
             var edit = _view.TextBuffer.CreateEdit(EditOptions.None, null, "ForceFeedback");
-            var inserted = edit.Insert(change.NewPosition + change.NewLength, textToInsert);
+            var position = _view.Caret.Position.BufferPosition.Position;
+            var inserted = edit.Insert(position, insertTextFeedback.Text);
 
             if (!inserted)
-                throw new Exception($"Cannot insert '{change.NewText}' at position {change.NewPosition} in text buffer.");
+                throw new Exception($"Cannot insert '{insertTextFeedback.Text}' at position {position} in text buffer.");
 
             edit.Apply();
-
-            _numberOfKeystrokes = 0;
         }
 
-        private bool InteresstingChangedOccured(TextContentChangedEventArgs e)
+        private bool InteresstingChangeOccured(TextContentChangedEventArgs e)
         {
-            if (WasChangeCausedByForceFeedback(e) || e.Changes.Count == 0)
+            if (WasChangeCausedByForceFeedback(e.EditTag) || e.Changes.Count == 0)
                 return false;
 
             var change = e.Changes[0];
+
             // [RS] We trim the new text when checking for allowed characters, if the text has more than one character. This is, e.g. 
             //      if the user inserted a linefeed and the IDE created whitespaces automatically for indention of the next line.
             //      In this case, we want to ignore the generated leading whitespaces. 
             //      In the case the user entered a whitespace directly, we do not want to trim it away. So we check the new text length. 
-            return e.Changes.Count > 0 &&
-                _allowedCharactersInChanges.Contains(change.NewText.Length == 1 ? change.NewText : change.NewText.Trim(' '));
+            return AllowedCharactersInChanges.Contains(change.NewText.Length == 1 ? change.NewText : change.NewText.Trim(' '));
         }
 
-        private static bool WasChangeCausedByForceFeedback(TextContentChangedEventArgs e)
+        private static bool WasChangeCausedByForceFeedback(object editTag)
         {
-            return e.EditTag != null && e.EditTag.ToString() == "ForceFeedback";
+            return editTag != null && editTag.ToString() == "ForceFeedback";
         }
 
         /// <summary>
@@ -159,10 +188,10 @@ namespace ForceFeedback.Rules
         {
             try
             {
-                var codeBlocks = await CollectBlockSyntaxNodes(e.NewSnapshot);
+                var codeBlocks = await CollectBlockSyntaxNodesAsync(e.NewSnapshot);
 
-                AnalyzeAndCacheLongCodeBlockOccurrences(codeBlocks);
-                CreateVisualsForLongCodeBlock();
+                AnalyzeCodeBlockOccurrences(codeBlocks);
+                CreateBackgroundVisualsForCodeBlocks();
             }
             catch
             {
@@ -177,40 +206,40 @@ namespace ForceFeedback.Rules
 
         /// <summary>
         /// This method checks if the given block syntaxes are too long based on the configured limits. If so, the block syntax 
-        /// and the corresponding limit configuration is put together in an instance of  <see cref="LongCodeBlockOccurrence">LongCodeBlockOccurrence</see>.
+        /// and the corresponding limit configuration is put together in an instance of  <see cref="CodeBlockOccurrence">LongCodeBlockOccurrence</see>.
         /// </summary>
         /// <param name="codeBlocks">The list of block syntaxes that will be analyzed.</param>
-        private void AnalyzeAndCacheLongCodeBlockOccurrences(IEnumerable<BlockSyntax> codeBlocks)
+        private void AnalyzeCodeBlockOccurrences(IEnumerable<BlockSyntax> codeBlocks)
         {
             if (codeBlocks == null)
                 throw new ArgumentNullException(nameof(codeBlocks));
 
-            _longCodeBlockOccurrences.Clear();
+            _codeBlockOccurrences.Clear();
 
             foreach (var codeBlock in codeBlocks)
             {
-                var linesOfCode = codeBlock
-                    .WithoutLeadingTrivia()
-                    .WithoutTrailingTrivia()
-                    .GetText()
-                    .Lines
-                    .Count;
-                var correspondingLimitConfiguration = null as LongMethodLimitConfiguration;
+                string methodName = string.Empty;
+                int linesOfCode = 0;
 
-                foreach (var limitConfiguration in ConfigurationManager.Configuration.MethodTooLongLimits.OrderBy(limit => limit.Lines))
-                {
-                    if (linesOfCode < limitConfiguration.Lines)
-                        break;
-                    
-                    correspondingLimitConfiguration = limitConfiguration;
-                }
+                GetMethodNameAndLineCount(codeBlock, out methodName, out linesOfCode);
 
-                if (correspondingLimitConfiguration != null)
-                {
-                    var occurence = new LongCodeBlockOccurrence(codeBlock, correspondingLimitConfiguration);
-                    _longCodeBlockOccurrences.Add(occurence);
-                }
+                var feedbacks = _feedbackMachine.RequestFeedbackForMethodCodeBlock(methodName, linesOfCode);
+                var occurence = new CodeBlockOccurrence(codeBlock, feedbacks);
+
+                _codeBlockOccurrences.Add(occurence);
             }
+        }
+
+        private void GetMethodNameAndLineCount(BlockSyntax codeBlock, out string methodName, out int linesOfCode)
+        {
+            linesOfCode = codeBlock
+                .WithoutLeadingTrivia()
+                .WithoutTrailingTrivia()
+                .GetText()
+                .Lines
+                .Count;
+
+            methodName = (codeBlock.Parent as MethodDeclarationSyntax)?.Identifier.ValueText;
         }
 
         /// <summary>
@@ -218,7 +247,7 @@ namespace ForceFeedback.Rules
         /// </summary>
         /// <param name="newSnapshot">The text snapshot containing the code to analyze.</param>
         /// <returns>Returns a list with the code block syntax nodes.</returns>
-        private async Task<IEnumerable<BlockSyntax>> CollectBlockSyntaxNodes(ITextSnapshot newSnapshot)
+        private async Task<IEnumerable<BlockSyntax>> CollectBlockSyntaxNodesAsync(ITextSnapshot newSnapshot)
         {
             if (newSnapshot == null)
                 throw new ArgumentNullException(nameof(newSnapshot));
@@ -227,7 +256,7 @@ namespace ForceFeedback.Rules
 
             var syntaxRoot = await currentDocument.GetSyntaxRootAsync();
 
-            var tooLongCodeBlocks = syntaxRoot
+            var codeBlocks = syntaxRoot
                 .DescendantNodes(node => true)
                 .Where(node => node.IsSyntaxBlock() 
                     && (   node.Parent.IsMethod()
@@ -236,19 +265,22 @@ namespace ForceFeedback.Rules
                         || node.Parent.IsGetter()))
                 .Select(block => block as BlockSyntax);
 
-            return tooLongCodeBlocks;
+            return codeBlocks;
         }
 
         /// <summary>
         /// Adds a background behind the code block that have too many lines.
         /// </summary>
-        private void CreateVisualsForLongCodeBlock()
+        private void CreateBackgroundVisualsForCodeBlocks()
         {
-            if (_longCodeBlockOccurrences == null)
+            if (_codeBlockOccurrences == null)
                 return;
 
-            foreach (var occurrence in _longCodeBlockOccurrences)
+            foreach (var occurrence in _codeBlockOccurrences)
             {
+                if (occurrence.Feedbacks == null || !occurrence.Feedbacks.Any(feedback => feedback is DrawColoredBackgroundFeedback))
+                    continue;
+
                 var codeBlockParentSyntax = occurrence.Block.Parent;
                 var snapshotSpan = new SnapshotSpan(_view.TextSnapshot, Span.FromBounds(codeBlockParentSyntax.Span.Start, codeBlockParentSyntax.Span.Start + codeBlockParentSyntax.Span.Length));
                 var adornmentBounds = CalculateBounds(codeBlockParentSyntax, snapshotSpan);
@@ -270,22 +302,32 @@ namespace ForceFeedback.Rules
         /// This method creates the visual for a code block background and moves it to the correct position.
         /// </summary>
         /// <param name="adornmentBounds">The bounds of the rectangular adornment.</param>
-        /// <param name="longCodeBlockOccurence">The occurence of the code block for which the visual will be created.</param>
+        /// <param name="codeBlockOccurence">The occurence of the code block for which the visual will be created.</param>
         /// <returns>Returns the image that is the visual adornment (code block background).</returns>
-        private Image CreateAndPositionCodeBlockBackgroundVisual(Rect adornmentBounds, LongCodeBlockOccurrence longCodeBlockOccurence)
+        private Image CreateAndPositionCodeBlockBackgroundVisual(Rect adornmentBounds, CodeBlockOccurrence codeBlockOccurence)
         {
             if (adornmentBounds == null)
                 throw new ArgumentNullException(nameof(adornmentBounds));
 
-            if (longCodeBlockOccurence == null)
-                throw new ArgumentNullException(nameof(longCodeBlockOccurence));
+            if (codeBlockOccurence == null)
+                throw new ArgumentNullException(nameof(codeBlockOccurence));
 
             var backgroundGeometry = new RectangleGeometry(adornmentBounds);
+            var feedback = codeBlockOccurence.Feedbacks.Where(f => f is DrawColoredBackgroundFeedback).FirstOrDefault() as DrawColoredBackgroundFeedback;
+            var backgroundColor = Color.FromArgb(feedback.BackgroundColor.A, feedback.BackgroundColor.R, feedback.BackgroundColor.G, feedback.BackgroundColor.B);
 
-            var backgroundBrush = new SolidColorBrush(longCodeBlockOccurence.LimitConfiguration.Color);
+            var backgroundBrush = new SolidColorBrush(backgroundColor);
             backgroundBrush.Freeze();
 
-            var drawing = new GeometryDrawing(backgroundBrush, ConfigurationManager.LongCodeBlockBorderPen, backgroundGeometry);
+            var outlineColor = Color.FromArgb(feedback.OutlineColor.A, feedback.OutlineColor.R, feedback.OutlineColor.G, feedback.OutlineColor.B);
+
+            var outlinePenBrush = new SolidColorBrush(outlineColor);
+            outlinePenBrush.Freeze();
+
+            var outlinePen = new Pen(outlinePenBrush, 0.5);
+            outlinePen.Freeze();
+
+            var drawing = new GeometryDrawing(backgroundBrush, outlinePen, backgroundGeometry);
             drawing.Freeze();
 
             var drawingImage = new DrawingImage(drawing);
@@ -327,19 +369,6 @@ namespace ForceFeedback.Rules
             return new Rect(_view.ViewportLeft, top, _view.ViewportWidth, height);
         }
 
-		/// <summary>
-		/// This method find proj file(*.csproj, *.vbproj etc) or sln file(*.sln) and update config file's path.
-		/// </summary>
-		/// <param name="filePath">The string that represents the path of file.</param>
-		private void UpdateConfigFilePath(string filePath)
-		{
-			var projOrSlnPath = Global.GetProjectOrSolutionPath(filePath);
-
-			if (projOrSlnPath != "")
-				Global.ConfigFilePath = Path.Combine(projOrSlnPath, Global.CONFIG_FILE_NAME);
-			else
-				Global.ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"ForceFeedbackProgramming" + @"\" + Global.CONFIG_FILE_NAME);
-		}
 		#endregion
 	}
 }

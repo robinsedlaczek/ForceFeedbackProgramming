@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="ForceFeedback.Setup.Robin Sedlaczek.67c843fd-8152-4e6b-94aa-086dfb632a82" Version="0.2.1" Language="en-US" Publisher="Robin Sedlaczek &amp; Ralf Westphal" />
+        <Identity Id="ForceFeedback.Setup.Robin Sedlaczek.67c843fd-8152-4e6b-94aa-086dfb632a82" Version="0.2" Language="en-US" Publisher="Robin Sedlaczek &amp; Ralf Westphal" />
         <DisplayName>Force Feedback Programming</DisplayName>
         <Description xml:space="preserve">Make evolvability really tangible while coding: that's what Force Feedback Programming (FFP) is about.</Description>
         <MoreInfo>https://github.com/robinsedlaczek/ForceFeedbackProgramming</MoreInfo>
@@ -12,8 +12,8 @@
     </Installation>
     <Dependencies>
         <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.7.2,)" />
-        <Dependency d:Source="Manual" DisplayName="Microsoft.VisualStudio.Component.CoreEditor" Id="Microsoft.VisualStudio.Component.CoreEditor" />
-        <Dependency d:Source="Manual" DisplayName="Microsoft.VisualStudio.Component.Roslyn.Compiler" Id="Microsoft.VisualStudio.Component.Roslyn.Compiler" />
+        <Dependency d:Source="Manual" DisplayName="Microsoft.VisualStudio.Component.CoreEditor" Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,17.0)" d:InstallSource="Download" />
+        <Dependency d:Source="Manual" DisplayName="Microsoft.VisualStudio.Component.Roslyn.Compiler" Id="Microsoft.VisualStudio.Component.Roslyn.Compiler" Version="[2.1.0,2.9]" d:InstallSource="Download" />
     </Dependencies>
     <Prerequisites>
         <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[16.0,17.0)" DisplayName="Visual Studio core editor" />
