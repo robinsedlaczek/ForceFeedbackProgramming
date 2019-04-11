@@ -1,53 +1,45 @@
 ﻿using ForceFeedback.Core.Feedbacks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace ForceFeedback.Core
 {
     public class ForceFeedbackMachine
     {
-        private string _solutionFilePath;
-        private string _projectFilePath;
-        private string _sourceFilePath;
+        private readonly Configuration _config;
 
-        public ForceFeedbackMachine(string solutionFilePath, string projectFilePath, string sourceFilePath)
-        {
-            _solutionFilePath = solutionFilePath;
-            _projectFilePath = projectFilePath;
-            _sourceFilePath = sourceFilePath;
+        public ForceFeedbackMachine(string solutionFilePath, string projectFilePath, string sourceFilePath) {
+            _config = new ConfigurationProvider(solutionFilePath, projectFilePath, sourceFilePath).Compile();
         }
 
-        public List<IFeedback> RequestFeedbackForMethodCodeBlock(string methodName, int methodLineCount)
-        {
-            if (methodLineCount <= 3)
-                return new List<IFeedback>();
+        internal ForceFeedbackMachine(Configuration config) {
+            _config = config;
+        }
+        
+        
+        public IEnumerable<IFeedback> RequestFeedbackForMethodCodeBlock(string methodName, int methodLineCount) {
+            if (methodLineCount < 1 || _config.Rules.Length < 1 || methodLineCount < _config.Rules[0].Lines) return new IFeedback[0];
 
-            var backgroundColor = Color.Blue;
-            var outlineColor = Color.White;
-
-            if (methodLineCount > 15)
-            {
-                backgroundColor = Color.FromArgb(200, 0, 255, 0);
-                outlineColor = Color.Red;
-            }
-            else if (methodLineCount > 10)
-                backgroundColor = Color.FromArgb(150, 0, 0, 255);
-            else if (methodLineCount > 5)
-                backgroundColor = Color.FromArgb(100, 0, 0, 255);
-            else if (methodLineCount > 3)
-                backgroundColor = Color.FromArgb(50, 0, 0, 255);
-
-            return new List<IFeedback>
-            {
-                new DrawColoredBackgroundFeedback(backgroundColor, outlineColor)
+            return new[] {
+                new DrawColoredBackgroundFeedback(_config.Rules[0].BackgroundColor, _config.Rules[0].BackgroundTransparency) 
             };
         }
 
-        public List<IFeedback> RequestFeedbackAfterMethodCodeChange(string methodName, int methodLineCount)
+        public IEnumerable<IFeedback> RequestFeedbackAfterMethodCodeChange(string methodName, int methodLineCount)
         {
-            var result = new List<IFeedback>();
+            if (methodLineCount < 1 || _config.Rules.Length < 1 || methodLineCount < _config.Rules[0].Lines) return new IFeedback[0];
 
+            var feedbacks = new List<IFeedback>();
+            feedbacks.Add(new DrawColoredBackgroundFeedback(_config.Rules[0].BackgroundColor, _config.Rules[0].BackgroundTransparency));
+            // TODO: Noise distance has to be taken into account for noise chars!
+            if (_config.Rules[0].Delay > 0)
+                feedbacks.Add(new DelayKeyboardInputsFeedback(_config.Rules[0].Delay));
+            return feedbacks;
+
+            /* TODO: Provide tactile feedback
             if (methodLineCount < 15)
                 return result;
 
@@ -60,18 +52,13 @@ namespace ForceFeedback.Core
             // [RS] Add per line 100 ms delay. :)
             if (methodLineCount > 20)
                 result.Add(new DelayKeyboardInputsFeedback((methodLineCount) - 20 * 100));
-
             return result;
+            */
+
         }
 
-        public List<IFeedback> RequestFeedbackBeforeMethodCodeChange(string methodName, int methodLineCount)
-        {
-            var result = new List<IFeedback>();
-
-            if (methodLineCount > 25)
-                result.Add(new PreventKeyboardInputsFeedback());
-
-            return result;
+        public IEnumerable<IFeedback> RequestFeedbackBeforeMethodCodeChange(string methodName, int methodLineCount) {
+            return new List<IFeedback>();
         }
     }
 }

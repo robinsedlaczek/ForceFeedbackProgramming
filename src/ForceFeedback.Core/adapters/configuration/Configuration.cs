@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace ForceFeedback.Core
 {
@@ -28,9 +29,9 @@ namespace ForceFeedback.Core
         }
 
         public Configuration(IEnumerable<Rule> rules) {
-            this.Rules = rules;
+            this.Rules = rules.OrderBy(r => r.Lines).ToArray();
         }
         
-        public IEnumerable<Rule> Rules { get; }
+        public Rule[] Rules { get; }
     }
 }
