@@ -4,14 +4,17 @@ namespace ForceFeedback.Core.Feedbacks
 {
     public class DrawColoredBackgroundFeedback : IFeedback
     {
-        public DrawColoredBackgroundFeedback(Color backgroundColor, Color outlineColor)
+        public DrawColoredBackgroundFeedback(Color backgroundColor, double backgroundTransparency)
         {
             BackgroundColor = backgroundColor;
-            OutlineColor = outlineColor;
+            OutlineColor = Color.White;
+            BackgroundTransparency = backgroundTransparency;
         }
 
         public Color BackgroundColor { get; set; }
 
         public Color OutlineColor { get; }
+        
+        public double BackgroundTransparency { get; }
     }
 }
