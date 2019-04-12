@@ -12,7 +12,7 @@ namespace ForceFeedback.Core
         
 
         public ForceFeedbackMachine(string solutionFilePath, string projectFilePath, string sourceFilePath)
-        : this(new ConfigurationProvider(solutionFilePath, projectFilePath, sourceFilePath).Compile()){}
+        : this(new ConfigurationProvider(solutionFilePath, projectFilePath, sourceFilePath).Configuration){}
 
         internal ForceFeedbackMachine(Configuration config) {
             _config = config;

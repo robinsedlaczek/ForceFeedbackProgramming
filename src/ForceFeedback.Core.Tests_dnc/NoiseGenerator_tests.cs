@@ -49,6 +49,15 @@ namespace ForceFeedback.Core.Tests_dnc
             Assert.True(sut.IsNoiseDue("Foo", 1));
             Assert.True(sut.IsNoiseDue("Foo", 1));
         }
+        
+        
+        [Fact]
+        public void Is_never_due() {
+            var sut = new NoiseGenerator();
+            
+            Assert.False(sut.IsNoiseDue("Foo", 0));
+            Assert.False(sut.IsNoiseDue("Foo", 0));
+        }
 
       
         [Fact]

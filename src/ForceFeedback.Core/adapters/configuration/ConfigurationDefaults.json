@@ -1,0 +1,50 @@
+{
+  "Version": "1.0",
+  
+  "FeedbackRules": [
+    {
+      "MinimumNumberOfLinesInMethod": 11,
+      
+      "BackgroundColor": "Beige",
+      "BackgroundColorTransparency": 0.0,
+      
+      "NoiseDistance": 0,
+      "NoiseLevel": 0,
+      
+      "Delay": 0
+    },
+    {
+      "MinimumNumberOfLinesInMethod": 26,
+
+      "BackgroundColor": "Burlywood",
+      "BackgroundColorTransparency": 0.0,
+
+      "NoiseDistance": 50,
+      "NoiseLevel": 3,
+
+      "Delay": 0
+    },
+    {
+      "MinimumNumberOfLinesInMethod": 51,
+
+      "BackgroundColor": "Peru",
+      "BackgroundColorTransparency": 0.0,
+
+      "NoiseDistance": 20,
+      "NoiseLevel": 5,
+
+      "Delay": 0
+    },
+    {
+      "MinimumNumberOfLinesInMethod": 101,
+
+      "BackgroundColor": "Sienna",
+      "BackgroundColorTransparency": 0.1,
+
+      "NoiseDistance": 12,
+      "NoiseLevel": 2,
+
+      "Delay": 100
+    }
+  ]
+}

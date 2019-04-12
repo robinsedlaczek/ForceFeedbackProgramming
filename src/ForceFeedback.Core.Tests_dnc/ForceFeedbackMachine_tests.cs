@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using ForceFeedback.Core.adapters.configuration;
 using ForceFeedback.Core.Feedback.Tactile;
 using ForceFeedback.Core.Feedback.Visual;

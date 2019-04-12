@@ -13,6 +13,8 @@
         <e p="adapters" t="Include">
           <e p="configuration" t="Include">
             <e p="Configuration.cs" t="Include" />
+            <e p="ConfigurationDefaultLoader.cs" t="Include" />
+            <e p="ConfigurationDefaults.json" t="Include" />
             <e p="ConfigurationProvider.cs" t="Include" />
             <e p="README.md" t="Include" />
           </e>
@@ -49,8 +51,9 @@
       <e p="ForceFeedback.Core.sln" t="IncludeFlat" />
       <e p="ForceFeedback.Core.Tests_dnc" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
+        <e p="ConfigrationProvider_tests.cs" t="Include" />
         <e p="Configuration_tests.cs" t="Include" />
-        <e p="ConfigurationProvider_tests.cs" t="Include" />
+        <e p="ConfigurationDefaultLoader_tests.cs" t="Include" />
         <e p="ForceFeedback.Core.Tests_dnc.csproj" t="IncludeRecursive" />
         <e p="ForceFeedbackMachine_tests.cs" t="Include" />
         <e p="NoiseGenerator_tests.cs" t="Include" />
@@ -61,6 +64,9 @@
               <e p="ForceFeedback.Core.Tests_dnc.Program.cs" t="Include" />
             </e>
           </e>
+        </e>
+        <e p="sampledata" t="Include">
+          <e p="ConfigurationDefaults.json" t="Include" />
         </e>
       </e>
       <e p="packages" t="ExcludeRecursive" />

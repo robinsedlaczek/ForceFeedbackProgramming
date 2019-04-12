@@ -14,7 +14,7 @@ namespace ForceFeedback.Core.domain
 
         
         public NoiseGenerator() {
-            _noiseChars = "⌫♥♠♦◘○☺☻♀►♂↨◄↕❉❦⌘⎔⍄☞";
+            _noiseChars = "⌫♥♠♦◘○☺☻♀►♂↨◄↕❉❦⌘";
             
             var rnd = new Random();
             _generateNoiseCharIndex = () => rnd.Next(0, _noiseChars.Length-1);
@@ -34,7 +34,7 @@ namespace ForceFeedback.Core.domain
 
             _totalDistance = distance;
             _distanceCovered++;
-            if (_distanceCovered < _totalDistance) return false;
+            if (_totalDistance <= 0 || _distanceCovered < _totalDistance) return false;
 
             _distanceCovered = 0;
             return true;

@@ -36,49 +36,7 @@ The feedback config structure generally is as follows. Each rule consists of sev
   * how many noise characters should be inserted?
   * how many milliseconds should changes be delayed?
 
-An example config file:
-
-```
-{
-  "version": "1.0",
-  
-  "feedbackrules": [
-    {
-      "lines": 10,
-      
-      "color": "Beige",
-      "transparency": 0.25
-    },
-    {
-      "lines": 20,
-      
-      "color": "#BDB76B", // DarkKhaki
-      "transparency": 0.25,
-      
-      "noiseDistance": 20
-    },
-    {
-      "lines": 50,
-      
-      "color": "Maroon",
-      "transparency": 0.50,
-      
-      "noiseDistance": 10,
-      "noiseLevel": 3
-    },
-    {
-      "lines": 100,
-      
-      "color": "Sienna",
-      "transparency": 0.10,
-      
-      "noiseDistance": 10,
-      "noiseLevel": 5,
-      "delay": 200
-    }
-  ]
-}
-```
+[See here for an example config file](ConfigurationDefaults.json)
 
 Explanation:
 

@@ -16,4 +16,12 @@
       <ProjectReference Include="..\ForceFeedback.Core\ForceFeedback.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="parent\child\poem.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="sampledata\ConfigurationDefaults.json" />
+    </ItemGroup>
+
 </Project>
