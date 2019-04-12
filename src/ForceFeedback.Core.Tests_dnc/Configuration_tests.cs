@@ -1,8 +1,8 @@
 using System.Drawing;
+using ForceFeedback.Core.adapters.configuration;
 using Xunit;
-using Xunit.Sdk;
 
-namespace ForceFeedback.Core.Tests
+namespace ForceFeedback.Core.Tests_dnc
 {
     public class Configuration_tests
     {

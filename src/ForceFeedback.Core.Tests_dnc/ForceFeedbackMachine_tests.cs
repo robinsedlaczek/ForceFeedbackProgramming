@@ -1,10 +1,10 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Linq;
+using ForceFeedback.Core.adapters.configuration;
 using ForceFeedback.Core.Feedbacks;
 using Xunit;
 
-namespace ForceFeedback.Core.Tests
+namespace ForceFeedback.Core.Tests_dnc
 {
     public class ForceFeedbackMachine_tests
     {

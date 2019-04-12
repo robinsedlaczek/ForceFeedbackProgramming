@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using ForceFeedback.Core.adapters.configuration;
+using ForceFeedback.Core.domain;
 
 namespace ForceFeedback.Core
 {

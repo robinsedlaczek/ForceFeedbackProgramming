@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-
-namespace ForceFeedback.Core
+namespace ForceFeedback.Core.adapters.configuration
 {
     class ConfigurationProvider
     {

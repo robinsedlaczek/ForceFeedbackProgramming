@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-namespace ForceFeedback.Core
+namespace ForceFeedback.Core.adapters.configuration
 {
     class Configuration
     {

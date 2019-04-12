@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
-namespace ForceFeedback.Core
+namespace ForceFeedback.Core.domain
 {
     class NoiseFeedback
     {

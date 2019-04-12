@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using ForceFeedback.Core.domain;
 using Xunit;
 
-namespace ForceFeedback.Core.Tests
+namespace ForceFeedback.Core.Tests_dnc
 {
     public class NoiseFeedback_tests
     {
