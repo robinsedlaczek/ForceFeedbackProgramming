@@ -14,7 +14,7 @@
           <e p="configuration" t="Include">
             <e p="Configuration.cs" t="Include" />
             <e p="ConfigurationDefaultLoader.cs" t="Include" />
-            <e p="ConfigurationDefaults.json" t="Include" />
+            <e p="ConfigurationDefaultsV1.0.json" t="Include" />
             <e p="ConfigurationProvider.cs" t="Include" />
             <e p="README.md" t="Include" />
           </e>

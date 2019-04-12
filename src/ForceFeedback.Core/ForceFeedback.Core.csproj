@@ -6,11 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="adapters\configuration\ConfigurationDefaults.json" />
-    <EmbeddedResource Include="adapters\configuration\ConfigurationDefaults.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Json.Net" Version="1.0.16" />
   </ItemGroup>
 
@@ -18,6 +13,11 @@
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
       <HintPath>..\..\..\..\..\.nuget\packages\newtonsoft.json\9.0.1\lib\netstandard1.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="adapters\configuration\ConfigurationDefaultsV1.0.json" />
+    <EmbeddedResource Include="adapters\configuration\ConfigurationDefaultsV1.0.json" />
   </ItemGroup>
 
 </Project>

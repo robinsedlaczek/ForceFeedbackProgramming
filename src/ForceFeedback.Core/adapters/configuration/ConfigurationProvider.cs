@@ -9,22 +9,21 @@ namespace ForceFeedback.Core.adapters.configuration
 {
     class ConfigurationProvider
     {
-        private readonly Configuration _config;
-
         public ConfigurationProvider(string solutionFilePath, string projectFilePath, string sourceFilePath) {
             var configText = ConfigurationDefaultLoader.Load_default_configuration_text();
-            _config = Deserialize_configuration(configText);
+            Configuration = Deserialize_configuration(configText);
         }
 
-        internal ConfigurationProvider(Configuration config) { _config = config; }
+        
+        public Configuration Configuration { get; }
 
 
-        public Configuration Configuration => _config;
-        
-        
-        internal static Configuration Deserialize_configuration(string text) {
+        private static Configuration Deserialize_configuration(string text) {
             if (string.IsNullOrWhiteSpace(text)) return new Configuration(new Configuration.FeedbackRule[0]);
 
+            // Deserialize to anonymously typed object tree
+            // (This way no dynamic objects are needed with additional assembly refs. Also no additional
+            // type needs to be defined polluting the namespace.)
             var schema = new {
                 Version = "",
                 FeedbackRules = new[] {
@@ -39,9 +38,9 @@ namespace ForceFeedback.Core.adapters.configuration
                 }
             };
             var tmpConfig = JsonConvert.DeserializeAnonymousType(text, schema);
-            
             if (tmpConfig.Version != "1.0") throw new InvalidOperationException("Wrong or missing version number for configuration!");
 
+            // Map anonymously typed object tree to strongly typed Configuration
             return new Configuration(tmpConfig.FeedbackRules.Select(tr => new Configuration.FeedbackRule(
                 tr.MinimumNumberOfLinesInMethod,
                 Color.FromName(tr.BackgroundColor),
