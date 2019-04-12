@@ -33,5 +33,25 @@ namespace ForceFeedback.Core
         }
         
         public Rule[] Rules { get; }
+        
+        
+        /*
+         * The matching rule is the one with the highest value for the lines property
+         * which is still <= methodLineCount.
+         */
+        public bool TryFindRule(int methodLineCount, out Rule rule) {
+            rule = null;
+
+            /* Running the check from the last to the first rule guarantees the highest
+             * rule lines value is found.
+             */
+            for(var i=Rules.Length-1; i>=0; i--)
+                if (Rules[i].Lines <= methodLineCount) {
+                    rule = Rules[i];
+                    break;
+                }
+            
+            return rule != null;
+        }
     }
 }
