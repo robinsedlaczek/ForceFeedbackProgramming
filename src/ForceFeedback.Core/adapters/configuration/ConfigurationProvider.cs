@@ -5,7 +5,7 @@ namespace ForceFeedback.Core.adapters.configuration
         private readonly Configuration _config;
 
         public ConfigurationProvider(string solutionFilePath, string projectFilePath, string sourceFilePath) {
-            _config = new Configuration(new Configuration.Rule[0]);
+            _config = new Configuration(new Configuration.FeedbackRule[0]);
         }
         
         

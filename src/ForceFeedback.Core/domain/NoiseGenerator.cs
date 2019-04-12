@@ -3,40 +3,40 @@ using System.Collections.Generic;
 
 namespace ForceFeedback.Core.domain
 {
-    class NoiseFeedback
+    class NoiseGenerator
     {
         private string _methodName;
-        private int _distance;
-        private int _stepsTaken;
+        private int _totalDistance;
+        private int _distanceCovered;
 
         private readonly string _noiseChars;
-        private readonly Func<int, int> _generateNoiseCharIndex;
+        private readonly Func<int> _generateNoiseCharIndex;
 
         
-        public NoiseFeedback() {
+        public NoiseGenerator() {
             _noiseChars = "⌫♥♠♦◘○☺☻♀►♂↨◄↕❉❦⌘⎔⍄☞";
             
             var rnd = new Random();
-            _generateNoiseCharIndex = n => rnd.Next(0, n);
+            _generateNoiseCharIndex = () => rnd.Next(0, _noiseChars.Length-1);
         }
 
-        internal NoiseFeedback(string noiseChars, Func<int, int> generateNoiseCharIndex) {
+        internal NoiseGenerator(string noiseChars, Func<int> generateNoiseCharIndex) {
             _noiseChars = noiseChars;
             _generateNoiseCharIndex = generateNoiseCharIndex;
         }
         
         
-        public bool IsDue(string methodName, int distance) {
+        public bool IsNoiseDue(string methodName, int distance) {
             if (string.Equals(_methodName, methodName, StringComparison.InvariantCulture) is false) {
                 _methodName = methodName;
-                _stepsTaken = 0;
+                _distanceCovered = 0;
             }
 
-            _distance = distance;
-            _stepsTaken++;
-            if (_stepsTaken < _distance) return false;
+            _totalDistance = distance;
+            _distanceCovered++;
+            if (_distanceCovered < _totalDistance) return false;
 
-            _stepsTaken = 0;
+            _distanceCovered = 0;
             return true;
         }
 
@@ -46,7 +46,7 @@ namespace ForceFeedback.Core.domain
             
             var noise = new List<char>();
             while(level-- > 0)
-                noise.Add(_noiseChars[_generateNoiseCharIndex(_noiseChars.Length-1)]);
+                noise.Add(_noiseChars[_generateNoiseCharIndex()]);
             return new string(noise.ToArray());
         }
     }

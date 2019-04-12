@@ -20,17 +20,21 @@
         <e p="AssemblyInfo.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
         <e p="domain" t="Include">
-          <e p="NoiseFeedback.cs" t="Include" />
+          <e p="FeedbackGenerator.cs" t="Include" />
+          <e p="NoiseGenerator.cs" t="Include" />
         </e>
-        <e p="Feedbacks" t="Include">
-          <e p="DelayKeyboardInputsFeedback.cs" t="Include" />
-          <e p="DrawColoredBackgroundFeedback.cs" t="Include" />
-          <e p="InsertTextFeedback.cs" t="Include" />
-          <e p="PreventKeyboardInputsFeedback.cs" t="Include" />
+        <e p="Feedback" t="Include">
+          <e p="IFeedback.cs" t="Include" />
+          <e p="Tactile" t="Include">
+            <e p="Delay.cs" t="Include" />
+            <e p="Noise.cs" t="Include" />
+          </e>
+          <e p="Visual" t="Include">
+            <e p="Colorization.cs" t="Include" />
+          </e>
         </e>
         <e p="ForceFeedback.Core.csproj" t="IncludeRecursive" />
         <e p="ForceFeedbackMachine.cs" t="Include" />
-        <e p="IFeedback.cs" t="Include" />
         <e p="images" t="Include">
           <e p="BackgroundColors.png" t="Include" />
         </e>
@@ -49,7 +53,7 @@
         <e p="ConfigurationProvider_tests.cs" t="Include" />
         <e p="ForceFeedback.Core.Tests_dnc.csproj" t="IncludeRecursive" />
         <e p="ForceFeedbackMachine_tests.cs" t="Include" />
-        <e p="NoiseFeedback_tests.cs" t="Include" />
+        <e p="NoiseGenerator_tests.cs" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp2.2" t="Include">

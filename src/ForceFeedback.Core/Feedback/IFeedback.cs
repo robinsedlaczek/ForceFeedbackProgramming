@@ -1,4 +1,4 @@
-﻿namespace ForceFeedback.Core
+﻿namespace ForceFeedback.Core.Feedback
 {
     public interface IFeedback
     {

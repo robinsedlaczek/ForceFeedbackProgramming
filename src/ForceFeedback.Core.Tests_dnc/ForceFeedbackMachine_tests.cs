@@ -1,7 +1,8 @@
 ﻿using System.Drawing;
 using System.Linq;
 using ForceFeedback.Core.adapters.configuration;
-using ForceFeedback.Core.Feedbacks;
+using ForceFeedback.Core.Feedback.Tactile;
+using ForceFeedback.Core.Feedback.Visual;
 using Xunit;
 
 namespace ForceFeedback.Core.Tests_dnc
@@ -11,56 +12,56 @@ namespace ForceFeedback.Core.Tests_dnc
         [Fact]
         public void Empty_method_without_context() {
             var sut = new ForceFeedbackMachine("", "", "");
-            var result = sut.RequestFeedbackForMethodCodeBlock("", 0);
+            var result = sut.ProduceVisualFeedback("", 0);
             Assert.Empty(result);
         }
 
         
         [Fact]
-        public void Give_visual_reformatting_feedback()
+        public void Give_visual_feedback()
         {
             var config = new Configuration(new[] {
-                new Configuration.Rule(10, Color.Yellow, 0.1, 0, 0, 0)
+                new Configuration.FeedbackRule(10, Color.Yellow, 0.1, 0, 0, 0)
             });
             
             var sut = new ForceFeedbackMachine(config);
 
-            var result = sut.RequestFeedbackForMethodCodeBlock("", 9).ToArray();
+            var result = sut.ProduceVisualFeedback("", 9).ToArray();
             Assert.Empty(result);
             
-            result = sut.RequestFeedbackForMethodCodeBlock("", 10).ToArray();
+            result = sut.ProduceVisualFeedback("", 10).ToArray();
             Assert.Single(result);
-            Assert.Equal(Color.Yellow, (result[0] as DrawColoredBackgroundFeedback).BackgroundColor);
-            Assert.Equal(0.1, (result[0] as DrawColoredBackgroundFeedback).BackgroundTransparency);
+            Assert.Equal(Color.Yellow, (result[0] as Colorization).BackgroundColor);
+            Assert.Equal(0.1, (result[0] as Colorization).BackgroundColorTransparency);
         }
         
         
         [Fact]
         public void Give_visual_change_feedback() {
             var config = new Configuration(new[] {
-                new Configuration.Rule(10, Color.Yellow, 0.1, 0, 0, 0)
+                new Configuration.FeedbackRule(10, Color.Yellow, 0.1, 0, 0, 0)
             });
             
             var sut = new ForceFeedbackMachine(config);
 
-            var result = sut.RequestFeedbackAfterMethodCodeChange("Foo", 10)
-                            .OfType<DrawColoredBackgroundFeedback>()
+            var result = sut.ProduceTotalFeedback("Foo", 10)
+                            .OfType<Colorization>()
                             .ToArray();
             Assert.Single(result);
             Assert.Equal(Color.Yellow, result[0].BackgroundColor);
-            Assert.Equal(0.1, result[0].BackgroundTransparency);
+            Assert.Equal(0.1, result[0].BackgroundColorTransparency);
         }
         
         [Fact]
         public void Give_tactile_delay_change_feedback() {
             var config = new Configuration(new[] {
-                new Configuration.Rule(10, Color.Yellow, 0.1, 0, 0, 100)
+                new Configuration.FeedbackRule(10, Color.Yellow, 0.1, 0, 0, 100)
             });
             
             var sut = new ForceFeedbackMachine(config);
 
-            var result = sut.RequestFeedbackAfterMethodCodeChange("Foo", 10)
-                .OfType<DelayKeyboardInputsFeedback>()
+            var result = sut.ProduceTotalFeedback("Foo", 10)
+                .OfType<Delay>()
                 .ToArray();
             Assert.Single(result);
             Assert.Equal(100, result[0].Milliseconds);
@@ -70,7 +71,7 @@ namespace ForceFeedback.Core.Tests_dnc
         [Fact]
         public void Give_tactile_noise_change_feedback() {
             var config = new Configuration(new[] {
-                new Configuration.Rule(10, Color.Yellow, 0.1, 3, 4, 100)
+                new Configuration.FeedbackRule(10, Color.Yellow, 0.1, 3, 4, 100)
             });
             
             var sut = new ForceFeedbackMachine(config);
@@ -98,23 +99,10 @@ namespace ForceFeedback.Core.Tests_dnc
             Assert.Equal(4, result[0].Text.Length);
             
             
-            InsertTextFeedback[] Get_feedback(string methodName)
-                => sut.RequestFeedbackAfterMethodCodeChange(methodName, 10)
-                    .OfType<InsertTextFeedback>()
+            Noise[] Get_feedback(string methodName)
+                => sut.ProduceTotalFeedback(methodName, 10)
+                    .OfType<Noise>()
                     .ToArray();
-        }
-        
-        
-        [Fact]
-        public void Give_no_feedback_before_change_is_applied() {
-            var config = new Configuration(new[] {
-                new Configuration.Rule(10, Color.Yellow, 0.1, 0, 0, 0)
-            });
-            
-            var sut = new ForceFeedbackMachine(config);
-
-            var result = sut.RequestFeedbackBeforeMethodCodeChange("Foo", 20).ToArray();
-            Assert.Empty(result);
         }
     }
 }

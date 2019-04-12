@@ -22,19 +22,19 @@ The feedback config structure generally is as follows. Each rule consists of sev
 * ``lines``: number of lines in function from when on a certain feedback should be applied
 
 * Properties for **visual feedback**
-  * ``backgroundColor`` (default: `White`): the background color for the function in the IDE if the threshold has been reached; see the below
+  * the background color for the function in the IDE if the threshold has been reached; see the below
   image for where to what color names relate to. See [here](http://www.99colors.net/dot-net-colors) for a list of color names.
   Alternatively colors can be given as RGB hex codes (e.g. ``#8A2BE2`` instead of `BlueViolet`).
-  * ``backgroundTransparency`` (default: 0=no transparency, i.e. full color): the background color transparency; this is to make colors lighter/darker to get 
+  * the background color transparency; this is to make colors lighter/darker to get 
   the desired contrast for the text; smaller values mean less transparency, e.g. 0.1 (10%) is less transparent
   (more opaque, lighter) than 0.85 (85%).
   
 ![Accepted names for background colors](../../images/BackgroundColors.png)
   
 * Properties for **tactile feedback**
-  * ``noiseDistance`` (default: 0=no noise): after how many characters entered should noise be inserted into the source code?
-  * ``noiseLevel`` (default: 1): how many noise characters should be inserted?
-  * ``delay`` (default: 0=no delay): how many milliseconds should changes be delayed?
+  * after how many characters entered should noise be inserted into the source code?
+  * how many noise characters should be inserted?
+  * how many milliseconds should changes be delayed?
 
 An example config file:
 
