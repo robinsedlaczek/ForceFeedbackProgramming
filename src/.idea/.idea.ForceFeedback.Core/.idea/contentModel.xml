@@ -19,6 +19,9 @@
         </e>
         <e p="AssemblyInfo.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
+        <e p="domain" t="Include">
+          <e p="NoiseFeedback.cs" t="Include" />
+        </e>
         <e p="Feedbacks" t="Include">
           <e p="DelayKeyboardInputsFeedback.cs" t="Include" />
           <e p="DrawColoredBackgroundFeedback.cs" t="Include" />
@@ -46,6 +49,7 @@
         <e p="ConfigurationProvider_tests.cs" t="Include" />
         <e p="ForceFeedback.Core.Tests_dnc.csproj" t="IncludeRecursive" />
         <e p="ForceFeedbackMachine_tests.cs" t="Include" />
+        <e p="NoiseFeedback_tests.cs" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp2.2" t="Include">

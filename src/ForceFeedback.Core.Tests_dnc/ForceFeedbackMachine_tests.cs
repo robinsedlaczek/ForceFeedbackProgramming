@@ -68,8 +68,45 @@ namespace ForceFeedback.Core.Tests
         
         
         [Fact]
-        public void Give_no_feedback_before_change()
-        {
+        public void Give_tactile_noise_change_feedback() {
+            var config = new Configuration(new[] {
+                new Configuration.Rule(10, Color.Yellow, 0.1, 3, 4, 100)
+            });
+            
+            var sut = new ForceFeedbackMachine(config);
+
+            var result = Get_feedback("Foo");
+            Assert.Empty(result);
+            result = Get_feedback("Foo");
+            Assert.Empty(result);
+            result = Get_feedback("Foo");
+            Assert.Single(result);
+            Assert.Equal(4, result[0].Text.Length);
+            
+            result = Get_feedback("Foo");
+            Assert.Empty(result);
+            
+            result = Get_feedback("Bar");
+            Assert.Empty(result);
+            
+            result = Get_feedback("Foo");
+            Assert.Empty(result);
+            result = Get_feedback("Foo");
+            Assert.Empty(result);
+            result = Get_feedback("Foo");
+            Assert.Single(result);
+            Assert.Equal(4, result[0].Text.Length);
+            
+            
+            InsertTextFeedback[] Get_feedback(string methodName)
+                => sut.RequestFeedbackAfterMethodCodeChange(methodName, 10)
+                    .OfType<InsertTextFeedback>()
+                    .ToArray();
+        }
+        
+        
+        [Fact]
+        public void Give_no_feedback_before_change_is_applied() {
             var config = new Configuration(new[] {
                 new Configuration.Rule(10, Color.Yellow, 0.1, 0, 0, 0)
             });
@@ -79,6 +116,5 @@ namespace ForceFeedback.Core.Tests
             var result = sut.RequestFeedbackBeforeMethodCodeChange("Foo", 20).ToArray();
             Assert.Empty(result);
         }
-        
     }
 }

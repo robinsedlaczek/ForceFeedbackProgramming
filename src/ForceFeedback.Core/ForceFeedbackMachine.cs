@@ -10,12 +10,15 @@ namespace ForceFeedback.Core
     public class ForceFeedbackMachine
     {
         private readonly Configuration _config;
+        private readonly NoiseFeedback _noiseFeedback;
 
-        public ForceFeedbackMachine(string solutionFilePath, string projectFilePath, string sourceFilePath) {
-            _config = new ConfigurationProvider(solutionFilePath, projectFilePath, sourceFilePath).Compile();
+        public ForceFeedbackMachine(string solutionFilePath, string projectFilePath, string sourceFilePath)
+        : this(new ConfigurationProvider(solutionFilePath, projectFilePath, sourceFilePath).Compile()){}
+
+        internal ForceFeedbackMachine(Configuration config) {
+            _config = config;
+            _noiseFeedback = new NoiseFeedback();
         }
-
-        internal ForceFeedbackMachine(Configuration config) { _config = config; }
         
         
         public IEnumerable<IFeedback> RequestFeedbackForMethodCodeBlock(string methodName, int methodLineCount)
@@ -27,19 +30,21 @@ namespace ForceFeedback.Core
         public IEnumerable<IFeedback> RequestFeedbackAfterMethodCodeChange(string methodName, int methodLineCount)
             => _config.TryFindRule(methodLineCount, out var rule) 
                 ? Visual_feedback(rule).Concat(Tactile_feedback(methodName, rule))
-                : new IFeedback[0] ;
+                : No_feedback ;
 
         public IEnumerable<IFeedback> RequestFeedbackBeforeMethodCodeChange(string methodName, int methodLineCount)
-            => new List<IFeedback>();
+            => No_feedback;
         
         
 
         private IEnumerable<IFeedback> No_feedback => new IFeedback[0];
         
+        
         private IEnumerable<IFeedback> Visual_feedback(Configuration.Rule rule) {
             yield return new DrawColoredBackgroundFeedback(rule.BackgroundColor, rule.BackgroundTransparency);
         }
 
+        
         private IEnumerable<IFeedback> Tactile_feedback(string methodName, Configuration.Rule rule)
             => Tactile_delay_feedback(rule).Concat(Tactile_noise_feedback(methodName, rule));
 
@@ -47,23 +52,10 @@ namespace ForceFeedback.Core
             if (rule.Delay <= 0) return No_feedback;
             return new[] { new DelayKeyboardInputsFeedback(rule.Delay) };
         }
-        
+
         private IEnumerable<IFeedback> Tactile_noise_feedback(string methodName, Configuration.Rule rule)
-            => No_feedback;
-        /* TODO: Provide tactile feedback
-            if (methodLineCount < 15)
-                return result;
-            
-            const string noiseCharacters = "⌫♥♠♦◘○☺☻♀►♂↨◄↕";
-            var random = new Random();
-            var index = random.Next(0, noiseCharacters.Length);
-            
-            result.Add(new InsertTextFeedback($"{noiseCharacters[index]}"));
-            
-            // [RS] Add per line 100 ms delay. :)
-            if (methodLineCount > 20)
-                result.Add(new DelayKeyboardInputsFeedback((methodLineCount) - 20 * 100));
-            return result;
-        */
+            => _noiseFeedback.IsDue(methodName, rule.NoiseDistance) 
+                ? new[] {new InsertTextFeedback(_noiseFeedback.Generate(rule.NoiseLevel))} 
+                : No_feedback;
     }
 }
