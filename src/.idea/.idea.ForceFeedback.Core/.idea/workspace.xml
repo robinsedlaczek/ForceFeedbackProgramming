@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="28057d23-d18a-4129-b5bc-c48dbbe85de0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ForceFeedback.Core/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ForceFeedback.Core/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/ForceFeedbackMachine_tests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/ForceFeedbackMachine_tests.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ForceFeedback.Core/ForceFeedbackMachine.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ForceFeedback.Core/ForceFeedbackMachine.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/README.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -30,9 +28,9 @@
             <state relative-caret-position="208">
               <caret line="13" selection-start-line="13" selection-end-line="13" />
               <folding>
-                <marker date="1554994875000" expanded="true" signature="48:313" ph="{...}" />
-                <marker date="1554994875000" expanded="true" signature="95:311" ph="{...}" />
-                <marker date="1554994875000" expanded="true" signature="153:305" ph="{...}" />
+                <marker date="1554998855934" expanded="true" signature="48:313" ph="{...}" />
+                <marker date="1554998855934" expanded="true" signature="95:311" ph="{...}" />
+                <marker date="1554998855934" expanded="true" signature="153:305" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -41,14 +39,14 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/Configuration_tests.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
-              <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
+            <state relative-caret-position="208">
+              <caret line="14" selection-start-line="14" selection-end-line="14" />
               <folding>
-                <marker date="1554997498767" expanded="true" signature="6:34" ph="..." />
-                <marker date="1554997498767" expanded="true" signature="70:646" ph="{...}" />
-                <marker date="1554997498767" expanded="true" signature="109:644" ph="{...}" />
-                <marker date="1554997498767" expanded="true" signature="179:638" ph="{...}" />
-                <marker date="1554997498767" expanded="true" signature="227:451" ph="{...}" />
+                <marker date="1554998856025" expanded="false" signature="6:34" ph="..." />
+                <marker date="1554998856025" expanded="true" signature="70:646" ph="{...}" />
+                <marker date="1554998856025" expanded="true" signature="109:644" ph="{...}" />
+                <marker date="1554998856025" expanded="true" signature="179:638" ph="{...}" />
+                <marker date="1554998856025" expanded="true" signature="227:451" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -57,15 +55,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/ForceFeedbackMachine_tests.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="346">
-              <caret line="35" column="31" selection-start-line="35" selection-start-column="31" selection-end-line="35" selection-end-column="31" />
+            <state relative-caret-position="508">
+              <caret line="78" column="34" lean-forward="true" selection-start-line="78" selection-start-column="34" selection-end-line="78" selection-end-column="34" />
               <folding>
-                <marker date="1554998638285" expanded="false" signature="6:103" ph="..." />
-                <marker date="1554998638285" expanded="true" signature="139:1696" ph="{...}" />
-                <marker date="1554998638285" expanded="true" signature="185:1694" ph="{...}" />
-                <marker date="1554998638285" expanded="true" signature="258:434" ph="{...}" />
-                <marker date="1554998638285" expanded="true" signature="497:1688" ph="{...}" />
-                <marker date="1554998638285" expanded="true" signature="557:646" ph="{...}" />
+                <marker date="1555056378620" expanded="false" signature="6:103" ph="..." />
+                <marker date="1555056378620" expanded="true" signature="139:4181" ph="{...}" />
+                <marker date="1555056378620" expanded="true" signature="185:4179" ph="{...}" />
+                <marker date="1555056378620" expanded="true" signature="258:434" ph="{...}" />
+                <marker date="1555056378620" expanded="true" signature="497:1688" ph="{...}" />
+                <marker date="1555056378620" expanded="true" signature="557:646" ph="{...}" />
+                <marker date="1555056378620" expanded="true" signature="1765:4173" ph="{...}" />
+                <marker date="1555056378620" expanded="true" signature="1825:2052" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -74,19 +74,22 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/ForceFeedbackMachine.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
-              <caret line="39" column="29" lean-forward="true" selection-start-line="39" selection-start-column="29" selection-end-line="39" selection-end-column="29" />
+            <state relative-caret-position="194">
+              <caret line="29" column="10" lean-forward="true" selection-start-line="29" selection-start-column="10" selection-end-line="29" selection-end-column="10" />
               <folding>
-                <marker date="1554998464816" expanded="false" signature="6:150" ph="..." />
-                <marker date="1554998464816" expanded="true" signature="180:2517" ph="{...}" />
-                <marker date="1554998464816" expanded="true" signature="220:2515" ph="{...}" />
-                <marker date="1554998464816" expanded="true" signature="384:505" ph="{...}" />
-                <marker date="1554998464816" expanded="true" signature="567:608" ph="{...}" />
-                <marker date="1554998464816" expanded="true" signature="739:1053" ph="{...}" />
-                <marker date="1554998464816" expanded="true" signature="901:1042" ph="{...}" />
-                <marker date="1554998464816" expanded="true" signature="1169:2338" ph="{...}" />
-                <marker date="1554998464816" expanded="true" signature="1760:2327" ph="/* TODO: Provide tactile feedback ... */" />
-                <marker date="1554998464816" expanded="true" signature="2456:2509" ph="{...}" />
+                <marker date="1555057243846" expanded="false" signature="6:150" ph="..." />
+                <marker date="1555057243846" expanded="true" signature="180:3176" ph="{...}" />
+                <marker date="1555057243846" expanded="true" signature="220:3174" ph="{...}" />
+                <marker date="1555057243846" expanded="true" signature="384:505" ph="{...}" />
+                <marker date="1555057243846" expanded="true" signature="567:608" ph="{...}" />
+                <marker date="1555057243846" expanded="true" signature="739:989" ph="{...}" />
+                <marker date="1555057243846" expanded="true" signature="1008:1164" ph="/* ... */" />
+                <marker date="1555057243846" expanded="true" signature="1262:1703" ph="{...}" />
+                <marker date="1555057243846" expanded="true" signature="1302:1435" ph="/* Running the check from the highest to the lowest ... */" />
+                <marker date="1555057243846" expanded="true" signature="1556:1647" ph="{...}" />
+                <marker date="1555057243846" expanded="true" signature="1828:2997" ph="{...}" />
+                <marker date="1555057243846" expanded="true" signature="2419:2986" ph="/* TODO: Provide tactile feedback ... */" />
+                <marker date="1555057243846" expanded="true" signature="3115:3168" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -98,9 +101,9 @@
             <state relative-caret-position="112">
               <caret line="9" column="39" selection-start-line="9" selection-start-column="39" selection-end-line="9" selection-end-column="39" />
               <folding>
-                <marker date="1554996038021" expanded="true" signature="61:562" ph="{...}" />
-                <marker date="1554996038021" expanded="true" signature="122:560" ph="{...}" />
-                <marker date="1554996038021" expanded="true" signature="227:395" ph="{...}" />
+                <marker date="1554998855751" expanded="true" signature="61:562" ph="{...}" />
+                <marker date="1554998855751" expanded="true" signature="122:560" ph="{...}" />
+                <marker date="1554998855751" expanded="true" signature="227:395" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -109,15 +112,15 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/Configuration.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="423">
+            <state relative-caret-position="304">
               <caret line="31" column="63" selection-start-line="31" selection-start-column="63" selection-end-line="31" selection-end-column="63" />
               <folding>
-                <marker date="1554997285119" expanded="true" signature="6:55" ph="..." />
-                <marker date="1554997285119" expanded="true" signature="104:1140" ph="{...}" />
-                <marker date="1554997285119" expanded="true" signature="130:1138" ph="{...}" />
-                <marker date="1554997285119" expanded="true" signature="163:955" ph="{...}" />
-                <marker date="1554997285119" expanded="true" signature="334:645" ph="{...}" />
-                <marker date="1554997285119" expanded="true" signature="1011:1086" ph="{...}" />
+                <marker date="1554998856010" expanded="false" signature="6:74" ph="..." />
+                <marker date="1554998856010" expanded="true" signature="104:1140" ph="{...}" />
+                <marker date="1554998856010" expanded="true" signature="130:1138" ph="{...}" />
+                <marker date="1554998856010" expanded="true" signature="163:955" ph="{...}" />
+                <marker date="1554998856010" expanded="true" signature="334:645" ph="{...}" />
+                <marker date="1554998856010" expanded="true" signature="1011:1086" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -126,14 +129,14 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/ConfigurationProvider.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="256">
+            <state relative-caret-position="208">
               <caret line="17" column="40" selection-start-line="17" selection-start-column="40" selection-end-line="17" selection-end-column="40" />
               <folding>
-                <marker date="1554997188710" expanded="false" signature="6:59" ph="..." />
-                <marker date="1554997188710" expanded="true" signature="89:557" ph="{...}" />
-                <marker date="1554997188710" expanded="true" signature="123:555" ph="{...}" />
-                <marker date="1554997188710" expanded="true" signature="288:367" ph="{...}" />
-                <marker date="1554997188710" expanded="true" signature="510:549" ph="{...}" />
+                <marker date="1554998855992" expanded="false" signature="6:59" ph="..." />
+                <marker date="1554998855992" expanded="true" signature="89:557" ph="{...}" />
+                <marker date="1554998855992" expanded="true" signature="123:555" ph="{...}" />
+                <marker date="1554998855992" expanded="true" signature="288:367" ph="{...}" />
+                <marker date="1554998855992" expanded="true" signature="510:549" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -143,7 +146,7 @@
         <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="311">
+              <first_editor relative-caret-position="416">
                 <caret line="26" column="96" selection-start-line="26" selection-start-column="96" selection-end-line="26" selection-end-column="96" />
               </first_editor>
               <second_editor />
@@ -159,8 +162,8 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/ConfigurationProvider.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/Configuration.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/ForceFeedback.Core/AssemblyInfo.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/Configuration_tests.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ForceFeedback.Core/AssemblyInfo.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/ForceFeedback.Core/ForceFeedbackMachine.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/ConfigurationProvider_tests.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/ForceFeedback.Core/Feedbacks/DrawColoredBackgroundFeedback.cs" root0="FORCE_HIGHLIGHTING" />
@@ -182,8 +185,8 @@
         <option value="$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/ConfigurationProvider_tests.cs" />
         <option value="$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/Configuration_tests.cs" />
         <option value="$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/README.md" />
-        <option value="$PROJECT_DIR$/ForceFeedback.Core/ForceFeedbackMachine.cs" />
         <option value="$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/ForceFeedbackMachine_tests.cs" />
+        <option value="$PROJECT_DIR$/ForceFeedback.Core/ForceFeedbackMachine.cs" />
       </list>
     </option>
   </component>
@@ -200,8 +203,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="FileSystemExplorer" />
-      <pane id="AssemblyExplorer" />
       <pane id="SolutionExplorer">
         <subPane>
           <expand>
@@ -217,25 +218,6 @@
             <path>
               <item name="Project" type="784c90a0:SolutionExplorerRootNode" />
               <item name="ForceFeedback.Core" type="24d0babc:SolutionExplorerModelNode" />
-              <item name="ForceFeedback.Core" type="24d0babc:SolutionExplorerModelNode" />
-              <item name="adapters" type="24d0babc:SolutionExplorerModelNode" />
-            </path>
-            <path>
-              <item name="Project" type="784c90a0:SolutionExplorerRootNode" />
-              <item name="ForceFeedback.Core" type="24d0babc:SolutionExplorerModelNode" />
-              <item name="ForceFeedback.Core" type="24d0babc:SolutionExplorerModelNode" />
-              <item name="adapters" type="24d0babc:SolutionExplorerModelNode" />
-              <item name="configuration" type="24d0babc:SolutionExplorerModelNode" />
-            </path>
-            <path>
-              <item name="Project" type="784c90a0:SolutionExplorerRootNode" />
-              <item name="ForceFeedback.Core" type="24d0babc:SolutionExplorerModelNode" />
-              <item name="ForceFeedback.Core" type="24d0babc:SolutionExplorerModelNode" />
-              <item name="Feedbacks" type="24d0babc:SolutionExplorerModelNode" />
-            </path>
-            <path>
-              <item name="Project" type="784c90a0:SolutionExplorerRootNode" />
-              <item name="ForceFeedback.Core" type="24d0babc:SolutionExplorerModelNode" />
               <item name="ForceFeedback.Core.Tests_dnc" type="24d0babc:SolutionExplorerModelNode" />
             </path>
           </expand>
@@ -243,6 +225,8 @@
         </subPane>
         <option name="show-all-files" value="false" />
       </pane>
+      <pane id="FileSystemExplorer" />
+      <pane id="AssemblyExplorer" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -275,11 +259,12 @@
       <workItem from="1554992756929" duration="3099000" />
       <workItem from="1554996368196" duration="373000" />
       <workItem from="1554996784604" duration="1866000" />
+      <workItem from="1555055979705" duration="1267000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="5578000" />
+    <option name="totallyTimeSpent" value="6845000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -294,7 +279,7 @@
     <frame x="0" y="23" width="1680" height="991" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25885227" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.26190478" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Capture Tool" order="3" />
@@ -310,7 +295,7 @@
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Database Changes" order="10" />
-      <window_info anchor="bottom" id="Unit Tests" order="11" visible="true" weight="0.336758" />
+      <window_info active="true" anchor="bottom" id="Unit Tests" order="11" visible="true" weight="0.36187214" />
       <window_info anchor="bottom" id="Terminal" order="12" />
       <window_info anchor="bottom" id="Event Log" order="13" side_tool="true" />
       <window_info anchor="bottom" id="Build" order="14" weight="0.24657534" />
@@ -339,96 +324,15 @@
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests/Tests.cs" />
-    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests/ConfigurationProvider_tests.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="64">
-          <caret line="4" column="17" selection-start-line="4" selection-start-column="17" selection-end-line="4" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests/ForceFeedbackMachine_tests.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="27" column="74" selection-start-line="27" selection-start-column="74" selection-end-line="27" selection-end-column="74" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests/Properties/AssemblyInfo.cs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/Feedbacks/DrawColoredBackgroundFeedback.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="9" column="39" selection-start-line="9" selection-start-column="39" selection-end-line="9" selection-end-column="39" />
-          <folding>
-            <marker date="1554996038021" expanded="true" signature="61:562" ph="{...}" />
-            <marker date="1554996038021" expanded="true" signature="122:560" ph="{...}" />
-            <marker date="1554996038021" expanded="true" signature="227:395" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ClassLibrary1/Class1.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="13" column="1" selection-start-line="13" selection-start-column="1" selection-end-line="13" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/UnitTest1.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="10" column="29" selection-start-line="10" selection-start-column="29" selection-end-line="10" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests/ConfigurationProvider_tests.cs" />
+    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests/ForceFeedbackMachine_tests.cs" />
+    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests/Properties/AssemblyInfo.cs" />
+    <entry file="file://$PROJECT_DIR$/ClassLibrary1/Class1.cs" />
+    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/UnitTest1.cs" />
     <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/AssemblyInfo.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="48">
           <caret line="3" column="62" selection-start-line="3" selection-start-column="62" selection-end-line="3" selection-end-column="62" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/ConfigurationProvider.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="256">
-          <caret line="17" column="40" selection-start-line="17" selection-start-column="40" selection-end-line="17" selection-end-column="40" />
-          <folding>
-            <marker date="1554997188710" expanded="false" signature="6:59" ph="..." />
-            <marker date="1554997188710" expanded="true" signature="89:557" ph="{...}" />
-            <marker date="1554997188710" expanded="true" signature="123:555" ph="{...}" />
-            <marker date="1554997188710" expanded="true" signature="288:367" ph="{...}" />
-            <marker date="1554997188710" expanded="true" signature="510:549" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/Configuration.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="423">
-          <caret line="31" column="63" selection-start-line="31" selection-start-column="63" selection-end-line="31" selection-end-column="63" />
-          <folding>
-            <marker date="1554997285119" expanded="true" signature="6:55" ph="..." />
-            <marker date="1554997285119" expanded="true" signature="104:1140" ph="{...}" />
-            <marker date="1554997285119" expanded="true" signature="130:1138" ph="{...}" />
-            <marker date="1554997285119" expanded="true" signature="163:955" ph="{...}" />
-            <marker date="1554997285119" expanded="true" signature="334:645" ph="{...}" />
-            <marker date="1554997285119" expanded="true" signature="1011:1086" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/Configuration_tests.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
-          <folding>
-            <marker date="1554997498767" expanded="true" signature="6:34" ph="..." />
-            <marker date="1554997498767" expanded="true" signature="70:646" ph="{...}" />
-            <marker date="1554997498767" expanded="true" signature="109:644" ph="{...}" />
-            <marker date="1554997498767" expanded="true" signature="179:638" ph="{...}" />
-            <marker date="1554997498767" expanded="true" signature="227:451" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -437,9 +341,64 @@
         <state relative-caret-position="208">
           <caret line="13" selection-start-line="13" selection-end-line="13" />
           <folding>
-            <marker date="1554994875000" expanded="true" signature="48:313" ph="{...}" />
-            <marker date="1554994875000" expanded="true" signature="95:311" ph="{...}" />
-            <marker date="1554994875000" expanded="true" signature="153:305" ph="{...}" />
+            <marker date="1554998855934" expanded="true" signature="48:313" ph="{...}" />
+            <marker date="1554998855934" expanded="true" signature="95:311" ph="{...}" />
+            <marker date="1554998855934" expanded="true" signature="153:305" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/Configuration_tests.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="14" selection-start-line="14" selection-end-line="14" />
+          <folding>
+            <marker date="1554998856025" expanded="false" signature="6:34" ph="..." />
+            <marker date="1554998856025" expanded="true" signature="70:646" ph="{...}" />
+            <marker date="1554998856025" expanded="true" signature="109:644" ph="{...}" />
+            <marker date="1554998856025" expanded="true" signature="179:638" ph="{...}" />
+            <marker date="1554998856025" expanded="true" signature="227:451" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/Feedbacks/DrawColoredBackgroundFeedback.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="9" column="39" selection-start-line="9" selection-start-column="39" selection-end-line="9" selection-end-column="39" />
+          <folding>
+            <marker date="1554998855751" expanded="true" signature="61:562" ph="{...}" />
+            <marker date="1554998855751" expanded="true" signature="122:560" ph="{...}" />
+            <marker date="1554998855751" expanded="true" signature="227:395" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/Configuration.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="31" column="63" selection-start-line="31" selection-start-column="63" selection-end-line="31" selection-end-column="63" />
+          <folding>
+            <marker date="1554998856010" expanded="false" signature="6:74" ph="..." />
+            <marker date="1554998856010" expanded="true" signature="104:1140" ph="{...}" />
+            <marker date="1554998856010" expanded="true" signature="130:1138" ph="{...}" />
+            <marker date="1554998856010" expanded="true" signature="163:955" ph="{...}" />
+            <marker date="1554998856010" expanded="true" signature="334:645" ph="{...}" />
+            <marker date="1554998856010" expanded="true" signature="1011:1086" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/ConfigurationProvider.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="17" column="40" selection-start-line="17" selection-start-column="40" selection-end-line="17" selection-end-column="40" />
+          <folding>
+            <marker date="1554998855992" expanded="false" signature="6:59" ph="..." />
+            <marker date="1554998855992" expanded="true" signature="89:557" ph="{...}" />
+            <marker date="1554998855992" expanded="true" signature="123:555" ph="{...}" />
+            <marker date="1554998855992" expanded="true" signature="288:367" ph="{...}" />
+            <marker date="1554998855992" expanded="true" signature="510:549" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -447,7 +406,7 @@
     <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/adapters/configuration/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="311">
+          <first_editor relative-caret-position="416">
             <caret line="26" column="96" selection-start-line="26" selection-start-column="96" selection-end-line="26" selection-end-column="96" />
           </first_editor>
           <second_editor />
@@ -456,34 +415,39 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ForceFeedback.Core.Tests_dnc/ForceFeedbackMachine_tests.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="346">
-          <caret line="35" column="31" selection-start-line="35" selection-start-column="31" selection-end-line="35" selection-end-column="31" />
+        <state relative-caret-position="508">
+          <caret line="78" column="34" lean-forward="true" selection-start-line="78" selection-start-column="34" selection-end-line="78" selection-end-column="34" />
           <folding>
-            <marker date="1554998638285" expanded="false" signature="6:103" ph="..." />
-            <marker date="1554998638285" expanded="true" signature="139:1696" ph="{...}" />
-            <marker date="1554998638285" expanded="true" signature="185:1694" ph="{...}" />
-            <marker date="1554998638285" expanded="true" signature="258:434" ph="{...}" />
-            <marker date="1554998638285" expanded="true" signature="497:1688" ph="{...}" />
-            <marker date="1554998638285" expanded="true" signature="557:646" ph="{...}" />
+            <marker date="1555056378620" expanded="false" signature="6:103" ph="..." />
+            <marker date="1555056378620" expanded="true" signature="139:4181" ph="{...}" />
+            <marker date="1555056378620" expanded="true" signature="185:4179" ph="{...}" />
+            <marker date="1555056378620" expanded="true" signature="258:434" ph="{...}" />
+            <marker date="1555056378620" expanded="true" signature="497:1688" ph="{...}" />
+            <marker date="1555056378620" expanded="true" signature="557:646" ph="{...}" />
+            <marker date="1555056378620" expanded="true" signature="1765:4173" ph="{...}" />
+            <marker date="1555056378620" expanded="true" signature="1825:2052" ph="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ForceFeedback.Core/ForceFeedbackMachine.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="39" column="29" lean-forward="true" selection-start-line="39" selection-start-column="29" selection-end-line="39" selection-end-column="29" />
+        <state relative-caret-position="194">
+          <caret line="29" column="10" lean-forward="true" selection-start-line="29" selection-start-column="10" selection-end-line="29" selection-end-column="10" />
           <folding>
-            <marker date="1554998464816" expanded="false" signature="6:150" ph="..." />
-            <marker date="1554998464816" expanded="true" signature="180:2517" ph="{...}" />
-            <marker date="1554998464816" expanded="true" signature="220:2515" ph="{...}" />
-            <marker date="1554998464816" expanded="true" signature="384:505" ph="{...}" />
-            <marker date="1554998464816" expanded="true" signature="567:608" ph="{...}" />
-            <marker date="1554998464816" expanded="true" signature="739:1053" ph="{...}" />
-            <marker date="1554998464816" expanded="true" signature="901:1042" ph="{...}" />
-            <marker date="1554998464816" expanded="true" signature="1169:2338" ph="{...}" />
-            <marker date="1554998464816" expanded="true" signature="1760:2327" ph="/* TODO: Provide tactile feedback ... */" />
-            <marker date="1554998464816" expanded="true" signature="2456:2509" ph="{...}" />
+            <marker date="1555057243846" expanded="false" signature="6:150" ph="..." />
+            <marker date="1555057243846" expanded="true" signature="180:3176" ph="{...}" />
+            <marker date="1555057243846" expanded="true" signature="220:3174" ph="{...}" />
+            <marker date="1555057243846" expanded="true" signature="384:505" ph="{...}" />
+            <marker date="1555057243846" expanded="true" signature="567:608" ph="{...}" />
+            <marker date="1555057243846" expanded="true" signature="739:989" ph="{...}" />
+            <marker date="1555057243846" expanded="true" signature="1008:1164" ph="/* ... */" />
+            <marker date="1555057243846" expanded="true" signature="1262:1703" ph="{...}" />
+            <marker date="1555057243846" expanded="true" signature="1302:1435" ph="/* Running the check from the highest to the lowest ... */" />
+            <marker date="1555057243846" expanded="true" signature="1556:1647" ph="{...}" />
+            <marker date="1555057243846" expanded="true" signature="1828:2997" ph="{...}" />
+            <marker date="1555057243846" expanded="true" signature="2419:2986" ph="/* TODO: Provide tactile feedback ... */" />
+            <marker date="1555057243846" expanded="true" signature="3115:3168" ph="{...}" />
           </folding>
         </state>
       </provider>

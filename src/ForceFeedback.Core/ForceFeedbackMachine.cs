@@ -21,13 +21,32 @@ namespace ForceFeedback.Core
         
         
         public IEnumerable<IFeedback> RequestFeedbackForMethodCodeBlock(string methodName, int methodLineCount) {
-            if (methodLineCount < 1 || _config.Rules.Length < 1 || methodLineCount < _config.Rules[0].Lines) return new IFeedback[0];
-
-            return new[] {
-                new DrawColoredBackgroundFeedback(_config.Rules[0].BackgroundColor, _config.Rules[0].BackgroundTransparency) 
-            };
+            if (Try_to_find_matching_rule(methodLineCount, out var rule) is false)
+                return new IFeedback[0];
+            return new[] { new DrawColoredBackgroundFeedback(rule.BackgroundColor, rule.BackgroundTransparency) };
         }
 
+        
+        /*
+         * The matching rule is the one with the highest value for the lines property
+         * which is still <= the current method length.
+         */
+        private bool Try_to_find_matching_rule(int methodLineCount, out Configuration.Rule rule) {
+            rule = null;
+
+            /* Running the check from the last to the first rule guarantees the highest
+             * rule lines value is found.
+             */
+            for(var i=_config.Rules.Length-1; i>=0; i--)
+                if (_config.Rules[i].Lines <= methodLineCount) {
+                    rule = _config.Rules[i];
+                    break;
+                }
+            
+            return rule != null;
+        }
+
+        
         public IEnumerable<IFeedback> RequestFeedbackAfterMethodCodeChange(string methodName, int methodLineCount)
         {
             if (methodLineCount < 1 || _config.Rules.Length < 1 || methodLineCount < _config.Rules[0].Lines) return new IFeedback[0];
