@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,14 +10,35 @@ namespace ForceFeedback.Core.adapters.configuration
 {
     class ConfigurationProvider
     {
-        public ConfigurationProvider(string solutionFilePath, string projectFilePath, string sourceFilePath) {
-            var configText = ConfigurationDefaultLoader.Load_default_configuration_text();
-            Configuration = Deserialize_configuration(configText);
+        private const string DEFAUL_CONFIG_FILENAME = ".forcefeedbackprogramming";
+        
+        public ConfigurationProvider(string solutionFilePath, string projectFilePath, string sourceFilePath)
+        {
+            if (Try_to_find_config_file(solutionFilePath, projectFilePath, sourceFilePath, out var configFilePath)) {
+                var configText = File.ReadAllText(configFilePath);
+                Configuration = Deserialize_configuration(configText);
+            }
+            else {
+                var configText = ConfigurationDefaultLoader.Load_default_configuration_text();
+                Configuration = Deserialize_configuration(configText);
+            }
         }
 
         
         public Configuration Configuration { get; }
 
+
+        internal bool Try_to_find_config_file(string solutionFilePath, string projectFilePath, string sourceFilePath,
+                                              out string configFilePath)
+        {
+            configFilePath = "";
+            if (string.IsNullOrWhiteSpace(solutionFilePath) is false)  {
+                configFilePath = Path.Combine(solutionFilePath, DEFAUL_CONFIG_FILENAME);
+                return File.Exists(configFilePath);
+            }
+            return false;
+        }
+        
 
         private static Configuration Deserialize_configuration(string text) {
             if (string.IsNullOrWhiteSpace(text)) return new Configuration(new Configuration.FeedbackRule[0]);

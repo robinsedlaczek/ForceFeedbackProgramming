@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace ForceFeedback.Core.adapters.configuration
 {
-    class ConfigurationDefaultLoader
+    static class ConfigurationDefaultLoader
     {
         private const string DEFAUL_CONFIGURATION_RESOURCE_NAME = "ConfigurationDefaultsV1.0.json";
         
