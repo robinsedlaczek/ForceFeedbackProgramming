@@ -16,7 +16,6 @@
             <e p="ConfigurationDefaultLoader.cs" t="Include" />
             <e p="ConfigurationDefaultsV1.0.json" t="Include" />
             <e p="ConfigurationProvider.cs" t="Include" />
-            <e p="README.md" t="Include" />
           </e>
         </e>
         <e p="AssemblyInfo.cs" t="Include" />
@@ -47,6 +46,7 @@
             </e>
           </e>
         </e>
+        <e p="README.md" t="Include" />
       </e>
       <e p="ForceFeedback.Core.sln" t="IncludeFlat" />
       <e p="ForceFeedback.Core.Tests_dnc" t="IncludeRecursive">
@@ -67,6 +67,7 @@
         </e>
         <e p="sampledata" t="Include">
           <e p="ConfigurationDefaults.json" t="Include" />
+          <e p="ConfigurationEmpty.json" t="Include" />
         </e>
       </e>
       <e p="packages" t="ExcludeRecursive" />

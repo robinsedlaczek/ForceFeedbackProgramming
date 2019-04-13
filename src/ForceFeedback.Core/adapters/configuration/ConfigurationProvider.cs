@@ -14,12 +14,20 @@ namespace ForceFeedback.Core.adapters.configuration
         
         public ConfigurationProvider(string solutionFilePath, string projectFilePath, string sourceFilePath)
         {
-            if (Try_to_find_config_file(solutionFilePath, projectFilePath, sourceFilePath, out var configFilePath)) {
+            var solutionFolderPath = Path.GetDirectoryName(solutionFilePath);
+            var projectFolderPath = Path.GetDirectoryName(projectFilePath);
+            var sourceFolderPath = Path.GetDirectoryName(sourceFilePath);
+            
+            /*
+             * Find config file in one of the paths provided - or create it from defaults in the solution path.
+             */
+            if (Try_to_find_config_file(solutionFolderPath, projectFolderPath, sourceFolderPath, out var configFilePath)) {
                 var configText = File.ReadAllText(configFilePath);
                 Configuration = Deserialize_configuration(configText);
             }
             else {
                 var configText = ConfigurationDefaultLoader.Load_default_configuration_text();
+                Create_config_file(solutionFolderPath, configText);
                 Configuration = Deserialize_configuration(configText);
             }
         }
@@ -28,15 +36,28 @@ namespace ForceFeedback.Core.adapters.configuration
         public Configuration Configuration { get; }
 
 
-        internal bool Try_to_find_config_file(string solutionFilePath, string projectFilePath, string sourceFilePath,
-                                              out string configFilePath)
+        private static bool Try_to_find_config_file(string solutionFolderPath, string projectFolderPath, string sourceFolderPath,
+                                                    out string configFilePath)
         {
-            configFilePath = "";
-            if (string.IsNullOrWhiteSpace(solutionFilePath) is false)  {
-                configFilePath = Path.Combine(solutionFilePath, DEFAUL_CONFIG_FILENAME);
-                return File.Exists(configFilePath);
+            if (Try_find_here(sourceFolderPath, out configFilePath)) return true;
+            if (Try_find_here(projectFolderPath, out configFilePath)) return true;
+            return Try_find_here(solutionFolderPath, out configFilePath);
+
+
+            bool Try_find_here(string folderPath, out string filePath) {
+                filePath = "";
+                if (string.IsNullOrWhiteSpace(folderPath)) return false;
+                filePath = Path.Combine(folderPath, DEFAUL_CONFIG_FILENAME);
+                return File.Exists(filePath);
             }
-            return false;
+        }
+
+
+        private static void Create_config_file(string path, string configText)  {
+            if (string.IsNullOrWhiteSpace(path)) return;
+            
+            var configFilePath = Path.Combine(path, DEFAUL_CONFIG_FILENAME);
+            File.WriteAllText(configFilePath, configText);
         }
         
 

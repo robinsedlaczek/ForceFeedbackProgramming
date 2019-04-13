@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using ForceFeedback.Core.adapters.configuration;
@@ -11,10 +12,11 @@ namespace ForceFeedback.Core.Tests_dnc
     public class ForceFeedbackMachine_tests
     {
         [Fact]
-        public void Empty_method_without_context() {
+        public void Default_feedback_without_paths() {
             var sut = new ForceFeedbackMachine("", "", "");
-            var result = sut.ProduceVisualFeedback("", 0);
-            Assert.Empty(result);
+            var result = sut.ProduceVisualFeedback("Foo", 999).ToArray();
+            Assert.Single(result);
+            Assert.Equal(Color.Sienna, (result[0] as Colorization).BackgroundColor);
         }
 
         
@@ -38,7 +40,7 @@ namespace ForceFeedback.Core.Tests_dnc
         
         
         [Fact]
-        public void Give_visual_change_feedback() {
+        public void Give_visual_feedback_as_part_of_total_feedback() {
             var config = new Configuration(new[] {
                 new Configuration.FeedbackRule(10, Color.Yellow, 0.1, 0, 0, 0)
             });
@@ -104,6 +106,21 @@ namespace ForceFeedback.Core.Tests_dnc
                 => sut.ProduceTotalFeedback(methodName, 10)
                     .OfType<Noise>()
                     .ToArray();
+        }
+
+
+        [Fact]
+        public void No_feedback_from_empty_config()
+        {
+            if (Directory.Exists("slnfolder_1"))
+                Directory.Delete("slnfolder_1", true);
+            Directory.CreateDirectory("slnfolder_1");
+            File.Copy("../../../sampledata/ConfigurationEmpty.json", "slnfolder_1/.forcefeedbackprogramming");
+            
+            var sut = new ForceFeedbackMachine("slnfolder_1/my.sln", "", "");
+
+            var result = sut.ProduceVisualFeedback("Foo", 999);
+            Assert.Empty(result);
         }
     }
 }
