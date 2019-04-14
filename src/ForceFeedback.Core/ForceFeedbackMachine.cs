@@ -32,11 +32,11 @@ namespace ForceFeedback.Core
                 outlineColor = Color.Red;
             }
             else if (methodLineCount > 10)
-                backgroundColor = Color.FromArgb(150, 0, 0, 255);
+                backgroundColor = Color.FromArgb(150, 0, 255, 0);
             else if (methodLineCount > 5)
-                backgroundColor = Color.FromArgb(100, 0, 0, 255);
+                backgroundColor = Color.FromArgb(100, 0, 255, 0);
             else if (methodLineCount > 3)
-                backgroundColor = Color.FromArgb(50, 0, 0, 255);
+                backgroundColor = Color.FromArgb(50, 0, 255, 0);
 
             return new List<IFeedback>
             {

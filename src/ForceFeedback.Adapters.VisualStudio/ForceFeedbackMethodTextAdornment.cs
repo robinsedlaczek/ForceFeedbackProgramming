@@ -62,7 +62,7 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             _codeBlockOccurrences = new List<CodeBlockOccurrence>();
 
-            _layer = view.GetAdornmentLayer("MethodTooLongTextAdornment");
+            _layer = view.GetAdornmentLayer("ForceFeedbackMethodTextAdornment");
 			
             _view.LayoutChanged += OnLayoutChanged;
             _view.TextBuffer.Changed += OnTextBufferChanged;
