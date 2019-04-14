@@ -1,12 +1,13 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ForceFeedback.Core;
 using System.Collections.Generic;
+using ForceFeedback.Core.Feedback;
 
 namespace ForceFeedback.Adapters.VisualStudio
 {
     internal class CodeBlockOccurrence
     {
-        public CodeBlockOccurrence(BlockSyntax block, List<IFeedback> feedbacks)
+        public CodeBlockOccurrence(BlockSyntax block, IEnumerable<IFeedback> feedbacks)
         {
             Block = block;
             Feedbacks = feedbacks;
@@ -14,6 +15,6 @@ namespace ForceFeedback.Adapters.VisualStudio
 
         public BlockSyntax Block { get; set; }
 
-        public List<IFeedback> Feedbacks { get; set; }
+        public IEnumerable<IFeedback> Feedbacks { get; set; }
     }
 }

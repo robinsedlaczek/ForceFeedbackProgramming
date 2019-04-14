@@ -18,7 +18,9 @@ using Microsoft.CodeAnalysis;
 using System.Windows;
 using ForceFeedback.Core;
 using System.Threading;
-using ForceFeedback.Core.Feedbacks;
+using ForceFeedback.Core.Feedback;
+using ForceFeedback.Core.Feedback.Tactile;
+using ForceFeedback.Core.Feedback.Visual;
 
 namespace ForceFeedback.Adapters.VisualStudio
 {
@@ -87,16 +89,14 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             GetMethodNameAndLineCount(methodOccurence.Block, out methodName, out linesOfCode);
 
-            var feedbacks = _feedbackMachine.RequestFeedbackBeforeMethodCodeChange(methodName, linesOfCode);
+            var feedbacks = _feedbackMachine.ProduceTotalFeedback(methodName, linesOfCode);
 
             foreach (var feedback in feedbacks)
             {
-                if (feedback is InsertTextFeedback)
+                if (feedback is Noise)
                     InsertText(feedback);
-                else if (feedback is DelayKeyboardInputsFeedback)
+                else if (feedback is Delay)
                     DelayKeyboardInput(feedback);
-                else if (feedback is PreventKeyboardInputsFeedback)
-                    e.Cancel();
             }
         }
 
@@ -121,27 +121,27 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             GetMethodNameAndLineCount(methodOccurence.Block, out methodName, out linesOfCode);
 
-            var feedbacks = _feedbackMachine.RequestFeedbackAfterMethodCodeChange(methodName, linesOfCode);
+            var feedbacks = _feedbackMachine.ProduceTotalFeedback(methodName, linesOfCode);
 
             foreach (var feedback in feedbacks)
             {
-                if (feedback is InsertTextFeedback)
+                if (feedback is Noise)
                     InsertText(feedback);
-                else if (feedback is DelayKeyboardInputsFeedback)
+                else if (feedback is Delay)
                     DelayKeyboardInput(feedback);
             }
         }
 
         private static void DelayKeyboardInput(IFeedback feedback)
         {
-            var delayKeyboardInputsFeedback = feedback as DelayKeyboardInputsFeedback;
+            var delayKeyboardInputsFeedback = feedback as Delay;
 
             Thread.Sleep(delayKeyboardInputsFeedback.Milliseconds);
         }
 
         private void InsertText(IFeedback feedback)
         {
-            var insertTextFeedback = feedback as InsertTextFeedback;
+            var insertTextFeedback = feedback as Noise;
 
             if (!_view.TextBuffer.CheckEditAccess())
                 throw new Exception("Cannot edit text buffer.");
@@ -223,7 +223,7 @@ namespace ForceFeedback.Adapters.VisualStudio
 
                 GetMethodNameAndLineCount(codeBlock, out methodName, out linesOfCode);
 
-                var feedbacks = _feedbackMachine.RequestFeedbackForMethodCodeBlock(methodName, linesOfCode);
+                var feedbacks = _feedbackMachine.ProduceVisualFeedback(methodName, linesOfCode);
                 var occurence = new CodeBlockOccurrence(codeBlock, feedbacks);
 
                 _codeBlockOccurrences.Add(occurence);
@@ -278,7 +278,7 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             foreach (var occurrence in _codeBlockOccurrences)
             {
-                if (occurrence.Feedbacks == null || !occurrence.Feedbacks.Any(feedback => feedback is DrawColoredBackgroundFeedback))
+                if (occurrence.Feedbacks == null || !occurrence.Feedbacks.Any(feedback => feedback is Colorization))
                     continue;
 
                 var codeBlockParentSyntax = occurrence.Block.Parent;
@@ -313,7 +313,7 @@ namespace ForceFeedback.Adapters.VisualStudio
                 throw new ArgumentNullException(nameof(codeBlockOccurence));
 
             var backgroundGeometry = new RectangleGeometry(adornmentBounds);
-            var feedback = codeBlockOccurence.Feedbacks.Where(f => f is DrawColoredBackgroundFeedback).FirstOrDefault() as DrawColoredBackgroundFeedback;
+            var feedback = codeBlockOccurence.Feedbacks.Where(f => f is Colorization).FirstOrDefault() as Colorization;
             var backgroundColor = Color.FromArgb(feedback.BackgroundColor.A, feedback.BackgroundColor.R, feedback.BackgroundColor.G, feedback.BackgroundColor.B);
 
             var backgroundBrush = new SolidColorBrush(backgroundColor);
