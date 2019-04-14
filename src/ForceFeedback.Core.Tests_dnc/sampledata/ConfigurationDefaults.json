@@ -1,0 +1,17 @@
+{
+  "Version": "1.0",
+  
+  "FeedbackRules": [
+    {
+      "MinimumNumberOfLinesInMethod": 1,
+      
+      "BackgroundColor": "Beige",
+      "BackgroundColorTransparency": 0.2,
+      
+      "NoiseDistance": 3,
+      "NoiseLevel": 4,
+      
+      "Delay": 5
+    }
+  ]
+}

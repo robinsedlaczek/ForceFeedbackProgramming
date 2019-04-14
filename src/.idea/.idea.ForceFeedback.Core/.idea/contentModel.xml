@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.0/build/netcoreapp1.0/xunit.runner.reporters.netcoreapp10.dll" t="Include" />
+    <e p="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.0/build/netcoreapp1.0/xunit.runner.utility.netcoreapp10.dll" t="Include" />
+    <e p="$USER_HOME$/.nuget/packages/xunit.runner.visualstudio/2.4.0/build/netcoreapp1.0/xunit.runner.visualstudio.dotnetcore.testadapter.dll" t="Include" />
+    <e p="$USER_HOME$/Library/Caches/Rider2018.3/extResources" t="IncludeRecursive" />
+    <e p="$USER_HOME$/Library/Caches/Rider2018.3/resharper-host/local/Transient/ReSharperHost/v183/SolutionCaches/_ForceFeedback.Core.-597675682.00" t="ExcludeRecursive" />
+    <e p="$APPLICATION_CONFIG_DIR$/extensions" t="IncludeRecursive" />
+    <e p="$APPLICATION_CONFIG_DIR$/scratches" t="IncludeRecursive" />
+    <e p="$PROJECT_DIR$" t="IncludeFlat">
+      <e p="ForceFeedback.Core" t="IncludeRecursive">
+        <e p="adapters" t="Include">
+          <e p="configuration" t="Include">
+            <e p="Configuration.cs" t="Include" />
+            <e p="ConfigurationDefaultLoader.cs" t="Include" />
+            <e p="ConfigurationDefaultsV1.0.json" t="Include" />
+            <e p="ConfigurationProvider.cs" t="Include" />
+          </e>
+        </e>
+        <e p="AssemblyInfo.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="domain" t="Include">
+          <e p="FeedbackGenerator.cs" t="Include" />
+          <e p="NoiseGenerator.cs" t="Include" />
+        </e>
+        <e p="Feedback" t="Include">
+          <e p="IFeedback.cs" t="Include" />
+          <e p="Tactile" t="Include">
+            <e p="Delay.cs" t="Include" />
+            <e p="Noise.cs" t="Include" />
+          </e>
+          <e p="Visual" t="Include">
+            <e p="Colorization.cs" t="Include" />
+          </e>
+        </e>
+        <e p="ForceFeedback.Core.csproj" t="IncludeRecursive" />
+        <e p="ForceFeedbackMachine.cs" t="Include" />
+        <e p="images" t="Include">
+          <e p="BackgroundColors.png" t="Include" />
+        </e>
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netstandard2.0" t="Include">
+              <e p="ForceFeedback.Core.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="README.md" t="Include" />
+      </e>
+      <e p="ForceFeedback.Core.sln" t="IncludeFlat" />
+      <e p="ForceFeedback.Core.Tests_dnc" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="ConfigrationProvider_tests.cs" t="Include" />
+        <e p="Configuration_tests.cs" t="Include" />
+        <e p="ConfigurationDefaultLoader_tests.cs" t="Include" />
+        <e p="ForceFeedback.Core.Tests_dnc.csproj" t="IncludeRecursive" />
+        <e p="ForceFeedbackMachine_tests.cs" t="Include" />
+        <e p="NoiseGenerator_tests.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp2.2" t="Include">
+              <e p="ForceFeedback.Core.Tests_dnc.AssemblyInfo.cs" t="Include" />
+              <e p="ForceFeedback.Core.Tests_dnc.Program.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="sampledata" t="Include">
+          <e p="ConfigurationDefaults.json" t="Include" />
+          <e p="ConfigurationEmpty.json" t="Include" />
+        </e>
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+    </e>
+  </component>
+</project>

@@ -1,77 +1,34 @@
-﻿using ForceFeedback.Core.Feedbacks;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Collections.Generic;
+using ForceFeedback.Core.adapters.configuration;
+using ForceFeedback.Core.domain;
+using ForceFeedback.Core.Feedback;
 
 namespace ForceFeedback.Core
 {
     public class ForceFeedbackMachine
     {
-        private string _solutionFilePath;
-        private string _projectFilePath;
-        private string _sourceFilePath;
+        private readonly Configuration _config;
+        private readonly FeedbackGenerator _feedbackGen;
+        
 
         public ForceFeedbackMachine(string solutionFilePath, string projectFilePath, string sourceFilePath)
-        {
-            _solutionFilePath = solutionFilePath;
-            _projectFilePath = projectFilePath;
-            _sourceFilePath = sourceFilePath;
+        : this(new ConfigurationProvider(solutionFilePath, projectFilePath, sourceFilePath).Configuration){}
+
+        internal ForceFeedbackMachine(Configuration config) {
+            _config = config;
+            _feedbackGen = new FeedbackGenerator();
         }
+        
+        
+        public IEnumerable<IFeedback> ProduceVisualFeedback(string methodName, int methodLineCount)
+            => _config.TryFindRule(methodLineCount, out var rule) 
+                ? _feedbackGen.Visual_feedback(rule) 
+                : _feedbackGen.No_feedback;
 
-        public List<IFeedback> RequestFeedbackForMethodCodeBlock(string methodName, int methodLineCount)
-        {
-            if (methodLineCount <= 3)
-                return new List<IFeedback>();
-
-            var backgroundColor = Color.Blue;
-            var outlineColor = Color.White;
-
-            if (methodLineCount > 15)
-            {
-                backgroundColor = Color.FromArgb(200, 0, 255, 0);
-                outlineColor = Color.Red;
-            }
-            else if (methodLineCount > 10)
-                backgroundColor = Color.FromArgb(150, 0, 255, 0);
-            else if (methodLineCount > 5)
-                backgroundColor = Color.FromArgb(100, 0, 255, 0);
-            else if (methodLineCount > 3)
-                backgroundColor = Color.FromArgb(50, 0, 255, 0);
-
-            return new List<IFeedback>
-            {
-                new DrawColoredBackgroundFeedback(backgroundColor, outlineColor)
-            };
-        }
-
-        public List<IFeedback> RequestFeedbackAfterMethodCodeChange(string methodName, int methodLineCount)
-        {
-            var result = new List<IFeedback>();
-
-            if (methodLineCount < 15)
-                return result;
-
-            const string noiseCharacters = "⌫♥♠♦◘○☺☻♀►♂↨◄↕";
-            var random = new Random();
-            var index = random.Next(0, noiseCharacters.Length);
-
-            result.Add(new InsertTextFeedback($"{noiseCharacters[index]}"));
-
-            // [RS] Add per line 100 ms delay. :)
-            if (methodLineCount > 20)
-                result.Add(new DelayKeyboardInputsFeedback((methodLineCount) - 20 * 100));
-
-            return result;
-        }
-
-        public List<IFeedback> RequestFeedbackBeforeMethodCodeChange(string methodName, int methodLineCount)
-        {
-            var result = new List<IFeedback>();
-
-            if (methodLineCount > 25)
-                result.Add(new PreventKeyboardInputsFeedback());
-
-            return result;
-        }
+        
+        public IEnumerable<IFeedback> ProduceTotalFeedback(string methodName, int methodLineCount)
+            => _config.TryFindRule(methodLineCount, out var rule) 
+                ? _feedbackGen.Total_feedback(methodName, rule)
+                : _feedbackGen.No_feedback ;
     }
 }
