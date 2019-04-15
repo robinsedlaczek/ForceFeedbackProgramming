@@ -4,7 +4,8 @@ namespace ForceFeedback.Core.Feedback.Visual
 {
     public class Colorization : IFeedback
     {
-        public Colorization(Color backgroundColor, double backgroundColorTransparency) {
+        public Colorization(Color backgroundColor, double backgroundColorTransparency)
+        {
             BackgroundColor = backgroundColor;
             OutlineColor = Color.White;
             BackgroundColorTransparency = backgroundColorTransparency;
@@ -14,6 +15,6 @@ namespace ForceFeedback.Core.Feedback.Visual
         public double BackgroundColorTransparency { get; }
 
         public Color OutlineColor { get; }
-        
+
     }
 }

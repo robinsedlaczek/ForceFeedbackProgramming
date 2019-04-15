@@ -7,7 +7,7 @@ namespace ForceFeedback.Adapters.VisualStudio
         private static readonly HashSet<string> NewLineMarker = new HashSet<string>
         {
             "\r\n", "\r", "\n"
-        }; 
+        };
 
         public static bool IsNewLineMarker(this string value)
         {

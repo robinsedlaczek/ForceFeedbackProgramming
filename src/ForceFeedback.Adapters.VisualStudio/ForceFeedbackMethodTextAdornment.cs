@@ -57,25 +57,25 @@ namespace ForceFeedback.Adapters.VisualStudio
         /// <param name="view">Text view to create the adornment for</param>
 		public ForceFeedbackMethodTextAdornment(IWpfTextView view, ITextDocumentFactoryService textDocumentFactory)
         {
-			_view = view ?? throw new ArgumentNullException(nameof(view));
-			_textDocumentFactory = textDocumentFactory ?? throw new ArgumentNullException(nameof(textDocumentFactory));
+            _view = view ?? throw new ArgumentNullException(nameof(view));
+            _textDocumentFactory = textDocumentFactory ?? throw new ArgumentNullException(nameof(textDocumentFactory));
 
-			var res = _textDocumentFactory.TryGetTextDocument(_view.TextBuffer, out _textDocument);
+            var res = _textDocumentFactory.TryGetTextDocument(_view.TextBuffer, out _textDocument);
 
             _codeBlockOccurrences = new List<CodeBlockOccurrence>();
 
             _layer = view.GetAdornmentLayer("ForceFeedbackMethodTextAdornment");
-			
+
             _view.LayoutChanged += OnLayoutChanged;
             _view.TextBuffer.Changed += OnTextBufferChanged;
             _view.TextBuffer.Changing += OnTextBufferChanging;
 
-			_textDocumentFactory = textDocumentFactory;
+            _textDocumentFactory = textDocumentFactory;
 
             var project = _textDocument?.TextBuffer?.CurrentSnapshot?.GetOpenDocumentInCurrentContextWithChanges()?.Project;
 
             _feedbackMachine = new ForceFeedbackMachine(solutionFilePath: project?.Solution?.FilePath, projectFilePath: project?.FilePath, sourceFilePath: _textDocument.FilePath);
-		}
+        }
 
         private void OnTextBufferChanging(object sender, TextContentChangingEventArgs e)
         {
@@ -258,8 +258,8 @@ namespace ForceFeedback.Adapters.VisualStudio
 
             var codeBlocks = syntaxRoot
                 .DescendantNodes(node => true)
-                .Where(node => node.IsSyntaxBlock() 
-                    && (   node.Parent.IsMethod()
+                .Where(node => node.IsSyntaxBlock()
+                    && (node.Parent.IsMethod()
                         || node.Parent.IsConstructor()
                         || node.Parent.IsSetter()
                         || node.Parent.IsGetter()))
@@ -369,6 +369,6 @@ namespace ForceFeedback.Adapters.VisualStudio
             return new Rect(_view.ViewportLeft, top, _view.ViewportWidth, height);
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

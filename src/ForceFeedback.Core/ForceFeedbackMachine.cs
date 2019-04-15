@@ -9,26 +9,27 @@ namespace ForceFeedback.Core
     {
         private readonly Configuration _config;
         private readonly FeedbackGenerator _feedbackGen;
-        
+
 
         public ForceFeedbackMachine(string solutionFilePath, string projectFilePath, string sourceFilePath)
-        : this(new ConfigurationProvider(solutionFilePath, projectFilePath, sourceFilePath).Configuration){}
+        : this(new ConfigurationProvider(solutionFilePath, projectFilePath, sourceFilePath).Configuration) { }
 
-        internal ForceFeedbackMachine(Configuration config) {
+        internal ForceFeedbackMachine(Configuration config)
+        {
             _config = config;
             _feedbackGen = new FeedbackGenerator();
         }
-        
-        
+
+
         public IEnumerable<IFeedback> ProduceVisualFeedback(string methodName, int methodLineCount)
-            => _config.TryFindRule(methodLineCount, out var rule) 
-                ? _feedbackGen.Visual_feedback(rule) 
+            => _config.TryFindRule(methodLineCount, out var rule)
+                ? _feedbackGen.Visual_feedback(rule)
                 : _feedbackGen.No_feedback;
 
-        
+
         public IEnumerable<IFeedback> ProduceTotalFeedback(string methodName, int methodLineCount)
-            => _config.TryFindRule(methodLineCount, out var rule) 
+            => _config.TryFindRule(methodLineCount, out var rule)
                 ? _feedbackGen.Total_feedback(methodName, rule)
-                : _feedbackGen.No_feedback ;
+                : _feedbackGen.No_feedback;
     }
 }

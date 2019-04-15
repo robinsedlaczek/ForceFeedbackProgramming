@@ -27,7 +27,7 @@ namespace ForceFeedback.Setup.VisualStudio
     [Guid(VisualStudioPackage.PackageGuidString)]
     public sealed class VisualStudioPackage : AsyncPackage
     {
-         /// <summary>
+        /// <summary>
         /// ForceFeedback.Setup.VisualStudioPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "e10d31f9-c3b3-4f62-a5b3-6cf64680421a";

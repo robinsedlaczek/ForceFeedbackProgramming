@@ -2,7 +2,8 @@
 {
     public class Noise : IFeedback
     {
-        public Noise(string text) {
+        public Noise(string text)
+        {
             Text = text;
         }
 

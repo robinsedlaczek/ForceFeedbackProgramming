@@ -2,7 +2,8 @@
 {
     public class Delay : IFeedback
     {
-        public Delay(int milliseconds) {
+        public Delay(int milliseconds)
+        {
             Milliseconds = milliseconds;
         }
 

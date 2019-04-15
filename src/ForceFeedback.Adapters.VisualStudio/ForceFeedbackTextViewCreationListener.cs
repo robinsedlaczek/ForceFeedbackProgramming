@@ -32,8 +32,8 @@ namespace ForceFeedback.Adapters.VisualStudio
         [Order(Before = PredefinedAdornmentLayers.Selection)]
         private AdornmentLayerDefinition EditorAdornmentLayer;
 
-		[Import]
-		public ITextDocumentFactoryService textDocumentFactory { get; set; }
+        [Import]
+        public ITextDocumentFactoryService textDocumentFactory { get; set; }
 
 #pragma warning restore 649, 169
 
