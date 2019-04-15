@@ -17,6 +17,7 @@
             <e p="ConfigurationDefaultsV1.0.json" t="Include" />
             <e p="ConfigurationProvider.cs" t="Include" />
           </e>
+          <e p="Log.cs" t="Include" />
         </e>
         <e p="AssemblyInfo.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
@@ -56,6 +57,7 @@
         <e p="ConfigurationDefaultLoader_tests.cs" t="Include" />
         <e p="ForceFeedback.Core.Tests_dnc.csproj" t="IncludeRecursive" />
         <e p="ForceFeedbackMachine_tests.cs" t="Include" />
+        <e p="Log_tests.cs" t="Include" />
         <e p="NoiseGenerator_tests.cs" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">

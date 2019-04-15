@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using ForceFeedback.Core.adapters.configuration;
