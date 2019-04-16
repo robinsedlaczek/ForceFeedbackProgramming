@@ -23,6 +23,7 @@
     <ItemGroup>
       <EmbeddedResource Include="sampledata\ConfigurationDefaults.json" />
       <EmbeddedResource Include="sampledata\ConfigurationEmpty.json" />
+      <None Include="sampledata\ConfigurationWithError.json" />
     </ItemGroup>
 
 </Project>

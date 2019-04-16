@@ -55,6 +55,7 @@
         <e p="ConfigrationProvider_tests.cs" t="Include" />
         <e p="Configuration_tests.cs" t="Include" />
         <e p="ConfigurationDefaultLoader_tests.cs" t="Include" />
+        <e p="DebugFact.cs" t="Include" />
         <e p="ForceFeedback.Core.Tests_dnc.csproj" t="IncludeRecursive" />
         <e p="ForceFeedbackMachine_tests.cs" t="Include" />
         <e p="Log_tests.cs" t="Include" />
@@ -70,6 +71,7 @@
         <e p="sampledata" t="Include">
           <e p="ConfigurationDefaults.json" t="Include" />
           <e p="ConfigurationEmpty.json" t="Include" />
+          <e p="ConfigurationWithError.json" t="Include" />
         </e>
       </e>
       <e p="packages" t="ExcludeRecursive" />

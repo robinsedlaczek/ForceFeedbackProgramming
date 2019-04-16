@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Drawing;
+using ForceFeedback.Core.adapters;
 using ForceFeedback.Core.adapters.configuration;
 using ForceFeedback.Core.domain;
 using ForceFeedback.Core.Feedback;
+using ForceFeedback.Core.Feedback.Visual;
 
 namespace ForceFeedback.Core
 {
@@ -22,14 +27,34 @@ namespace ForceFeedback.Core
 
 
         public IEnumerable<IFeedback> ProduceVisualFeedback(string methodName, int methodLineCount)
-            => _config.TryFindRule(methodLineCount, out var rule)
+            => Try(() => 
+                _config.TryFindRule(methodLineCount, out var rule)
                 ? _feedbackGen.Visual_feedback(rule)
-                : _feedbackGen.No_feedback;
+                : _feedbackGen.No_feedback
+            );
 
 
         public IEnumerable<IFeedback> ProduceTotalFeedback(string methodName, int methodLineCount)
-            => _config.TryFindRule(methodLineCount, out var rule)
-                ? _feedbackGen.Total_feedback(methodName, rule)
-                : _feedbackGen.No_feedback;
+            => Try(() =>
+                _config.TryFindRule(methodLineCount, out var rule)
+                    ? _feedbackGen.Total_feedback(methodName, rule)
+                    : _feedbackGen.No_feedback
+                );
+
+
+        private IEnumerable<IFeedback> Try(Func<IEnumerable<IFeedback>> generateFeedback)
+        {
+            IEnumerable<IFeedback> feedback = new IFeedback[0];
+            new Log().Try(
+                () =>
+                {
+                    feedback = generateFeedback();
+                },
+                () =>
+                {
+                    feedback = new[] {new Colorization(Color.Red, 1.0)};
+                });
+            return feedback;
+        }
     }
 }

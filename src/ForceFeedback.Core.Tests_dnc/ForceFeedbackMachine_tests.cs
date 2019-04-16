@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -112,15 +114,44 @@ namespace ForceFeedback.Core.Tests_dnc
         [Fact]
         public void No_feedback_from_empty_config()
         {
-            if (Directory.Exists("slnfolder_1"))
-                Directory.Delete("slnfolder_1", true);
-            Directory.CreateDirectory("slnfolder_1");
-            File.Copy("../../../sampledata/ConfigurationEmpty.json", "slnfolder_1/.forcefeedbackprogramming");
+            var TEST_SLN_FOLDER = "slnfolder-" + Guid.NewGuid().ToString();
             
-            var sut = new ForceFeedbackMachine("slnfolder_1/my.sln", "", "");
+            if (Directory.Exists(TEST_SLN_FOLDER)) Directory.Delete(TEST_SLN_FOLDER, true);
+            Directory.CreateDirectory(TEST_SLN_FOLDER);
+            File.Copy("../../../sampledata/ConfigurationEmpty.json", Path.Combine(TEST_SLN_FOLDER, ".forcefeedbackprogramming"));
+            
+            var sut = new ForceFeedbackMachine(Path.Combine(TEST_SLN_FOLDER, "my.sln"), "", "");
 
             var result = sut.ProduceVisualFeedback("Foo", 999);
             Assert.Empty(result);
+        }
+
+
+        [DebugFact]
+        public void Provoke_exception_during_feedback()
+        {
+            var GLOBAL_LOG_PATH = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var logFilename = Path.Combine(GLOBAL_LOG_PATH, ".forcefeedbackprogramming.log");
+            DeleteLogfile();
+            
+            var TEST_SLN_FOLDER = "slnfolder-" + Guid.NewGuid().ToString();
+            
+            if (Directory.Exists(TEST_SLN_FOLDER)) Directory.Delete(TEST_SLN_FOLDER, true);
+            Directory.CreateDirectory(TEST_SLN_FOLDER);
+            File.Copy("../../../sampledata/ConfigurationWithError.json", Path.Combine(TEST_SLN_FOLDER, ".forcefeedbackprogramming"));
+
+            try
+            {
+                new ForceFeedbackMachine(Path.Combine(TEST_SLN_FOLDER, "my.sln"), "", "");
+
+                Assert.True(File.Exists(logFilename));
+            }
+            finally
+            {
+                DeleteLogfile();
+            }
+
+            void DeleteLogfile() { if (File.Exists(logFilename)) File.Delete(logFilename); }
         }
     }
 }

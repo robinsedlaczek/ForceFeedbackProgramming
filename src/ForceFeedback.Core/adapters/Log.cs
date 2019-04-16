@@ -7,7 +7,7 @@ namespace ForceFeedback.Core.adapters
     {
         private readonly string _logPath;
         
-        public Log() : this(Environment.GetFolderPath(Environment.SpecialFolder.Personal)) {}
+        public Log() : this(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)) {}
         public Log(string logPath) => _logPath = logPath;
         
         
@@ -19,7 +19,7 @@ namespace ForceFeedback.Core.adapters
             }
             catch (Exception ex)
             {
-                Append(ex.Message);
+                Append(ex.ToString());
                 onFailure();
             }
         }
@@ -27,7 +27,7 @@ namespace ForceFeedback.Core.adapters
         public void Append(string message)
         {
             var logFilePath = Path.Combine(_logPath, ".forcefeedbackprogramming.log");
-            var entryText = new[] {DateTime.Now.ToString(), message, ""};
+            var entryText = new[] {$"---{DateTime.Now.ToString()}---", message, ""};
             File.AppendAllLines(logFilePath, entryText);
         }
     }
