@@ -1,0 +1,16 @@
+{
+  "Version": "1.0",
+  
+  "FeedbackRules": [
+    {
+      "MinimumNumberOfLinesInMethod": 1,
+        
+        // missing properties and wrongly formatted JSON
+        
+      "NoiseDistance": 3,
+      "NoiseLevel": 4,
+      
+      "Delay": 5
+    }
+  ]
+}

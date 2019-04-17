@@ -10,32 +10,40 @@ namespace ForceFeedback.Core.adapters.configuration
 {
     class ConfigurationProvider
     {
+        private Configuration _config;
         private const string DEFAUL_CONFIG_FILENAME = ".forcefeedbackprogramming";
 
         public ConfigurationProvider(string solutionFilePath, string projectFilePath, string sourceFilePath)
         {
-            var solutionFolderPath = Path.GetDirectoryName(solutionFilePath);
-            var projectFolderPath = Path.GetDirectoryName(projectFilePath);
-            var sourceFolderPath = Path.GetDirectoryName(sourceFilePath);
+            new Log().Try(
+                () =>
+                {
+                    var solutionFolderPath = Path.GetDirectoryName(solutionFilePath);
+                    var projectFolderPath = Path.GetDirectoryName(projectFilePath);
+                    var sourceFolderPath = Path.GetDirectoryName(sourceFilePath);
 
-            /*
-             * Find config file in one of the paths provided - or create it from defaults in the solution path.
-             */
-            if (Try_to_find_config_file(solutionFolderPath, projectFolderPath, sourceFolderPath, out var configFilePath))
-            {
-                var configText = File.ReadAllText(configFilePath);
-                Configuration = Deserialize_configuration(configText);
-            }
-            else
-            {
-                var configText = ConfigurationDefaultLoader.Load_default_configuration_text();
-                Create_config_file(solutionFolderPath, configText);
-                Configuration = Deserialize_configuration(configText);
-            }
+                    /*
+                     * Find config file in one of the paths provided - or create it from defaults in the solution path.
+                     */
+                    if (Try_to_find_config_file(solutionFolderPath, projectFolderPath, sourceFolderPath,
+                        out var configFilePath))
+                    {
+                        var configText = File.ReadAllText(configFilePath);
+                        _config = Deserialize_configuration(configText);
+                    }
+                    else
+                    {
+                        var configText = ConfigurationDefaultLoader.Load_default_configuration_text();
+                        Create_config_file(solutionFolderPath, configText);
+                        _config = Deserialize_configuration(configText);
+                    }
+                },
+                () => { }
+            );
         }
 
 
-        public Configuration Configuration { get; }
+        public Configuration Configuration => _config;
 
 
         private static bool Try_to_find_config_file(string solutionFolderPath, string projectFolderPath, string sourceFolderPath,
