@@ -4,51 +4,77 @@ The Visual Studio extension for Force Feedback Programming provides visual plus 
 
 Since not all code is created equal and your team's coding style might differ from that of another team you can configure the extension's "sensitivity" and its "use of force".
 
-Current the extension uses the number of lines in a function/methode as its only metric to determine how clean/dirty your code is. We know this might sound simplistic, but we've thought long and hard about it and believe that more sophisticated metrics would only deliver pseudo accuracy.
+Currently the extension uses the *number of lines* in a function/methode as its only metric to determine how clean/dirty your code is. We know this might sound simplistic, but we've thought long and hard about it and believe that more sophisticated metrics would only deliver pseudo accuracy.
 
-This method consists of 10 lines of code starting from the initial `{` and ending with `}`. A background color is chosen accordingly:
+The following method consists of 10 lines of code between the initial `{` and the final `}`. A background color is chosen accordingly:
 
 ![](images/config_fig1.png)
 
-Adding a line (by breaking the last statement apart) pushes it into the next "brownfield category", though, and the background color changes:
+Now, adding a line (by breaking the last statement apart) pushes it into the next "brownfield category", though, and the background color changes:
 
 ![](images/config_fig2.png)
 
-## config.json
+The visual feedback is immediate, as you see. So is the tactile feedback which consist of spurts of random characters inserted while you type and delaying the effect of your keystrokes.
 
-Currently the information about the "brownfield categories" is stored in a global JSON config file _.forcefeedbackprogramming_ located at `c:\ProgramData`:
+The metric is simple, as you see, but how is the feedback chosen? That's what you can control with FFP config files:
 
-![](images/config_fig3.png)
+## Locating the config file
+The rules to assess methods and define the feedback to give are read from a config file with the name `.forcefeedbackprogramming`.
 
-A [sample config file](example/.forcefeedbackprogramming) is stored next to this documentation in the repo. It's structure is simple:
+The FFP extension will use the first config file it finds while searching for it in a number of places in this order:
+
+1. directory of current source file
+2. directory of project the source file belongs to
+3. directory of solution the project belongs to
+
+If no config file is found, one is created from a default in the solution directory.
+
+## Structure of config file
+A config file is a JSON file with a simple structure. Here's an excerpt from the default config:
 
 ```
 {
-  "methodTooLongLimits": [
+  "Version": "1.0",
+
+  "FeedbackRules": [
     {
-      "lines": 6,
-      "color": "#ffffe5",
-      "transparency": 0.25
+      "MinimumNumberOfLinesInMethod": 11,
+
+      "BackgroundColor": "Beige",
+      "BackgroundColorTransparency": 0.0,
+
+      "NoiseDistance": 0,
+      "NoiseLevel": 0,
+
+      "Delay": 0
     },
     {
-      "lines": 11,
-      "color": "#fee391",
-      "transparency": 0.25,
-      "noiseDistance": 10
+      "MinimumNumberOfLinesInMethod": 26,
+
+      "BackgroundColor": "Burlywood",
+      "BackgroundColorTransparency": 0.0,
+
+      "NoiseDistance": 50,
+      "NoiseLevel": 3,
+
+      "Delay": 0
     },
     ...
+  ]
 }
 ```
-The `methodTooLongLimits` list contains entries for each "brownfield category".
 
-In each category you can set the number of lines (`lines`) it starts at. In the example above the first category starts with 6 lines of code in a methode. Once 11 lines of code are reached the second category takes over and so on. That means code with less than 6 lines of code falls into no category. It's not colored. It's considered clean. But from 6 lines of code on code is deemed to grow dirty...
+Currently it's just a list of rules defining levels of what'a considered clean/dirty.
 
-The `color` property determines how to color a method's background once it falls into a certain category. If you want to adapt the colors to your liking find inspiration (and hex codes) here: [http://www.rapidtables.com/web/color/gray-color.htm](http://www.rapidtables.com/web/color/gray-color.htm)
+* Levels relate to the number of lines in a method only (`MinimumNumberOfLinesInMethod`). The example states that less that 11 lines of code (LOC) is considered perfectly clean. No feedback is given. But from 11 LOC on you'll see/feel feedback. First a little - 11 to 25 LOC -, then more - 26 LOC and up. All methods with more LOC than the highest number in the rules state are covered by that rule.
 
-`transparency` determines how "thick" the color is applied. A lower number means less "thickness"/opacity. For most colors/categories a value of 0.25 seems ok.
+Visual feedback is given for each level based on two properties:
 
-So much for the visual feedback. The final value is about the tactile feedback:
+* Visual feedback is given by coloring the backhground of a method's body (`BackgroundColor`). You can define the color by name, e.g. `Beige` or `Maroon` or any color from [this list](http://www.99colors.net/dot-net-colors). Or you can define it with a hex code, e.g. `#F0FFFF` instead of `Azure`; use a [tool like this](https://www.rapidtables.com/web/color/RGB_Color.html) to mix your color.
+* Some colors might lead to bad contrast for the source text when applied in their default "strength" or "thickness". To adjust for better readability you can change the transparency with which they are applied (`BackgroundColorTransparency`). The default is `0.0`, i.e. no transparency/"full strength"/maximum opacity. Choose a value between `0.0` and `1.0` to make the background color more light, more translucent.
 
-`noiseDistance` determines how often the extension is supposed to add noise to your input. Currently we use the character ⌫ to irritate you. A value of 10 means "every 10 characters you type" you'll see an addition noise character in your code - which you then need to delete, which slows you down, which hopefully motivates your to reduce the number of lines of code in the method to avoid such tactile noise.
+For tactile feedback you can tweak three properties:
 
-
+* If keystrokes/changes should be delayed (to simulate wading through a brownfield), then set `Delay` to a millisecond value of your choice, e.g. `100` to delay every keystroke by 0.1 seconds.
+* In addition you can add "noise" to the input. That means additional random characters will be inserted to hamper typing progress. `NoiseDistance` defines how many keystrokes/changes should pass without disturbance, e.g. `10` for "insert noise every 10 keystrokes".
+* How many noise characters are inserted is defined by `NoiseLevel`, e.g. `3` to insert a random string like "♥☺❉".
