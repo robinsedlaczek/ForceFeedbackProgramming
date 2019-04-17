@@ -12,6 +12,14 @@ And not only will FFP tell you how clean your code is, it will actively hinder y
 
 And all this is made possible through a simple Visual Studio extension you can even [adapt to your coding style](CONFIG.md) and level of brownfield.
 
+Take as an example this screenshot from [a video by contributor Robin](https://vimeo.com/171889390) where he's explaining how FFP works:
+
+![](images/example.png)
+
+As you see, methods in the source code are colored differently according to how clean/dirty FFP deems them. But this color is not static! It will change while you're editing your code because with each keystroke it might become more or less clean.
+
+That's not all, however. In addition to this kind of visual feedback the FFP extension gives tactile feedback. [Read Robin's article](https://robinsedlaczek.com/2016/06/23/introducing-force-feedback-programming/) and watch his video to see that in action.
+
 Enjoy!
 
 PS: If you like what you see and have time to spare, you can join us in moving the FFP extension forward. Please [check the wiki](https://github.com/robinsedlaczek/ForceFeedbackProgramming/wiki) for details.
