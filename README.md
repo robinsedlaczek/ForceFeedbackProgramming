@@ -12,6 +12,14 @@ And not only will FFP tell you how clean your code is, it will actively hinder y
 
 And all this is made possible through a simple Visual Studio extension you can even [adapt to your coding style](CONFIG.md) and level of brownfield.
 
+Take as an example this screenshot from [a video by contributor Robin](https://vimeo.com/171889390) where he's explaining how FFP works:
+
+![](images/example.png)
+
+As you see, methods in the source code are colored differently according to how clean/dirty FFP deems them. But this color is not static! It will change while you're editing your code because with each keystroke it might become more or less clean.
+
+That's not all, however. In addition to this kind of visual feedback the FFP extension gives tactile feedback. [Read Robin's article](https://robinsedlaczek.com/2016/06/23/introducing-force-feedback-programming/) and watch his video to see that in action.
+
 Enjoy!
 
 PS: If you like what you see and have time to spare, you can join us in moving the FFP extension forward. Please [check the wiki](https://github.com/robinsedlaczek/ForceFeedbackProgramming/wiki) for details.
@@ -24,17 +32,17 @@ You can download the precompiled Visual Studio installer package from the [relea
 
 ### Microsoft Visual Studio
 
-Force Feedback is currently available in Visual Studio only (exactly for VS 2015, 2017 and 2019). Therefore, we deliver a Visual Studio extension that can be found in the VS marketplace [here](https://marketplace.visualstudio.com/items?itemName=RobinSedlaczek.ForceFeedback) and that can be installed via the main menu entry "Tools\Manage Extensions". We update the extension in the marketplace with every stable version. Stable versions on the [releases page](https://github.com/robinsedlaczek/ForceFeedbackProgramming/releases/ "Visual Studio Installer Package releases") are those versions, that are free of any additional version status info (e.g. -alpha, -beta etc.).
+Force Feedback Programming is currently available for C# in Visual Studio only (VS 2015, 2017 and 2019). It's delivered as a Visual Studio extension that can be found in the VS marketplace [here](https://marketplace.visualstudio.com/items?itemName=RobinSedlaczek.ForceFeedback) and that can be installed via the main menu entry "Tools|Manage Extensions". We update the extension in the marketplace with every stable version. Stable versions on the [releases page](https://github.com/robinsedlaczek/ForceFeedbackProgramming/releases/ "Visual Studio Installer Package releases") are those versions, which are free of any additional version status info (e.g. -alpha, -beta etc.).
 
 ### ABAB
 
-The phrase "Visual Studio only" is not really correct. There are some guys who ported the Force Feedback Programming to SAP's [ABAB](https://en.wikipedia.org/wiki/ABAP). We got the hint via Twitter [here](https://twitter.com/ceedee666/status/1106887766221180929). You can find the GitHub repo for the ABAB implementation [here](https://github.com/css-ch/abap-code-feedback).
+To be honest, the phrase "Visual Studio only" might not really be correct anymore. It seems there are some guys who have taken the Force Feedback Programming idea to SAP's [ABAB](https://en.wikipedia.org/wiki/ABAP). [Here's a Tweet](https://twitter.com/ceedee666/status/1106887766221180929) hinting at that. A repo for their ABAB implementation [ABAB implementation](https://github.com/css-ch/abap-code-feedback) is on GitHub.
 
-[!Please be aware that their implementation is no fork of our repo. The guys there are working independent from us currently. Their ABAB AiE integration is not part of our project and we are not responsible. In case of issues and/or questions, please contact them directly.]
+*Please note: Their implementation is no fork of our repo. It's an independent project. Their ABAB AiE integration is not part of our effort here.*
 
 ### Roadmap
 
-We have the integration for Visual Studio Code and JetBrains Rider on the list!
+We have the integration for Visual Studio Code and JetBrains Rider on our list!
 
 ## Health of master (Release|x86): 
 
