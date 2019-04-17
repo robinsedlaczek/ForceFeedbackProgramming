@@ -28,9 +28,9 @@ Force Feedback Programming is currently available for C# in Visual Studio only (
 
 ### ABAB
 
-The phrase "Visual Studio only" is not really correct anymore. Because there are some guys who have taken the Force Feedback Programming idea to SAP's [ABAB](https://en.wikipedia.org/wiki/ABAP). We got the hint via Twitter [here](https://twitter.com/ceedee666/status/1106887766221180929). You can find the GitHub repo for their ABAB implementation [here](https://github.com/css-ch/abap-code-feedback).
+To be honest, the phrase "Visual Studio only" might not really be correct anymore. It seems there are some guys who have taken the Force Feedback Programming idea to SAP's [ABAB](https://en.wikipedia.org/wiki/ABAP). [Here's a Tweet](https://twitter.com/ceedee666/status/1106887766221180929) hinting at that. A repo for their ABAB implementation [ABAB implementation](https://github.com/css-ch/abap-code-feedback) is on GitHub.
 
-[!Please note: Their implementation is no fork of our repo. It's an independent implementation. Their ABAB AiE integration is not part of our project.]
+*Please note: Their implementation is no fork of our repo. It's an independent project. Their ABAB AiE integration is not part of our effort here.*
 
 ### Roadmap
 
