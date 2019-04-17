@@ -64,16 +64,16 @@ A config file is a JSON file with a simple structure. Here's an excerpt from the
 }
 ```
 
-Currently it's just a list of rules defining levels of what'a considered clean/dirty.
+Currently it's just a list of rules defining **levels of what's considered clean/dirty**.
 
 * Levels relate to the number of lines in a method only (`MinimumNumberOfLinesInMethod`). The example states that less that 11 lines of code (LOC) is considered perfectly clean. No feedback is given. But from 11 LOC on you'll see/feel feedback. First a little - 11 to 25 LOC -, then more - 26 LOC and up. All methods with more LOC than the highest number in the rules state are covered by that rule.
 
-Visual feedback is given for each level based on two properties:
+**Visual feedback** is given for each level based on two properties:
 
 * Visual feedback is given by coloring the backhground of a method's body (`BackgroundColor`). You can define the color by name, e.g. `Beige` or `Maroon` or any color from [this list](http://www.99colors.net/dot-net-colors). Or you can define it with a hex code, e.g. `#F0FFFF` instead of `Azure`; use a [tool like this](https://www.rapidtables.com/web/color/RGB_Color.html) to mix your color.
 * Some colors might lead to bad contrast for the source text when applied in their default "strength" or "thickness". To adjust for better readability you can change the transparency with which they are applied (`BackgroundColorTransparency`). The default is `0.0`, i.e. no transparency/"full strength"/maximum opacity. Choose a value between `0.0` and `1.0` to make the background color more light, more translucent.
 
-For tactile feedback you can tweak three properties:
+For **tactile feedback** you can tweak three properties:
 
 * If keystrokes/changes should be delayed (to simulate wading through a brownfield), then set `Delay` to a millisecond value of your choice, e.g. `100` to delay every keystroke by 0.1 seconds.
 * In addition you can add "noise" to the input. That means additional random characters will be inserted to hamper typing progress. `NoiseDistance` defines how many keystrokes/changes should pass without disturbance, e.g. `10` for "insert noise every 10 keystrokes".
