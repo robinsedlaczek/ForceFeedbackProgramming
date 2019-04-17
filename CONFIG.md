@@ -4,7 +4,7 @@ The Visual Studio extension for Force Feedback Programming provides visual plus 
 
 Since not all code is created equal and your team's coding style might differ from that of another team you can configure the extension's "sensitivity" and its "use of force".
 
-As the metric to determine how clean/dirty your code is the extension (currently only) uses the number of lines of a method.
+Current the extension uses the number of lines in a function/methode as its only metric to determine how clean/dirty your code is. We know this might sound simplistic, but we've thought long and hard about it and believe that more sophisticated metrics would only deliver pseudo accuracy.
 
 This method consists of 10 lines of code starting from the initial `{` and ending with `}`. A background color is chosen accordingly:
 
